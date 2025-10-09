@@ -809,28 +809,28 @@ body {
 /* Global RMA Dashboard Styling System */
 :root {
   /* Color System */
-  --bg-start: #07122a;    
-  --bg-mid: #0e2740;    
-  --bg-end: #f6fbff;   
+  --bg-start: #07122a;
+  --bg-mid: #0e2740;
+  --bg-end: #f6fbff;
   --panel: #ffffff;
-  --muted: #6b7280;   
-  --accent: #5b6ef6;    
-  --accent-2: #00c2ff;    
-  --accent-3: #8a5cf6;    
+  --muted: #6b7280;
+  --accent: #5b6ef6;
+  --accent-2: #00c2ff;
+  --accent-3: #8a5cf6;
   --highlight: #7c5cff;
-  --success: #5b6ef6;    
-  --warning: #8a5cf6;    
-  --error: #6f3bd3;    
-  
+  --success: #5b6ef6;
+  --warning: #8a5cf6;
+  --error: #6f3bd3;
+
   /* Design Tokens */
   --radius: 12px;
   --radius-lg: 16px;
   --max-width: 1200px;
-  --shadow: 0 12px 40px rgba(11,27,78,0.12);
-  --shadow-lg: 0 20px 60px rgba(11,27,78,0.15);
-  --glass: rgba(255,255,255,0.75);
-  --glass-dark: rgba(255,255,255,0.9);
-  
+  --shadow: 0 12px 40px rgba(11, 27, 78, 0.12);
+  --shadow-lg: 0 20px 60px rgba(11, 27, 78, 0.15);
+  --glass: rgba(255, 255, 255, 0.75);
+  --glass-dark: rgba(255, 255, 255, 0.9);
+
   /* Card Colors */
   --card-blue: linear-gradient(135deg, #5b6ef6, #00c2ff);
   --card-green: linear-gradient(135deg, #10b981, #059669);
@@ -863,7 +863,7 @@ body {
 .app-nav {
   background: var(--glass);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -949,7 +949,7 @@ body {
   padding: 40px;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
-  border: 1px solid rgba(255,255,255,0.8);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px);
 }
 
@@ -969,7 +969,7 @@ body {
   color: white;
   font-size: 32px;
   margin: 0 auto 16px;
-  box-shadow: 0 10px 30px rgba(91,110,246,0.3);
+  box-shadow: 0 10px 30px rgba(91, 110, 246, 0.3);
 }
 
 .login-form {
@@ -1002,8 +1002,8 @@ body {
 }
 
 .demo-credentials {
-  background: rgba(255,255,255,0.5);
-  border: 1px solid rgba(255,255,255,0.6);
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   padding: 20px;
   border-radius: var(--radius);
   margin-top: 24px;
@@ -1024,7 +1024,7 @@ body {
 
 .demo-info span {
   font-family: 'Monaco', 'Consolas', monospace;
-  background: rgba(0,0,0,0.05);
+  background: rgba(0, 0, 0, 0.05);
   padding: 2px 6px;
   border-radius: 4px;
 }
@@ -1047,7 +1047,7 @@ body {
   padding: 30px;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
-  border: 1px solid rgba(255,255,255,0.8);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
   height: 100%;
@@ -1071,10 +1071,21 @@ body {
   height: 4px;
 }
 
-.card-blue::before { background: var(--card-blue); }
-.card-green::before { background: var(--card-green); }
-.card-purple::before { background: var(--card-purple); }
-.card-orange::before { background: var(--card-orange); }
+.card-blue::before {
+  background: var(--card-blue);
+}
+
+.card-green::before {
+  background: var(--card-green);
+}
+
+.card-purple::before {
+  background: var(--card-purple);
+}
+
+.card-orange::before {
+  background: var(--card-orange);
+}
 
 .card-icon {
   font-size: 48px;
@@ -1139,7 +1150,7 @@ body {
   color: white;
   font-weight: 600;
   font-size: 24px;
-  box-shadow: 0 10px 30px rgba(91,110,246,0.2);
+  box-shadow: 0 10px 30px rgba(91, 110, 246, 0.2);
 }
 
 .title .main {
@@ -1160,13 +1171,13 @@ body {
   padding: 12px 24px;
   border-radius: var(--radius);
   border: none;
-  background: linear-gradient(135deg, rgba(39,48,67,0.06), rgba(39,48,67,0.08));
+  background: linear-gradient(135deg, rgba(39, 48, 67, 0.06), rgba(39, 48, 67, 0.08));
   color: #273043;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.95rem;
   transition: all 0.28s ease;
-  box-shadow: 0 6px 18px rgba(11,27,78,0.06);
+  box-shadow: 0 6px 18px rgba(11, 27, 78, 0.06);
   text-decoration: none;
   display: inline-block;
   text-align: center;
@@ -1174,7 +1185,7 @@ body {
 
 .btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(11,27,78,0.12);
+  box-shadow: 0 12px 30px rgba(11, 27, 78, 0.12);
 }
 
 .btn-primary {
@@ -1188,7 +1199,7 @@ body {
 }
 
 .btn-logout {
-  background: linear-gradient(135deg, rgba(39,48,67,0.9), rgba(32,36,50,0.95));
+  background: linear-gradient(135deg, rgba(39, 48, 67, 0.9), rgba(32, 36, 50, 0.95));
   color: white;
 }
 
@@ -1213,7 +1224,7 @@ body {
 
 .kpi:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 48px rgba(91,110,246,0.12);
+  box-shadow: 0 18px 48px rgba(91, 110, 246, 0.12);
 }
 
 .kpi .label {
@@ -1235,7 +1246,7 @@ body {
   width: 100%;
   padding: 14px 16px;
   border-radius: var(--radius);
-  border: 1px solid rgba(14,39,64,0.1);
+  border: 1px solid rgba(14, 39, 64, 0.1);
   background: var(--glass);
   color: #273043;
   font-size: 0.95rem;
@@ -1246,7 +1257,7 @@ body {
 .input-url:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgba(91,110,246,0.08);
+  box-shadow: 0 0 0 4px rgba(91, 110, 246, 0.08);
   transform: translateY(-1px);
 }
 
@@ -1263,15 +1274,20 @@ body {
 .loading-spinner {
   width: 48px;
   height: 48px;
-  border: 3px solid rgba(91,110,246,0.2);
+  border: 3px solid rgba(91, 110, 246, 0.2);
   border-top: 3px solid var(--accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Animations */
@@ -1280,43 +1296,44 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* Responsive Design */
+
 @media (max-width: 768px) {
   .app {
     padding: 16px;
   }
-  
+
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .brand {
     flex-direction: column;
     text-align: center;
     gap: 12px;
   }
-  
+
   .nav-container {
     flex-direction: column;
     gap: 16px;
     padding: 12px 16px;
   }
-  
+
   .nav-controls {
     width: 100%;
     justify-content: space-between;
   }
-  
+
   .login-card {
     padding: 24px;
   }
-  
+
   .kpi-row {
     flex-direction: column;
   }
@@ -1326,21 +1343,21 @@ body {
   .app {
     padding: 12px;
   }
-  
+
   .logo {
     width: 50px;
     height: 50px;
     font-size: 20px;
   }
-  
+
   .title .main {
     font-size: 1.5rem;
   }
-  
+
   .dashboard-card {
     padding: 20px;
   }
-  
+
   .card-icon {
     font-size: 36px;
   }
