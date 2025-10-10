@@ -1125,7 +1125,7 @@ body {
   margin-top: 40px;
 }
 
-/* Common Components */
+
 .topbar {
   display: flex;
   flex-direction: column;
@@ -1166,7 +1166,6 @@ body {
   margin-top: 4px;
 }
 
-/* Buttons */
 .btn {
   padding: 12px 24px;
   border-radius: var(--radius);
@@ -1203,7 +1202,6 @@ body {
   color: white;
 }
 
-/* KPI Cards */
 .kpi-row {
   display: flex;
   gap: 20px;
@@ -1241,7 +1239,6 @@ body {
   letter-spacing: -0.02em;
 }
 
-/* Form Elements */
 .input-url {
   width: 100%;
   padding: 14px 16px;
@@ -1261,7 +1258,6 @@ body {
   transform: translateY(-1px);
 }
 
-/* Loading States */
 .app-loading {
   display: flex;
   flex-direction: column;
@@ -1290,7 +1286,6 @@ body {
   }
 }
 
-/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
