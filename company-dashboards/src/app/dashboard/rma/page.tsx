@@ -2,6 +2,7 @@
 import { useAuth } from "../../../components/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
+import "./rma-styles.css";
 
 interface RMAItem {
   [key: string]: string | number;
@@ -23,7 +24,7 @@ export default function RMADashboard() {
   const [filteredData, setFilteredData] = useState<RMAItem[]>([]);
   const [fromDate, setFromDate] = useState<string>("");
   const [toDate, setToDate] = useState<string>("");
-  const [sheetUrl, setSheetUrl] = useState<string>(
+  const [sheetUrl] = useState<string>(
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vS_xc8D53b3lTNKPM5cvwe2Fpdrr4N_zYYTAaScr0N7o2CHwSyWoW_PJxBMrjk5Fw/pub?gid=73302648&single=true&output=csv"
   );
   const [isLoadingData, setIsLoadingData] = useState<boolean>(true);
@@ -374,24 +375,6 @@ export default function RMADashboard() {
     setSelectedType("");
   };
 
-  const handleSheetUrlChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const newUrl = e.target.value.trim();
-    setSheetUrl(newUrl);
-    setIsLoadingData(true);
-    const newData = await fetchCSV(newUrl);
-    if (newData && newData.length) {
-      setRawData(newData);
-      const filtered = applyFilters(newData);
-      setFilteredData(filtered);
-      setCurrentData(filtered);
-      setCurrentView("regions");
-      setHistoryStack([{ level: "Regions" }]);
-    }
-    setIsLoadingData(false);
-  };
-
   const handleExportCSV = () => {
     if (!filteredData.length) return;
 
@@ -603,23 +586,23 @@ export default function RMADashboard() {
     const maxCost = Math.max(...aggregated.map((a) => a.cost), 1);
 
     return (
-      <div className="table-block">
-        <div className="table-header">
+      <div className="rma-table-block">
+        <div className="rma-table-header">
           <h2>{title}</h2>
-          <div className="meta">
+          <div className="rma-meta">
             {aggregated.length} groups — total cost{" "}
             {formatCurrency(aggregated.reduce((s, a) => s + a.cost, 0))}
           </div>
         </div>
 
-        <div className="table-wrapper">
-          <table className="table">
+        <div className="rma-table-wrapper">
+          <table className="rma-table">
             <thead>
               <tr>
                 <th>{keyField}</th>
-                <th className="col-right">Count</th>
-                <th className="col-right">Devices</th>
-                <th className="col-right">Total Cost</th>
+                <th className="rma-col-right">Count</th>
+                <th className="rma-col-right">Devices</th>
+                <th className="rma-col-right">Total Cost</th>
                 <th>Days</th>
                 <th style={{ width: "36%" }}>Performance</th>
               </tr>
@@ -628,26 +611,26 @@ export default function RMADashboard() {
               {aggregated.map((group, index) => {
                 const pct = Math.round((group.cost / maxCost) * 100);
                 const fillClass =
-                  pct >= 70 ? "green" : pct >= 40 ? "amber" : "red";
+                  pct >= 70 ? "rma-fill-green" : pct >= 40 ? "rma-fill-amber" : "rma-fill-red";
 
                 return (
                   <tr key={index} onClick={() => onRowClick(group)}>
                     <td>{group.key}</td>
-                    <td className="col-right">{group.count}</td>
-                    <td className="col-right">{group.devices}</td>
-                    <td className="col-right">{formatCurrency(group.cost)}</td>
+                    <td className="rma-col-right">{group.count}</td>
+                    <td className="rma-col-right">{group.devices}</td>
+                    <td className="rma-col-right">{formatCurrency(group.cost)}</td>
                     <td>
                       {group.days.map((day, i) => (
-                        <span key={i} className="days-pill">
+                        <span key={i} className="rma-days-pill">
                           {day}
                         </span>
                       ))}
                     </td>
                     <td>
-                      <div className="bar-cell">
-                        <div className="bar-track">
+                      <div className="rma-bar-cell">
+                        <div className="rma-bar-track">
                           <div
-                            className={`bar-fill ${fillClass}`}
+                            className={`rma-bar-fill ${fillClass}`}
                             style={{ width: `${pct}%` }}
                           ></div>
                         </div>
@@ -668,22 +651,22 @@ export default function RMADashboard() {
 
   const renderDetailedTable = (data: RMAItem[]) => {
     return (
-      <div className="table-block">
-        <div className="table-header">
+      <div className="rma-table-block">
+        <div className="rma-table-header">
           <h2>Detailed — {selectedType}</h2>
-          <div className="meta">{data.length} rows</div>
+          <div className="rma-meta">{data.length} rows</div>
         </div>
 
-        <div className="table-wrapper">
-          <table className="table">
+        <div className="rma-table-wrapper">
+          <table className="rma-table">
             <thead>
               <tr>
                 <th>Processed Date</th>
                 <th>Market</th>
                 <th>DM NAME</th>
                 <th>Type</th>
-                <th className="col-right">Devices</th>
-                <th className="col-right">Cost</th>
+                <th className="rma-col-right">Devices</th>
+                <th className="rma-col-right">Cost</th>
                 <th>Days</th>
                 <th>Assurant Status</th>
               </tr>
@@ -715,11 +698,11 @@ export default function RMADashboard() {
                     <td>{market}</td>
                     <td>{dm}</td>
                     <td>{type}</td>
-                    <td className="col-right">{devices}</td>
-                    <td className="col-right">{cost}</td>
+                    <td className="rma-col-right">{devices}</td>
+                    <td className="rma-col-right">{cost}</td>
                     <td>
                       {days && days !== "Unknown" && (
-                        <span className="days-pill">{days}</span>
+                        <span className="rma-days-pill">{days}</span>
                       )}
                     </td>
                     <td>{assurant}</td>
@@ -737,492 +720,122 @@ export default function RMADashboard() {
 
   if (isLoading) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{
-          background:
-            "linear-gradient(135deg, var(--bg-start) 0%, var(--bg-mid) 40%, var(--bg-end) 100%)",
-        }}
-      >
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="app-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading...</p>
       </div>
     );
   }
 
   if (!isAuthenticated) return null;
 
+  // MAIN COMPONENT RETURN - This was missing
   return (
-    <div className="app">
-      <header className="topbar">
-        <div className="brand">
-          <div className="logo">⚡</div>
-          <div className="title">
-            <div className="main">RMA Dashboard</div>
-          </div>
-        </div>
-
-        <div className="controls">
-          <input
-            id="sheet-url"
-            className="input-url"
-            type="text"
-            value={sheetUrl}
-            onChange={handleSheetUrlChange}
-            placeholder="Google Sheet CSV URL"
-          />
-          <input
-            id="from-date"
-            type="date"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-          />
-          <input
-            id="to-date"
-            type="date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-          />
-          <button
-            id="apply-filters"
-            className="btn btn-primary"
-            onClick={handleApplyFilters}
-          >
-            Apply
-          </button>
-          <button
-            id="reset-filters"
-            className="btn"
-            onClick={handleResetFilters}
-          >
-            Reset
-          </button>
-          <div className="exports">
-            <button
-              id="downloadCSV"
-              className="btn btn-success"
-              onClick={handleExportCSV}
-            >
-              Export CSV
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="main-area">
-        <section id="summary-cards" className="kpi-row">
-          {summaryCards.map((card, index) => (
-            <div key={index} className="kpi">
-              <div className="label">{card.label}</div>
-              <div className="value">{card.value}</div>
+    <div className="main-content">
+      <div className="content-wrapper">
+        <header className="topbar">
+          <div className="brand">
+            <div className="logo">📊</div>
+            <div className="title">
+              <div className="main">RMA Dashboard</div>
+              <div className="sub">
+                Return Merchandise Authorization analytics and reports
+              </div>
             </div>
-          ))}
-        </section>
-
-        <div className="nav-row">
-          <button
-            id="btn-back"
-            className={`btn back ${historyStack.length <= 1 ? "hidden" : ""}`}
-            onClick={handleBackClick}
-          >
-            ← Back
-          </button>
-          <div id="breadcrumb" className="breadcrumb">
-            {renderBreadcrumb()}
           </div>
-        </div>
+        </header>
 
-        <section id="stacked-container" className="stacked">
-          {currentView === "regions" &&
-            renderTable(currentData, "regions", handleRegionClick)}
-          {currentView === "market" &&
-            renderTable(currentData, "market", handleMarketClick)}
-          {currentView === "dm" &&
-            renderTable(currentData, "dm", handleDMClick)}
-          {currentView === "type" &&
-            renderTable(currentData, "type", handleTypeClick)}
-          {currentView === "detailed" && renderDetailedTable(currentData)}
-        </section>
-      </main>
+        <main className="main-area">
+          {/* Controls Section */}
+          <div className="rma-controls-section">
+            <div className="rma-controls-grid">
+              <div className="rma-date-inputs">
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="rma-input"
+                />
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="rma-input"
+                />
+              </div>
+              <div className="rma-action-buttons">
+                <button
+                  className="btn btn-primary"
+                  onClick={handleApplyFilters}
+                >
+                  Apply Filters
+                </button>
+                <button
+                  className="btn"
+                  onClick={handleResetFilters}
+                >
+                  Reset
+                </button>
+                <button
+                  className="btn btn-success"
+                  onClick={handleExportCSV}
+                >
+                  Export CSV
+                </button>
+              </div>
+            </div>
+          </div>
 
-      {/* Loading State */}
-      {isLoadingData && (
-        <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        </div>
-      )}
+          {/* Summary Cards */}
+          <section className="dashboard-grid">
+            {summaryCards.map((card, index) => (
+              <div key={index} className="dashboard-card card-purple">
+                <div className="card-icon">
+                  {index === 0 ? "🏷️" : index === 1 ? "📱" : "💰"}
+                </div>
+                <div className="card-content">
+                  <h3 className="card-title">{card.label}</h3>
+                  <p className="card-description">{card.value}</p>
+                </div>
+              </div>
+            ))}
+          </section>
 
-      {/* RMA Dashboard Specific Styles */}
-      <style jsx global>{`
-        /* RMA Dashboard Specific CSS - Don't interfere with other pages */
-        .app {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 24px;
-          background: linear-gradient(
-            135deg,
-            #07122a 0%,
-            #0e2740 40%,
-            #f6fbff 100%
-          );
-          min-height: 100vh;
-          font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-          color: #273043;
-          line-height: 1.6;
-        }
+          {/* Navigation */}
+          <div className="rma-nav-row">
+            <button
+              className={`btn ${historyStack.length <= 1 ? 'hidden' : ''}`}
+              onClick={handleBackClick}
+            >
+              ← Back
+            </button>
+            <div className="rma-breadcrumb">
+              {renderBreadcrumb()}
+            </div>
+          </div>
 
-        .topbar {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-          margin-bottom: 28px;
-        }
 
-        .brand {
-          display: flex;
-          gap: 16px;
-          align-items: center;
-        }
+          <section className="rma-stacked">
+            {currentView === "regions" &&
+              renderTable(currentData, "regions", handleRegionClick)}
+            {currentView === "market" &&
+              renderTable(currentData, "market", handleMarketClick)}
+            {currentView === "dm" &&
+              renderTable(currentData, "dm", handleDMClick)}
+            {currentView === "type" &&
+              renderTable(currentData, "type", handleTypeClick)}
+            {currentView === "detailed" && renderDetailedTable(currentData)}
+          </section>
 
-        .logo {
-          width: 56px;
-          height: 56px;
-          border-radius: 14px;
-          background: linear-gradient(135deg, #5b6ef6, #00c2ff);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-weight: 600;
-          font-size: 20px;
-          box-shadow: 0 10px 30px rgba(91, 110, 246, 0.18);
-        }
-
-        .title .main {
-          font-weight: 700;
-          color: #5b6ef6;
-          font-size: 1.5rem;
-          letter-spacing: -0.02em;
-        }
-
-        .controls {
-          display: flex;
-          gap: 12px;
-          flex-wrap: wrap;
-          align-items: center;
-        }
-
-        .input-url {
-          min-width: 420px;
-          padding: 12px 16px;
-          border-radius: 12px;
-          border: 1px solid rgba(14, 39, 64, 0.06);
-          background: rgba(255, 255, 255, 0.75);
-          color: #273043;
-          font-size: 0.95rem;
-          backdrop-filter: blur(10px);
-          transition: all 0.3s ease;
-        }
-
-        .input-url:focus {
-          outline: none;
-          border-color: #5b6ef6;
-          box-shadow: 0 0 0 4px rgba(91, 110, 246, 0.08);
-          transform: translateY(-1px);
-        }
-
-        input[type="date"] {
-          padding: 10px 12px;
-          border-radius: 12px;
-          border: 1px solid rgba(14, 39, 64, 0.06);
-          background: rgba(255, 255, 255, 0.75);
-          color: #273043;
-          font-size: 0.95rem;
-          backdrop-filter: blur(10px);
-        }
-
-        .btn {
-          padding: 10px 20px;
-          border-radius: 12px;
-          border: none;
-          background: linear-gradient(
-            135deg,
-            rgba(39, 48, 67, 0.06),
-            rgba(39, 48, 67, 0.08)
-          );
-          color: #273043;
-          cursor: pointer;
-          font-weight: 600;
-          font-size: 0.95rem;
-          transition: all 0.28s ease;
-          box-shadow: 0 6px 18px rgba(11, 27, 78, 0.06);
-        }
-
-        .btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 12px 30px rgba(11, 27, 78, 0.12);
-        }
-
-        .btn-primary {
-          background: linear-gradient(135deg, #5b6ef6, #00c2ff);
-          color: white;
-        }
-
-        .btn-success {
-          background: linear-gradient(135deg, #8a5cf6, #5b6ef6);
-          color: white;
-        }
-
-        .exports {
-          margin-left: auto;
-          display: flex;
-          gap: 12px;
-          align-items: center;
-        }
-
-        .kpi-row {
-          display: flex;
-          gap: 20px;
-          flex-wrap: wrap;
-          margin-bottom: 28px;
-        }
-
-        .kpi {
-          background: rgba(255, 255, 255, 0.75);
-          padding: 24px;
-          border-radius: 12px;
-          min-width: 220px;
-          flex: 1 1 260px;
-          box-shadow: 0 12px 40px rgba(11, 27, 78, 0.12);
-          border: 1px solid rgba(255, 255, 255, 0.8);
-          backdrop-filter: blur(10px);
-          transition: all 0.3s ease;
-        }
-
-        .kpi:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 18px 48px rgba(91, 110, 246, 0.12);
-        }
-
-        .kpi .label {
-          color: #6b7280;
-          font-size: 0.9rem;
-          margin-bottom: 8px;
-          font-weight: 500;
-        }
-
-        .kpi .value {
-          font-size: 1.75rem;
-          color: #8a5cf6;
-          font-weight: 700;
-          letter-spacing: -0.02em;
-        }
-
-        .nav-row {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          margin-bottom: 20px;
-        }
-
-        .breadcrumb {
-          color: #6b7280;
-          font-size: 0.95rem;
-          font-weight: 500;
-        }
-
-        .back {
-          background: linear-gradient(
-            135deg,
-            rgba(39, 48, 67, 0.9),
-            rgba(32, 36, 50, 0.95)
-          );
-          color: white;
-        }
-
-        .hidden {
-          display: none;
-        }
-
-        .stacked {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .table-block {
-          background: rgba(255, 255, 255, 0.75);
-          padding: 24px;
-          border-radius: 12px;
-          box-shadow: 0 12px 40px rgba(11, 27, 78, 0.12);
-          border: 1px solid rgba(255, 255, 255, 0.8);
-          backdrop-filter: blur(10px);
-          animation: fadeIn 0.4s ease;
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(12px);
-          }
-          to {
-            opacity: 1;
-            transform: none;
-          }
-        }
-
-        .table-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20px;
-        }
-
-        .table-header h2 {
-          margin: 0;
-          color: #8a5cf6;
-          font-weight: 700;
-          font-size: 1.25rem;
-          letter-spacing: -0.02em;
-        }
-
-        .table-header .meta {
-          color: #6b7280;
-          font-size: 0.9rem;
-          font-weight: 500;
-        }
-
-        .table-wrapper {
-          overflow-x: auto;
-        }
-
-        .table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 0.95rem;
-        }
-
-        .table th,
-        .table td {
-          padding: 16px 20px;
-          text-align: left;
-          border-bottom: 1px solid rgba(230, 233, 244, 0.8);
-        }
-
-        .table th {
-          font-weight: 600;
-          color: #5b6ef6;
-          background: rgba(91, 110, 246, 0.06);
-        }
-
-        .table tbody tr {
-          transition: all 0.28s ease;
-          cursor: pointer;
-        }
-
-        .table tbody tr:hover {
-          background: rgba(91, 110, 246, 0.04);
-          transform: translateX(4px);
-          box-shadow: 0 6px 20px rgba(11, 27, 78, 0.06);
-        }
-
-        .col-right {
-          text-align: right;
-        }
-
-        .bar-cell {
-          display: flex;
-          gap: 16px;
-          align-items: center;
-        }
-
-        .bar-track {
-          height: 10px;
-          background: rgba(230, 233, 244, 0.8);
-          border-radius: 10px;
-          flex: 1;
-          overflow: hidden;
-          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
-        }
-
-        .bar-fill {
-          height: 100%;
-          width: 0;
-          border-radius: 10px;
-          transition: width 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-        }
-
-        .bar-fill.green {
-          background: linear-gradient(90deg, #21c47b, #1da56d);
-        }
-
-        .bar-fill.amber {
-          background: linear-gradient(90deg, #f7b731, #e6a700);
-        }
-
-        .bar-fill.red {
-          background: linear-gradient(90deg, #ff4757, #e84118);
-        }
-
-        .days-pill {
-          display: inline-block;
-          padding: 6px 12px;
-          border-radius: 20px;
-          background: rgba(91, 110, 246, 0.1);
-          color: #8a5cf6;
-          font-size: 0.8rem;
-          font-weight: 500;
-          margin-right: 6px;
-          border: 1px solid rgba(91, 110, 246, 0.14);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-          .app {
-            padding: 16px;
-          }
-
-          .input-url {
-            min-width: unset;
-            width: 100%;
-          }
-
-          .controls {
-            flex-direction: column;
-            align-items: stretch;
-          }
-
-          .kpi-row {
-            flex-direction: column;
-            gap: 16px;
-          }
-
-          .table th,
-          .table td {
-            padding: 12px 16px;
-          }
-
-          .exports {
-            margin-left: 0;
-            justify-content: flex-start;
-          }
-
-          .logo {
-            width: 48px;
-            height: 48px;
-            font-size: 18px;
-          }
-
-          .table-wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-          }
-
-          .table {
-            min-width: 600px;
-          }
-        }
-      `}</style>
+          {/* Loading State */}
+          {isLoadingData && (
+            <div className="rma-loading">
+              <div className="loading-spinner"></div>
+              <p>Loading data...</p>
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 }
