@@ -19,7 +19,7 @@ export default function Login() {
 
   if (isLoading || isAuthenticated) {
     return (
-      <div className="login-page"> {/* Use your CSS class */}
+      <div className="login-page">
         <div style={{ textAlign: 'center', color: 'white' }}>
           <div className="loading-spinner"></div>
           <p>Loading...</p>
