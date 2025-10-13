@@ -386,7 +386,6 @@ body {
   margin: 8px 0;
 }
 
-/* Animated Sidebar Navigation */
 .sidebar {
   position: fixed;
   top: 70px;
@@ -547,7 +546,7 @@ body {
   color: var(--text-muted);
 }
 
-/* Sidebar Overlay for Mobile */
+
 .sidebar-overlay {
   position: fixed;
   top: 0;
@@ -560,7 +559,6 @@ body {
   backdrop-filter: blur(5px);
 }
 
-/* Home Page Specific Styles - FIXED CENTERING */
 .home-page-content {
   display: flex;
   flex-direction: column;
