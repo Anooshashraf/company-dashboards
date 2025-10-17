@@ -1,4 +1,3 @@
-// layout.tsx - CORRECTED VERSION
 import "./globals.css";
 import Navigation from "../components/Navigation";
 import { AuthProvider } from "../components/AuthProvider";
@@ -19,7 +18,7 @@ export default function RootLayout({
         <AuthProvider>
           <div className="app-layout">
             <Navigation />
-            {children} {/* Remove main-content wrapper here */}
+            {children}
           </div>
         </AuthProvider>
       </body>
