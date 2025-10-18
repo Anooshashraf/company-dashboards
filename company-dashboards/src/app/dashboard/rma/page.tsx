@@ -52,7 +52,6 @@ export default function RMADashboard() {
     }
   }, [isAuthenticated]);
 
-  // Utility functions
   const parseCurrency = (v: any): number => {
     if (v == null) return 0;
     const s = String(v).replace(/[^0-9.\-]/g, "");
