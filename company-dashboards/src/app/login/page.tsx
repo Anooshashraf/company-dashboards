@@ -35,11 +35,11 @@ export default function Login() {
 
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    if (email === "admin@company.com" && password === "company123") {
+    if (email === "admin_active8@gmail.com" && password === "company123") {
       login();
       router.push("/");
     } else {
-      setError("Invalid email or password. Use admin@company.com / company123");
+      setError("Invalid email or password. Use admin_active8@gmail.com / company123");
     }
     setIsSubmitting(false);
   };
