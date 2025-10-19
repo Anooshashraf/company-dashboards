@@ -839,7 +839,7 @@ interface AggregatedGroup {
     key: string;
     count: number;
     devices: number;
-    cost: number;
+    cost?: number; // Make optional or remove
     rows: AuditItem[];
 }
 
@@ -847,7 +847,7 @@ interface StatusSummary {
     status: string;
     count: number;
     devices: number;
-    cost: number;
+    cost?: number; // Make optional or remove
     color: string;
 }
 
@@ -1453,71 +1453,71 @@ export default function AuditDashboard() {
     //         </div>
     //     );
     // };
-    const renderStatusSummary = (data: AuditItem[]) => {
-        const statusSummary = buildStatusSummary(data);
+    // const renderStatusSummary = (data: AuditItem[]) => {
+    //     const statusSummary = buildStatusSummary(data);
 
-        return (
-            <div className="audit-table-block">
-                <div className="audit-table-header">
-                    <h2>Status Summary - {selectedMarket}</h2>
-                    <div className="audit-meta">
-                        {statusSummary.length} status types — {data.length} total audits
-                    </div>
-                </div>
+    //     return (
+    //         <div className="audit-table-block">
+    //             <div className="audit-table-header">
+    //                 <h2>Status Summary - {selectedMarket}</h2>
+    //                 <div className="audit-meta">
+    //                     {statusSummary.length} status types — {data.length} total audits
+    //                 </div>
+    //             </div>
 
-                <div className="audit-table-wrapper">
-                    <table className="audit-table">
-                        <thead>
-                            <tr>
-                                <th>Status</th>
-                                <th className="audit-col-right">Audit Count</th>
-                                <th className="audit-col-right">Devices</th>
-                                <th>Distribution</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {statusSummary.map((status, index) => {
-                                const totalAudits = data.length;
-                                const pct = totalAudits > 0 ? Math.round((status.count / totalAudits) * 100) : 0;
-                                const fillClass = `audit-fill-${status.color}`;
+    //             <div className="audit-table-wrapper">
+    //                 <table className="audit-table">
+    //                     <thead>
+    //                         <tr>
+    //                             <th>Status</th>
+    //                             <th className="audit-col-right">Audit Count</th>
+    //                             <th className="audit-col-right">Devices</th>
+    //                             <th>Distribution</th>
+    //                         </tr>
+    //                     </thead>
+    //                     <tbody>
+    //                         {statusSummary.map((status, index) => {
+    //                             const totalAudits = data.length;
+    //                             const pct = totalAudits > 0 ? Math.round((status.count / totalAudits) * 100) : 0;
+    //                             const fillClass = `audit-fill-${status.color}`;
 
-                                return (
-                                    <tr key={index} onClick={() => handleStatusClick({
-                                        key: status.status,
-                                        count: status.count,
-                                        devices: status.devices,
-                                        cost: status.cost,
-                                        rows: data.filter(row => getField(row, ["Status"]) === status.status)
-                                    })}>
-                                        <td>
-                                            <span className={`status-indicator status-${status.color}`}>
-                                                {status.status}
-                                            </span>
-                                        </td>
-                                        <td className="audit-col-right">{status.count}</td>
-                                        <td className="audit-col-right">{status.devices}</td>
-                                        <td>
-                                            <div className="audit-bar-cell">
-                                                <div className="audit-bar-track">
-                                                    <div
-                                                        className={`audit-bar-fill ${fillClass}`}
-                                                        style={{ width: `${pct}%` }}
-                                                    ></div>
-                                                </div>
-                                                <div style={{ minWidth: "52px", textAlign: "right" }}>
-                                                    {pct}%
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        );
-    };
+    //                             return (
+    //                                 <tr key={index} onClick={() => handleStatusClick({
+    //                                     key: status.status,
+    //                                     count: status.count,
+    //                                     devices: status.devices,
+    //                                     cost: status.cost,
+    //                                     rows: data.filter(row => getField(row, ["Status"]) === status.status)
+    //                                 })}>
+    //                                     <td>
+    //                                         <span className={`status-indicator status-${status.color}`}>
+    //                                             {status.status}
+    //                                         </span>
+    //                                     </td>
+    //                                     <td className="audit-col-right">{status.count}</td>
+    //                                     <td className="audit-col-right">{status.devices}</td>
+    //                                     <td>
+    //                                         <div className="audit-bar-cell">
+    //                                             <div className="audit-bar-track">
+    //                                                 <div
+    //                                                     className={`audit-bar-fill ${fillClass}`}
+    //                                                     style={{ width: `${pct}%` }}
+    //                                                 ></div>
+    //                                             </div>
+    //                                             <div style={{ minWidth: "52px", textAlign: "right" }}>
+    //                                                 {pct}%
+    //                                             </div>
+    //                                         </div>
+    //                                     </td>
+    //                                 </tr>
+    //                             );
+    //                         })}
+    //                     </tbody>
+    //                 </table>
+    //             </div>
+    //         </div>
+    //     );
+    // };
     // const renderTable = (
     //     data: AuditItem[],
     //     level: string,
@@ -1602,7 +1602,70 @@ export default function AuditDashboard() {
     //         </div>
     //     );
     // };
+    const renderStatusSummary = (data: AuditItem[]) => {
+        const statusSummary = buildStatusSummary(data);
 
+        return (
+            <div className="audit-table-block">
+                <div className="audit-table-header">
+                    <h2>Status Summary - {selectedMarket}</h2>
+                    <div className="audit-meta">
+                        {statusSummary.length} status types — {data.length} total audits
+                    </div>
+                </div>
+
+                <div className="audit-table-wrapper">
+                    <table className="audit-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th className="audit-col-right">Audit Count</th>
+                                <th className="audit-col-right">Devices</th>
+                                <th>Distribution</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {statusSummary.map((status, index) => {
+                                const totalAudits = data.length;
+                                const pct = totalAudits > 0 ? Math.round((status.count / totalAudits) * 100) : 0;
+                                const fillClass = `audit-fill-${status.color}`;
+
+                                return (
+                                    <tr key={index} onClick={() => handleStatusClick({
+                                        key: status.status,
+                                        count: status.count,
+                                        devices: status.devices,
+                                        rows: data.filter(row => getField(row, ["Status"]) === status.status)
+                                    })}>
+                                        <td>
+                                            <span className="status-indicator">
+                                                {status.status}
+                                            </span>
+                                        </td>
+                                        <td className="audit-col-right">{status.count}</td>
+                                        <td className="audit-col-right">{status.devices}</td>
+                                        <td>
+                                            <div className="audit-bar-cell">
+                                                <div className="audit-bar-track">
+                                                    <div
+                                                        className={`audit-bar-fill ${fillClass}`}
+                                                        style={{ width: `${pct}%` }}
+                                                    ></div>
+                                                </div>
+                                                <div style={{ minWidth: "52px", textAlign: "right" }}>
+                                                    {pct}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+    };
     const renderTable = (
         data: AuditItem[],
         level: string,
