@@ -2,7 +2,7 @@
 // import { useAuth } from "../../../components/AuthProvider";
 // import { useRouter } from "next/navigation";
 // import { useEffect, useState, useCallback } from "react";
-// import "./audit-styles.css"; // Changed to unified CSS
+// import "./audit-styles.css";
 
 // interface AuditItem {
 //     [key: string]: string | number;
@@ -12,7 +12,7 @@
 //     key: string;
 //     count: number;
 //     devices: number;
-//     cost: number;
+//     cost?: number; // Make optional or remove
 //     rows: AuditItem[];
 // }
 
@@ -20,7 +20,7 @@
 //     status: string;
 //     count: number;
 //     devices: number;
-//     cost: number;
+//     cost?: number; // Make optional or remove
 //     color: string;
 // }
 
@@ -141,18 +141,71 @@
 //         return candidates[0];
 //     };
 
-//     // Fixed aggregate function with region filtering
+//     // const aggregate = (data: AuditItem[], keyField: string, level: string = ""): AggregatedGroup[] => {
+//     //     const groups: {
+//     //         [key: string]: {
+//     //             count: number;
+//     //             devices: number;
+//     //             cost: number;
+//     //             rows: AuditItem[];
+//     //         };
+//     //     } = {};
+
+//     //     const validRegions = ["Aleem Ghori Region", "Hasnain Mustaqeem Region"];
+
+//     //     data.forEach((row) => {
+//     //         const keyRaw = getField(row, [keyField]);
+//     //         const key = String(keyRaw || "").trim();
+
+//     //         if (!key || key === "Unknown" || key === "") return;
+
+//     //         if (level === "regions" && keyField.toLowerCase().includes("region")) {
+//     //             const isValidRegion = validRegions.some(region =>
+//     //                 region.toLowerCase() === key.toLowerCase()
+//     //             );
+//     //             if (!isValidRegion) {
+//     //                 console.log("Filtering out invalid region:", key);
+//     //                 return;
+//     //             }
+//     //         }
+
+//     //         if (!groups[key])
+//     //             groups[key] = {
+//     //                 count: 0,
+//     //                 devices: 0,
+//     //                 cost: 0,
+//     //                 rows: [],
+//     //             };
+
+//     //         groups[key].count += 1;
+//     //         groups[key].devices += countNonEmptyIMEI(row);
+//     //         groups[key].cost += parseCurrency(
+//     //             getField(row, ["Cost", "COST", "cost"])
+//     //         );
+//     //         groups[key].rows.push(row);
+//     //     });
+
+//     //     const result = Object.keys(groups)
+//     //         .map((k) => ({
+//     //             key: k,
+//     //             count: groups[k].count,
+//     //             devices: groups[k].devices,
+//     //             cost: groups[k].cost,
+//     //             rows: groups[k].rows,
+//     //         }))
+//     //         .sort((a, b) => b.cost - a.cost);
+
+//     //     return result;
+//     // };
 //     const aggregate = (data: AuditItem[], keyField: string, level: string = ""): AggregatedGroup[] => {
 //         const groups: {
 //             [key: string]: {
 //                 count: number;
 //                 devices: number;
-//                 cost: number;
 //                 rows: AuditItem[];
 //             };
 //         } = {};
 
-//         // Define valid regions
 //         const validRegions = ["Aleem Ghori Region", "Hasnain Mustaqeem Region"];
 
 //         data.forEach((row) => {
@@ -161,7 +214,6 @@
 
 //             if (!key || key === "Unknown" || key === "") return;
 
-//             // For regions level, only include valid regions
 //             if (level === "regions" && keyField.toLowerCase().includes("region")) {
 //                 const isValidRegion = validRegions.some(region =>
 //                     region.toLowerCase() === key.toLowerCase()
@@ -176,15 +228,11 @@
 //                 groups[key] = {
 //                     count: 0,
 //                     devices: 0,
-//                     cost: 0,
 //                     rows: [],
 //                 };
 
 //             groups[key].count += 1;
 //             groups[key].devices += countNonEmptyIMEI(row);
-//             groups[key].cost += parseCurrency(
-//                 getField(row, ["Cost", "COST", "cost"])
-//             );
 //             groups[key].rows.push(row);
 //         });
 
@@ -193,20 +241,43 @@
 //                 key: k,
 //                 count: groups[k].count,
 //                 devices: groups[k].devices,
-//                 cost: groups[k].cost,
+//                 cost: 0, // Remove cost from aggregation
 //                 rows: groups[k].rows,
 //             }))
-//             .sort((a, b) => b.cost - a.cost);
+//             .sort((a, b) => b.count - a.count); // Sort by count instead of cost
 
 //         return result;
 //     };
+//     // const buildStatusSummary = (data: AuditItem[]): StatusSummary[] => {
+//     //     const statusGroups: { [key: string]: StatusSummary } = {};
 
+//     //     data.forEach((row) => {
+//     //         const status = getField(row, ["Status", "STATUS", "status"]);
+//     //         const cost = parseCurrency(getField(row, ["Cost", "COST", "cost"]));
+//     //         const devices = countNonEmptyIMEI(row);
+
+//     //         if (!statusGroups[status]) {
+//     //             statusGroups[status] = {
+//     //                 status,
+//     //                 count: 0,
+//     //                 devices: 0,
+//     //                 cost: 0,
+//     //                 color: getStatusColor(status)
+//     //             };
+//     //         }
+
+//     //         statusGroups[status].count += 1;
+//     //         statusGroups[status].devices += devices;
+//     //         statusGroups[status].cost += cost;
+//     //     });
+
+//     //     return Object.values(statusGroups).sort((a, b) => b.cost - a.cost);
+//     // };
 //     const buildStatusSummary = (data: AuditItem[]): StatusSummary[] => {
 //         const statusGroups: { [key: string]: StatusSummary } = {};
 
 //         data.forEach((row) => {
 //             const status = getField(row, ["Status", "STATUS", "status"]);
-//             const cost = parseCurrency(getField(row, ["Cost", "COST", "cost"]));
 //             const devices = countNonEmptyIMEI(row);
 
 //             if (!statusGroups[status]) {
@@ -214,19 +285,18 @@
 //                     status,
 //                     count: 0,
 //                     devices: 0,
-//                     cost: 0,
+//                     cost: 0, // Remove cost
 //                     color: getStatusColor(status)
 //                 };
 //             }
 
 //             statusGroups[status].count += 1;
 //             statusGroups[status].devices += devices;
-//             statusGroups[status].cost += cost;
+//             // Remove cost accumulation
 //         });
 
-//         return Object.values(statusGroups).sort((a, b) => b.cost - a.cost);
+//         return Object.values(statusGroups).sort((a, b) => b.count - a.count); // Sort by count
 //     };
-
 //     const getStatusColor = (status: string): string => {
 //         const statusColors: { [key: string]: string } = {
 //             'Active': 'green',
@@ -480,7 +550,7 @@
 
 //     const renderBreadcrumb = () => {
 //         return historyStack.map((item, index) => (
-//             <span key={index} className="dashboard-breadcrumb">
+//             <span key={index} className="audit-breadcrumb">
 //                 {item.selected ? `${item.level} — ${item.selected}` : item.level}
 //                 {index < historyStack.length - 1 && (
 //                     <span className="mx-2 text-gray-400">›</span>
@@ -489,56 +559,269 @@
 //         ));
 //     };
 
+//     // const renderStatusSummary = (data: AuditItem[]) => {
+//     //     const statusSummary = buildStatusSummary(data);
+//     //     const totalCost = statusSummary.reduce((sum, item) => sum + item.cost, 0);
+
+//     //     return (
+//     //         <div className="audit-table-block">
+//     //             <div className="audit-table-header">
+//     //                 <h2>Status Summary - {selectedMarket}</h2>
+//     //                 <div className="audit-meta">
+//     //                     {statusSummary.length} status types — total value {formatCurrency(totalCost)}
+//     //                 </div>
+//     //             </div>
+
+//     //             <div className="audit-table-wrapper">
+//     //                 <table className="audit-table">
+//     //                     <thead>
+//     //                         <tr>
+//     //                             <th>Status</th>
+//     //                             <th className="audit-col-right">Audit Count</th>
+//     //                             <th className="audit-col-right">Devices</th>
+//     //                             <th className="audit-col-right">Total Value</th>
+//     //                             <th>Value Distribution</th>
+//     //                         </tr>
+//     //                     </thead>
+//     //                     <tbody>
+//     //                         {statusSummary.map((status, index) => {
+//     //                             const pct = totalCost > 0 ? Math.round((status.cost / totalCost) * 100) : 0;
+//     //                             const fillClass = `audit-fill-${status.color}`;
+
+//     //                             return (
+//     //                                 <tr key={index} onClick={() => handleStatusClick({
+//     //                                     key: status.status,
+//     //                                     count: status.count,
+//     //                                     devices: status.devices,
+//     //                                     cost: status.cost,
+//     //                                     rows: data.filter(row => getField(row, ["Status"]) === status.status)
+//     //                                 })}>
+//     //                                     <td>
+//     //                                         <span className={`status-indicator status-${status.color}`}>
+//     //                                             {status.status}
+//     //                                         </span>
+//     //                                     </td>
+//     //                                     <td className="audit-col-right">{status.count}</td>
+//     //                                     <td className="audit-col-right">{status.devices}</td>
+//     //                                     <td className="audit-col-right">{formatCurrency(status.cost)}</td>
+//     //                                     <td>
+//     //                                         <div className="audit-bar-cell">
+//     //                                             <div className="audit-bar-track">
+//     //                                                 <div
+//     //                                                     className={`audit-bar-fill ${fillClass}`}
+//     //                                                     style={{ width: `${pct}%` }}
+//     //                                                 ></div>
+//     //                                             </div>
+//     //                                             <div style={{ minWidth: "52px", textAlign: "right" }}>
+//     //                                                 {pct}%
+//     //                                             </div>
+//     //                                         </div>
+//     //                                     </td>
+//     //                                 </tr>
+//     //                             );
+//     //                         })}
+//     //                     </tbody>
+//     //                 </table>
+//     //             </div>
+//     //         </div>
+//     //     );
+//     // };
+//     // const renderStatusSummary = (data: AuditItem[]) => {
+//     //     const statusSummary = buildStatusSummary(data);
+
+//     //     return (
+//     //         <div className="audit-table-block">
+//     //             <div className="audit-table-header">
+//     //                 <h2>Status Summary - {selectedMarket}</h2>
+//     //                 <div className="audit-meta">
+//     //                     {statusSummary.length} status types — {data.length} total audits
+//     //                 </div>
+//     //             </div>
+
+//     //             <div className="audit-table-wrapper">
+//     //                 <table className="audit-table">
+//     //                     <thead>
+//     //                         <tr>
+//     //                             <th>Status</th>
+//     //                             <th className="audit-col-right">Audit Count</th>
+//     //                             <th className="audit-col-right">Devices</th>
+//     //                             <th>Distribution</th>
+//     //                         </tr>
+//     //                     </thead>
+//     //                     <tbody>
+//     //                         {statusSummary.map((status, index) => {
+//     //                             const totalAudits = data.length;
+//     //                             const pct = totalAudits > 0 ? Math.round((status.count / totalAudits) * 100) : 0;
+//     //                             const fillClass = `audit-fill-${status.color}`;
+
+//     //                             return (
+//     //                                 <tr key={index} onClick={() => handleStatusClick({
+//     //                                     key: status.status,
+//     //                                     count: status.count,
+//     //                                     devices: status.devices,
+//     //                                     cost: status.cost,
+//     //                                     rows: data.filter(row => getField(row, ["Status"]) === status.status)
+//     //                                 })}>
+//     //                                     <td>
+//     //                                         <span className={`status-indicator status-${status.color}`}>
+//     //                                             {status.status}
+//     //                                         </span>
+//     //                                     </td>
+//     //                                     <td className="audit-col-right">{status.count}</td>
+//     //                                     <td className="audit-col-right">{status.devices}</td>
+//     //                                     <td>
+//     //                                         <div className="audit-bar-cell">
+//     //                                             <div className="audit-bar-track">
+//     //                                                 <div
+//     //                                                     className={`audit-bar-fill ${fillClass}`}
+//     //                                                     style={{ width: `${pct}%` }}
+//     //                                                 ></div>
+//     //                                             </div>
+//     //                                             <div style={{ minWidth: "52px", textAlign: "right" }}>
+//     //                                                 {pct}%
+//     //                                             </div>
+//     //                                         </div>
+//     //                                     </td>
+//     //                                 </tr>
+//     //                             );
+//     //                         })}
+//     //                     </tbody>
+//     //                 </table>
+//     //             </div>
+//     //         </div>
+//     //     );
+//     // };
+//     // const renderTable = (
+//     //     data: AuditItem[],
+//     //     level: string,
+//     //     onRowClick: (group: AggregatedGroup) => void
+//     // ) => {
+//     //     let keyField = "";
+//     //     let title = "";
+
+//     //     switch (level) {
+//     //         case "regions":
+//     //             keyField = detectKey(["Regions", "Region", "REGIONS"]);
+//     //             title = "Regions";
+//     //             break;
+//     //         case "market":
+//     //             keyField = detectKey(["Market", "Market Name", "MARKET"]);
+//     //             title = "Markets";
+//     //             break;
+//     //         case "status":
+//     //             return renderStatusSummary(data);
+//     //         case "detailed":
+//     //             return renderDetailedTable(data);
+//     //         default:
+//     //             keyField = "Unknown";
+//     //             title = "Data";
+//     //     }
+
+//     //     const aggregated = aggregate(data, keyField, level);
+//     //     const maxCost = Math.max(...aggregated.map((a) => a.cost), 1);
+
+//     //     return (
+//     //         <div className="audit-table-block">
+//     //             <div className="audit-table-header">
+//     //                 <h2>{title}</h2>
+//     //                 <div className="audit-meta">
+//     //                     {aggregated.length} groups — total value{" "}
+//     //                     {formatCurrency(aggregated.reduce((s, a) => s + a.cost, 0))}
+//     //                 </div>
+//     //             </div>
+
+//     //             <div className="audit-table-wrapper">
+//     //                 <table className="audit-table">
+//     //                     <thead>
+//     //                         <tr>
+//     //                             <th>{title}</th>
+//     //                             <th className="audit-col-right">Audit Count</th>
+//     //                             <th className="audit-col-right">Devices</th>
+//     //                             <th className="audit-col-right">Total Value</th>
+//     //                             <th>Value Distribution</th>
+//     //                         </tr>
+//     //                     </thead>
+//     //                     <tbody>
+//     //                         {aggregated.map((group, index) => {
+//     //                             const pct = Math.round((group.cost / maxCost) * 100);
+//     //                             const fillClass =
+//     //                                 pct >= 70 ? "audit-fill-green" : pct >= 40 ? "audit-fill-amber" : "audit-fill-red";
+
+//     //                             return (
+//     //                                 <tr key={index} onClick={() => onRowClick(group)}>
+//     //                                     <td>{group.key}</td>
+//     //                                     <td className="audit-col-right">{group.count}</td>
+//     //                                     <td className="audit-col-right">{group.devices}</td>
+//     //                                     <td className="audit-col-right">{formatCurrency(group.cost)}</td>
+//     //                                     <td>
+//     //                                         <div className="audit-bar-cell">
+//     //                                             <div className="audit-bar-track">
+//     //                                                 <div
+//     //                                                     className={`audit-bar-fill ${fillClass}`}
+//     //                                                     style={{ width: `${pct}%` }}
+//     //                                                 ></div>
+//     //                                             </div>
+//     //                                             <div style={{ minWidth: "52px", textAlign: "right" }}>
+//     //                                                 {pct}%
+//     //                                             </div>
+//     //                                         </div>
+//     //                                     </td>
+//     //                                 </tr>
+//     //                             );
+//     //                         })}
+//     //                     </tbody>
+//     //                 </table>
+//     //             </div>
+//     //         </div>
+//     //     );
+//     // };
 //     const renderStatusSummary = (data: AuditItem[]) => {
 //         const statusSummary = buildStatusSummary(data);
-//         const totalCost = statusSummary.reduce((sum, item) => sum + item.cost, 0);
 
 //         return (
-//             <div className="dashboard-table-block">
-//                 <div className="dashboard-table-header">
+//             <div className="audit-table-block">
+//                 <div className="audit-table-header">
 //                     <h2>Status Summary - {selectedMarket}</h2>
-//                     <div className="dashboard-meta">
-//                         {statusSummary.length} status types — total value {formatCurrency(totalCost)}
+//                     <div className="audit-meta">
+//                         {statusSummary.length} status types — {data.length} total audits
 //                     </div>
 //                 </div>
 
-//                 <div className="dashboard-table-wrapper">
-//                     <table className="dashboard-table">
+//                 <div className="audit-table-wrapper">
+//                     <table className="audit-table">
 //                         <thead>
 //                             <tr>
 //                                 <th>Status</th>
-//                                 <th className="dashboard-col-right">Audit Count</th>
-//                                 <th className="dashboard-col-right">Devices</th>
-//                                 <th className="dashboard-col-right">Total Value</th>
-//                                 <th>Value Distribution</th>
+//                                 <th className="audit-col-right">Audit Count</th>
+//                                 <th className="audit-col-right">Devices</th>
+//                                 <th>Distribution</th>
 //                             </tr>
 //                         </thead>
 //                         <tbody>
 //                             {statusSummary.map((status, index) => {
-//                                 const pct = totalCost > 0 ? Math.round((status.cost / totalCost) * 100) : 0;
-//                                 const fillClass = `dashboard-fill-${status.color}`;
+//                                 const totalAudits = data.length;
+//                                 const pct = totalAudits > 0 ? Math.round((status.count / totalAudits) * 100) : 0;
+//                                 const fillClass = `audit-fill-${status.color}`;
 
 //                                 return (
 //                                     <tr key={index} onClick={() => handleStatusClick({
 //                                         key: status.status,
 //                                         count: status.count,
 //                                         devices: status.devices,
-//                                         cost: status.cost,
 //                                         rows: data.filter(row => getField(row, ["Status"]) === status.status)
 //                                     })}>
 //                                         <td>
-//                                             <span className={`status-indicator status-${status.color}`}>
+//                                             <span className="status-indicator">
 //                                                 {status.status}
 //                                             </span>
 //                                         </td>
-//                                         <td className="dashboard-col-right">{status.count}</td>
-//                                         <td className="dashboard-col-right">{status.devices}</td>
-//                                         <td className="dashboard-col-right">{formatCurrency(status.cost)}</td>
+//                                         <td className="audit-col-right">{status.count}</td>
+//                                         <td className="audit-col-right">{status.devices}</td>
 //                                         <td>
-//                                             <div className="dashboard-bar-cell">
-//                                                 <div className="dashboard-bar-track">
+//                                             <div className="audit-bar-cell">
+//                                                 <div className="audit-bar-track">
 //                                                     <div
-//                                                         className={`dashboard-bar-fill ${fillClass}`}
+//                                                         className={`audit-bar-fill ${fillClass}`}
 //                                                         style={{ width: `${pct}%` }}
 //                                                     ></div>
 //                                                 </div>
@@ -556,7 +839,6 @@
 //             </div>
 //         );
 //     };
-
 //     const renderTable = (
 //         data: AuditItem[],
 //         level: string,
@@ -583,17 +865,15 @@
 //                 title = "Data";
 //         }
 
-//         // Pass level to aggregate function for proper region filtering
 //         const aggregated = aggregate(data, keyField, level);
-//         const maxCost = Math.max(...aggregated.map((a) => a.cost), 1);
+//         const totalCount = aggregated.reduce((sum, group) => sum + group.count, 0);
 
 //         return (
-//             <div className="dashboard-table-block">
-//                 <div className="dashboard-table-header">
+//             <div className="audit-table-block">
+//                 <div className="audit-table-header">
 //                     <h2>{title}</h2>
-//                     <div className="dashboard-meta">
-//                         {aggregated.length} groups — total value{" "}
-//                         {formatCurrency(aggregated.reduce((s, a) => s + a.cost, 0))}
+//                     <div className="audit-meta">
+//                         {aggregated.length} groups — {totalCount} total audits
 //                     </div>
 //                 </div>
 
@@ -602,29 +882,27 @@
 //                         <thead>
 //                             <tr>
 //                                 <th>{title}</th>
-//                                 <th className="dashboard-col-right">Audit Count</th>
-//                                 <th className="dashboard-col-right">Devices</th>
-//                                 <th className="dashboard-col-right">Total Value</th>
-//                                 <th>Value Distribution</th>
+//                                 <th className="audit-col-right">Audit Count</th>
+//                                 <th className="audit-col-right">Devices</th>
+//                                 <th>Distribution</th>
 //                             </tr>
 //                         </thead>
 //                         <tbody>
 //                             {aggregated.map((group, index) => {
-//                                 const pct = Math.round((group.cost / maxCost) * 100);
+//                                 const pct = totalCount > 0 ? Math.round((group.count / totalCount) * 100) : 0;
 //                                 const fillClass =
-//                                     pct >= 70 ? "dashboard-fill-green" : pct >= 40 ? "dashboard-fill-amber" : "dashboard-fill-red";
+//                                     pct >= 70 ? "audit-fill-green" : pct >= 40 ? "audit-fill-amber" : "audit-fill-red";
 
 //                                 return (
 //                                     <tr key={index} onClick={() => onRowClick(group)}>
 //                                         <td>{group.key}</td>
-//                                         <td className="dashboard-col-right">{group.count}</td>
-//                                         <td className="dashboard-col-right">{group.devices}</td>
-//                                         <td className="dashboard-col-right">{formatCurrency(group.cost)}</td>
+//                                         <td className="audit-col-right">{group.count}</td>
+//                                         <td className="audit-col-right">{group.devices}</td>
 //                                         <td>
-//                                             <div className="dashboard-bar-cell">
-//                                                 <div className="dashboard-bar-track">
+//                                             <div className="audit-bar-cell">
+//                                                 <div className="audit-bar-track">
 //                                                     <div
-//                                                         className={`dashboard-bar-fill ${fillClass}`}
+//                                                         className={`audit-bar-fill ${fillClass}`}
 //                                                         style={{ width: `${pct}%` }}
 //                                                     ></div>
 //                                                 </div>
@@ -642,17 +920,16 @@
 //             </div>
 //         );
 //     };
-
 //     const renderDetailedTable = (data: AuditItem[]) => {
 //         return (
-//             <div className="dashboard-table-block">
-//                 <div className="dashboard-table-header">
+//             <div className="audit-table-block">
+//                 <div className="audit-table-header">
 //                     <h2>Detailed Audit - {selectedStatus}</h2>
-//                     <div className="dashboard-meta">{data.length} audit records</div>
+//                     <div className="audit-meta">{data.length} audit records</div>
 //                 </div>
 
-//                 <div className="dashboard-table-wrapper">
-//                     <table className="dashboard-table">
+//                 <div className="audit-table-wrapper">
+//                     <table className="audit-table">
 //                         <thead>
 //                             <tr>
 //                                 <th>Serial Date</th>
@@ -661,7 +938,7 @@
 //                                 <th>Tech ID</th>
 //                                 <th>SKU Description</th>
 //                                 <th>Full IMEI</th>
-//                                 <th className="dashboard-col-right">Cost</th>
+//                                 <th className="audit-col-right">Cost</th>
 //                                 <th>Status</th>
 //                                 <th>Final Comments</th>
 //                             </tr>
@@ -686,7 +963,7 @@
 //                                         <td>{techId}</td>
 //                                         <td>{sku.split('|').pop() || sku}</td>
 //                                         <td>{imei}</td>
-//                                         <td className="dashboard-col-right">{cost}</td>
+//                                         <td className="audit-col-right">{cost}</td>
 //                                         <td>
 //                                             <span className={`status-indicator status-${getStatusColor(status)}`}>
 //                                                 {status}
@@ -733,25 +1010,25 @@
 
 //                 <main className="main-area">
 //                     {/* Controls Section */}
-//                     <div className="dashboard-controls-section">
-//                         <div className="dashboard-controls-grid">
-//                             <div className="dashboard-date-inputs">
+//                     <div className="audit-controls-section">
+//                         <div className="audit-controls-grid">
+//                             <div className="audit-date-inputs">
 //                                 <input
 //                                     type="date"
 //                                     value={fromDate}
 //                                     onChange={(e) => setFromDate(e.target.value)}
-//                                     className="dashboard-input"
+//                                     className="audit-input"
 //                                     placeholder="From Date"
 //                                 />
 //                                 <input
 //                                     type="date"
 //                                     value={toDate}
 //                                     onChange={(e) => setToDate(e.target.value)}
-//                                     className="dashboard-input"
+//                                     className="audit-input"
 //                                     placeholder="To Date"
 //                                 />
 //                             </div>
-//                             <div className="dashboard-action-buttons">
+//                             <div className="audit-action-buttons">
 //                                 <button
 //                                     className="btn btn-primary"
 //                                     onClick={handleApplyFilters}
@@ -788,19 +1065,19 @@
 //                     </section>
 
 //                     {/* Navigation */}
-//                     <div className="dashboard-nav-row">
+//                     <div className="audit-nav-row">
 //                         <button
 //                             className={`btn ${historyStack.length <= 1 ? 'hidden' : ''}`}
 //                             onClick={handleBackClick}
 //                         >
 //                             ← Back
 //                         </button>
-//                         <div className="dashboard-breadcrumb">
+//                         <div className="audit-breadcrumb">
 //                             {renderBreadcrumb()}
 //                         </div>
 //                     </div>
 
-//                     <section className="dashboard-stacked">
+//                     <section className="audit-stacked">
 //                         {currentView === "regions" &&
 //                             renderTable(currentData, "regions", handleRegionClick)}
 //                         {currentView === "market" &&
@@ -812,7 +1089,7 @@
 
 //                     {/* Loading State */}
 //                     {isLoadingData && (
-//                         <div className="dashboard-loading">
+//                         <div className="audit-loading">
 //                             <div className="loading-spinner"></div>
 //                             <p>Loading audit data...</p>
 //                         </div>
@@ -822,6 +1099,7 @@
 //         </div>
 //     );
 // }
+
 
 
 
@@ -839,7 +1117,7 @@ interface AggregatedGroup {
     key: string;
     count: number;
     devices: number;
-    cost?: number; // Make optional or remove
+    cost: number;
     rows: AuditItem[];
 }
 
@@ -847,7 +1125,7 @@ interface StatusSummary {
     status: string;
     count: number;
     devices: number;
-    cost?: number; // Make optional or remove
+    cost: number;
     color: string;
 }
 
@@ -968,67 +1246,12 @@ export default function AuditDashboard() {
         return candidates[0];
     };
 
-    // const aggregate = (data: AuditItem[], keyField: string, level: string = ""): AggregatedGroup[] => {
-    //     const groups: {
-    //         [key: string]: {
-    //             count: number;
-    //             devices: number;
-    //             cost: number;
-    //             rows: AuditItem[];
-    //         };
-    //     } = {};
-
-    //     const validRegions = ["Aleem Ghori Region", "Hasnain Mustaqeem Region"];
-
-    //     data.forEach((row) => {
-    //         const keyRaw = getField(row, [keyField]);
-    //         const key = String(keyRaw || "").trim();
-
-    //         if (!key || key === "Unknown" || key === "") return;
-
-    //         if (level === "regions" && keyField.toLowerCase().includes("region")) {
-    //             const isValidRegion = validRegions.some(region =>
-    //                 region.toLowerCase() === key.toLowerCase()
-    //             );
-    //             if (!isValidRegion) {
-    //                 console.log("Filtering out invalid region:", key);
-    //                 return;
-    //             }
-    //         }
-
-    //         if (!groups[key])
-    //             groups[key] = {
-    //                 count: 0,
-    //                 devices: 0,
-    //                 cost: 0,
-    //                 rows: [],
-    //             };
-
-    //         groups[key].count += 1;
-    //         groups[key].devices += countNonEmptyIMEI(row);
-    //         groups[key].cost += parseCurrency(
-    //             getField(row, ["Cost", "COST", "cost"])
-    //         );
-    //         groups[key].rows.push(row);
-    //     });
-
-    //     const result = Object.keys(groups)
-    //         .map((k) => ({
-    //             key: k,
-    //             count: groups[k].count,
-    //             devices: groups[k].devices,
-    //             cost: groups[k].cost,
-    //             rows: groups[k].rows,
-    //         }))
-    //         .sort((a, b) => b.cost - a.cost);
-
-    //     return result;
-    // };
     const aggregate = (data: AuditItem[], keyField: string, level: string = ""): AggregatedGroup[] => {
         const groups: {
             [key: string]: {
                 count: number;
                 devices: number;
+                cost: number;
                 rows: AuditItem[];
             };
         } = {};
@@ -1055,11 +1278,15 @@ export default function AuditDashboard() {
                 groups[key] = {
                     count: 0,
                     devices: 0,
+                    cost: 0,
                     rows: [],
                 };
 
             groups[key].count += 1;
             groups[key].devices += countNonEmptyIMEI(row);
+            groups[key].cost += parseCurrency(
+                getField(row, ["Cost", "COST", "cost"])
+            );
             groups[key].rows.push(row);
         });
 
@@ -1068,43 +1295,20 @@ export default function AuditDashboard() {
                 key: k,
                 count: groups[k].count,
                 devices: groups[k].devices,
-                cost: 0, // Remove cost from aggregation
+                cost: groups[k].cost,
                 rows: groups[k].rows,
             }))
-            .sort((a, b) => b.count - a.count); // Sort by count instead of cost
+            .sort((a, b) => b.cost - a.cost);
 
         return result;
     };
-    // const buildStatusSummary = (data: AuditItem[]): StatusSummary[] => {
-    //     const statusGroups: { [key: string]: StatusSummary } = {};
 
-    //     data.forEach((row) => {
-    //         const status = getField(row, ["Status", "STATUS", "status"]);
-    //         const cost = parseCurrency(getField(row, ["Cost", "COST", "cost"]));
-    //         const devices = countNonEmptyIMEI(row);
-
-    //         if (!statusGroups[status]) {
-    //             statusGroups[status] = {
-    //                 status,
-    //                 count: 0,
-    //                 devices: 0,
-    //                 cost: 0,
-    //                 color: getStatusColor(status)
-    //             };
-    //         }
-
-    //         statusGroups[status].count += 1;
-    //         statusGroups[status].devices += devices;
-    //         statusGroups[status].cost += cost;
-    //     });
-
-    //     return Object.values(statusGroups).sort((a, b) => b.cost - a.cost);
-    // };
     const buildStatusSummary = (data: AuditItem[]): StatusSummary[] => {
         const statusGroups: { [key: string]: StatusSummary } = {};
 
         data.forEach((row) => {
             const status = getField(row, ["Status", "STATUS", "status"]);
+            const cost = parseCurrency(getField(row, ["Cost", "COST", "cost"]));
             const devices = countNonEmptyIMEI(row);
 
             if (!statusGroups[status]) {
@@ -1112,18 +1316,19 @@ export default function AuditDashboard() {
                     status,
                     count: 0,
                     devices: 0,
-                    cost: 0, // Remove cost
+                    cost: 0,
                     color: getStatusColor(status)
                 };
             }
 
             statusGroups[status].count += 1;
             statusGroups[status].devices += devices;
-            // Remove cost accumulation
+            statusGroups[status].cost += cost;
         });
 
-        return Object.values(statusGroups).sort((a, b) => b.count - a.count); // Sort by count
+        return Object.values(statusGroups).sort((a, b) => b.cost - a.cost);
     };
+
     const getStatusColor = (status: string): string => {
         const statusColors: { [key: string]: string } = {
             'Active': 'green',
@@ -1297,7 +1502,6 @@ export default function AuditDashboard() {
         URL.revokeObjectURL(url);
     };
 
-    // Drill-down handlers
     const handleRegionClick = (region: AggregatedGroup) => {
         const marketData = region.rows;
         setCurrentData(marketData);
@@ -1453,164 +1657,16 @@ export default function AuditDashboard() {
     //         </div>
     //     );
     // };
-    // const renderStatusSummary = (data: AuditItem[]) => {
-    //     const statusSummary = buildStatusSummary(data);
-
-    //     return (
-    //         <div className="audit-table-block">
-    //             <div className="audit-table-header">
-    //                 <h2>Status Summary - {selectedMarket}</h2>
-    //                 <div className="audit-meta">
-    //                     {statusSummary.length} status types — {data.length} total audits
-    //                 </div>
-    //             </div>
-
-    //             <div className="audit-table-wrapper">
-    //                 <table className="audit-table">
-    //                     <thead>
-    //                         <tr>
-    //                             <th>Status</th>
-    //                             <th className="audit-col-right">Audit Count</th>
-    //                             <th className="audit-col-right">Devices</th>
-    //                             <th>Distribution</th>
-    //                         </tr>
-    //                     </thead>
-    //                     <tbody>
-    //                         {statusSummary.map((status, index) => {
-    //                             const totalAudits = data.length;
-    //                             const pct = totalAudits > 0 ? Math.round((status.count / totalAudits) * 100) : 0;
-    //                             const fillClass = `audit-fill-${status.color}`;
-
-    //                             return (
-    //                                 <tr key={index} onClick={() => handleStatusClick({
-    //                                     key: status.status,
-    //                                     count: status.count,
-    //                                     devices: status.devices,
-    //                                     cost: status.cost,
-    //                                     rows: data.filter(row => getField(row, ["Status"]) === status.status)
-    //                                 })}>
-    //                                     <td>
-    //                                         <span className={`status-indicator status-${status.color}`}>
-    //                                             {status.status}
-    //                                         </span>
-    //                                     </td>
-    //                                     <td className="audit-col-right">{status.count}</td>
-    //                                     <td className="audit-col-right">{status.devices}</td>
-    //                                     <td>
-    //                                         <div className="audit-bar-cell">
-    //                                             <div className="audit-bar-track">
-    //                                                 <div
-    //                                                     className={`audit-bar-fill ${fillClass}`}
-    //                                                     style={{ width: `${pct}%` }}
-    //                                                 ></div>
-    //                                             </div>
-    //                                             <div style={{ minWidth: "52px", textAlign: "right" }}>
-    //                                                 {pct}%
-    //                                             </div>
-    //                                         </div>
-    //                                     </td>
-    //                                 </tr>
-    //                             );
-    //                         })}
-    //                     </tbody>
-    //                 </table>
-    //             </div>
-    //         </div>
-    //     );
-    // };
-    // const renderTable = (
-    //     data: AuditItem[],
-    //     level: string,
-    //     onRowClick: (group: AggregatedGroup) => void
-    // ) => {
-    //     let keyField = "";
-    //     let title = "";
-
-    //     switch (level) {
-    //         case "regions":
-    //             keyField = detectKey(["Regions", "Region", "REGIONS"]);
-    //             title = "Regions";
-    //             break;
-    //         case "market":
-    //             keyField = detectKey(["Market", "Market Name", "MARKET"]);
-    //             title = "Markets";
-    //             break;
-    //         case "status":
-    //             return renderStatusSummary(data);
-    //         case "detailed":
-    //             return renderDetailedTable(data);
-    //         default:
-    //             keyField = "Unknown";
-    //             title = "Data";
-    //     }
-
-    //     const aggregated = aggregate(data, keyField, level);
-    //     const maxCost = Math.max(...aggregated.map((a) => a.cost), 1);
-
-    //     return (
-    //         <div className="audit-table-block">
-    //             <div className="audit-table-header">
-    //                 <h2>{title}</h2>
-    //                 <div className="audit-meta">
-    //                     {aggregated.length} groups — total value{" "}
-    //                     {formatCurrency(aggregated.reduce((s, a) => s + a.cost, 0))}
-    //                 </div>
-    //             </div>
-
-    //             <div className="audit-table-wrapper">
-    //                 <table className="audit-table">
-    //                     <thead>
-    //                         <tr>
-    //                             <th>{title}</th>
-    //                             <th className="audit-col-right">Audit Count</th>
-    //                             <th className="audit-col-right">Devices</th>
-    //                             <th className="audit-col-right">Total Value</th>
-    //                             <th>Value Distribution</th>
-    //                         </tr>
-    //                     </thead>
-    //                     <tbody>
-    //                         {aggregated.map((group, index) => {
-    //                             const pct = Math.round((group.cost / maxCost) * 100);
-    //                             const fillClass =
-    //                                 pct >= 70 ? "audit-fill-green" : pct >= 40 ? "audit-fill-amber" : "audit-fill-red";
-
-    //                             return (
-    //                                 <tr key={index} onClick={() => onRowClick(group)}>
-    //                                     <td>{group.key}</td>
-    //                                     <td className="audit-col-right">{group.count}</td>
-    //                                     <td className="audit-col-right">{group.devices}</td>
-    //                                     <td className="audit-col-right">{formatCurrency(group.cost)}</td>
-    //                                     <td>
-    //                                         <div className="audit-bar-cell">
-    //                                             <div className="audit-bar-track">
-    //                                                 <div
-    //                                                     className={`audit-bar-fill ${fillClass}`}
-    //                                                     style={{ width: `${pct}%` }}
-    //                                                 ></div>
-    //                                             </div>
-    //                                             <div style={{ minWidth: "52px", textAlign: "right" }}>
-    //                                                 {pct}%
-    //                                             </div>
-    //                                         </div>
-    //                                     </td>
-    //                                 </tr>
-    //                             );
-    //                         })}
-    //                     </tbody>
-    //                 </table>
-    //             </div>
-    //         </div>
-    //     );
-    // };
     const renderStatusSummary = (data: AuditItem[]) => {
         const statusSummary = buildStatusSummary(data);
+        const totalCost = statusSummary.reduce((sum, item) => sum + item.cost, 0);
 
         return (
             <div className="audit-table-block">
                 <div className="audit-table-header">
                     <h2>Status Summary - {selectedMarket}</h2>
                     <div className="audit-meta">
-                        {statusSummary.length} status types — {data.length} total audits
+                        {statusSummary.length} status types — total value {formatCurrency(totalCost)}
                     </div>
                 </div>
 
@@ -1621,34 +1677,45 @@ export default function AuditDashboard() {
                                 <th>Status</th>
                                 <th className="audit-col-right">Audit Count</th>
                                 <th className="audit-col-right">Devices</th>
-                                <th>Distribution</th>
+                                <th className="audit-col-right">Total Value</th>
+                                <th>Value Distribution</th>
                             </tr>
                         </thead>
                         <tbody>
                             {statusSummary.map((status, index) => {
-                                const totalAudits = data.length;
-                                const pct = totalAudits > 0 ? Math.round((status.count / totalAudits) * 100) : 0;
-                                const fillClass = `audit-fill-${status.color}`;
+                                const pct = totalCost > 0 ? Math.round((status.cost / totalCost) * 100) : 0;
+
+                                // Determine color based on percentage
+                                let barColor = '';
+                                if (pct >= 50) {
+                                    barColor = 'audit-fill-green'; // High percentage - Red
+                                } else if (pct >= 20) {
+                                    barColor = 'audit-fill-amber'; // Medium percentage - Yellow/Amber
+                                } else {
+                                    barColor = 'audit-fill-red'; // Low percentage - Green
+                                }
 
                                 return (
                                     <tr key={index} onClick={() => handleStatusClick({
                                         key: status.status,
                                         count: status.count,
                                         devices: status.devices,
+                                        cost: status.cost,
                                         rows: data.filter(row => getField(row, ["Status"]) === status.status)
                                     })}>
                                         <td>
-                                            <span className="status-indicator">
+                                            <span className={`status-indicator status-${status.color}`}>
                                                 {status.status}
                                             </span>
                                         </td>
                                         <td className="audit-col-right">{status.count}</td>
                                         <td className="audit-col-right">{status.devices}</td>
+                                        <td className="audit-col-right">{formatCurrency(status.cost)}</td>
                                         <td>
                                             <div className="audit-bar-cell">
                                                 <div className="audit-bar-track">
                                                     <div
-                                                        className={`audit-bar-fill ${fillClass}`}
+                                                        className={`audit-bar-fill ${barColor}`}
                                                         style={{ width: `${pct}%` }}
                                                     ></div>
                                                 </div>
@@ -1693,14 +1760,15 @@ export default function AuditDashboard() {
         }
 
         const aggregated = aggregate(data, keyField, level);
-        const totalCount = aggregated.reduce((sum, group) => sum + group.count, 0);
+        const maxCost = Math.max(...aggregated.map((a) => a.cost), 1);
+        const totalCost = aggregated.reduce((sum, group) => sum + group.cost, 0);
 
         return (
             <div className="audit-table-block">
                 <div className="audit-table-header">
                     <h2>{title}</h2>
                     <div className="audit-meta">
-                        {aggregated.length} groups — {totalCount} total audits
+                        {aggregated.length} groups — total value {formatCurrency(totalCost)}
                     </div>
                 </div>
 
@@ -1711,12 +1779,13 @@ export default function AuditDashboard() {
                                 <th>{title}</th>
                                 <th className="audit-col-right">Audit Count</th>
                                 <th className="audit-col-right">Devices</th>
-                                <th>Distribution</th>
+                                <th className="audit-col-right">Total Value</th>
+                                <th>Value Distribution</th>
                             </tr>
                         </thead>
                         <tbody>
                             {aggregated.map((group, index) => {
-                                const pct = totalCount > 0 ? Math.round((group.count / totalCount) * 100) : 0;
+                                const pct = Math.round((group.cost / maxCost) * 100);
                                 const fillClass =
                                     pct >= 70 ? "audit-fill-green" : pct >= 40 ? "audit-fill-amber" : "audit-fill-red";
 
@@ -1725,6 +1794,7 @@ export default function AuditDashboard() {
                                         <td>{group.key}</td>
                                         <td className="audit-col-right">{group.count}</td>
                                         <td className="audit-col-right">{group.devices}</td>
+                                        <td className="audit-col-right">{formatCurrency(group.cost)}</td>
                                         <td>
                                             <div className="audit-bar-cell">
                                                 <div className="audit-bar-track">
@@ -1747,6 +1817,7 @@ export default function AuditDashboard() {
             </div>
         );
     };
+
     const renderDetailedTable = (data: AuditItem[]) => {
         return (
             <div className="audit-table-block">
@@ -1926,3 +1997,5 @@ export default function AuditDashboard() {
         </div>
     );
 }
+
+
