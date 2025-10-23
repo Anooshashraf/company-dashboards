@@ -85,11 +85,11 @@ export default function Navigation() {
             <div className="nav-section">
               <div className="nav-section-label">MAIN</div>
               <Link
-                href="/dashboard"
-                className={`nav-item ${pathname === '/dashboard' ? 'nav-item-active' : ''}`}
+                href="/dashboard/audit"
+                className={`nav-item ${pathname === '/dashboard/audit' ? 'nav-item-active' : ''}`}
               >
                 <span className="nav-icon">📊</span>
-                <span className="nav-text">Dashboard</span>
+                <span className="nav-text">Audit</span>
               </Link>
               <Link
                 href="/dashboard/rma"
