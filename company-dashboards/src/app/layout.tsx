@@ -1,6 +1,8 @@
 import "./globals.css";
 import Navigation from "../components/Navigation";
 import { AuthProvider } from "../components/AuthProvider";
+import { SettingsProvider } from './SettingsContext';
+
 
 export const metadata = {
   title: "Inventory Analytics",
@@ -15,13 +17,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AuthProvider>
-          <div className="app-layout">
-            <Navigation />
-            {children}
-          </div>
-        </AuthProvider>
+        <SettingsProvider>
+          <AuthProvider>
+            <div className="app-layout">
+              <Navigation />
+              {children}
+            </div>
+          </AuthProvider>
+        </SettingsProvider>
       </body>
     </html>
   );
 }
+

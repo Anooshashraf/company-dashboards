@@ -1,5 +1,6 @@
 "use client";
 import { useAuth } from "./AuthProvider";
+import { SettingsProvider } from '../app/SettingsContext';
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
@@ -13,10 +14,10 @@ export default function Navigation() {
 
   return (
     <>
-      {/* Top Bar */}
+
       <nav className="top-bar">
         <div className="top-bar-container">
-          {/* Left Section - Hamburger Menu & Logo */}
+
           <div className="top-bar-left">
             <button
               className="hamburger-btn"
@@ -58,10 +59,15 @@ export default function Navigation() {
                     My Profile
                   </button>
                   <button className="dropdown-item">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" />
-                    </svg>
-                    Settings
+                    <Link
+                      href="/settings"
+                      className={`nav-item ${pathname === 'settings'} `}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" />
+                      </svg>
+                      Settings
+                    </Link>
                   </button>
                   <div className="dropdown-divider"></div>
                   <button onClick={logout} className="dropdown-item logout">
@@ -128,8 +134,8 @@ export default function Navigation() {
             <div className="nav-section">
               <div className="nav-section-label">TOOLS</div>
               <Link
-                href="/dashboard/settings"
-                className={`nav-item ${pathname === '/dashboard/settings' ? 'nav-item-active' : ''}`}
+                href="/settings"
+                className={`nav-item ${pathname === '/settings' ? 'nav-item-active' : ''}`}
               >
                 <span className="nav-icon">⚙️</span>
                 <span className="nav-text">Settings</span>
