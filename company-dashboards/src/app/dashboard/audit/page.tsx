@@ -2572,14 +2572,14 @@ export default function AuditDashboard() {
                             {statusSummary.map((status, index) => {
                                 const pct = totalCost > 0 ? Math.round((status.cost / totalCost) * 100) : 0;
 
-                                // Determine color based on percentage - Red/Yellow/Green
+
                                 let barColor = '';
                                 if (pct >= 50) {
-                                    barColor = 'audit-fill-red';
+                                    barColor = 'audit-fill-green';
                                 } else if (pct >= 20) {
                                     barColor = 'audit-fill-amber';
                                 } else {
-                                    barColor = 'audit-fill-green';
+                                    barColor = 'audit-fill-red';
                                 }
 
                                 return (
