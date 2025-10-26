@@ -65,11 +65,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             root.style.setProperty('--glass-dark', 'rgba(15, 23, 42, 0.9)');
             root.style.setProperty('--glass-light', 'rgba(51, 65, 85, 0.6)');
         }
-
-        // CRITICAL: Layout variables are NEVER changed - your centered layout stays perfect
     };
 
-    // Load settings from localStorage on mount
     useEffect(() => {
         const savedSettings = localStorage.getItem('audit-app-settings');
         if (savedSettings) {
