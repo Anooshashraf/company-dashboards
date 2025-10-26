@@ -37,8 +37,6 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
     const [isModified, setIsModified] = useState(false);
-
-    // SAFE theme application - ONLY changes colors, NEVER layout
     const applyTheme = (theme: 'light' | 'dark') => {
         const root = document.documentElement;
 
