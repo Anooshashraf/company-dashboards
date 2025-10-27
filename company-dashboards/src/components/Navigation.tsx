@@ -32,7 +32,7 @@ export default function Navigation() {
               <div className="company-logo">
                 <span className="logo-icon">⚡</span>
               </div>
-              <span className="company-name">InventoryPro</span>
+              <span className="company-name">Inventory Analytics</span>
             </Link>
           </div>
 
