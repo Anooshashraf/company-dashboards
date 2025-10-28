@@ -143,7 +143,6 @@ const GeneralSettings: React.FC<{
     );
 };
 
-// Export Settings
 const ExportSettings: React.FC<{
     settings: any;
     onChange: (updates: any) => void;
