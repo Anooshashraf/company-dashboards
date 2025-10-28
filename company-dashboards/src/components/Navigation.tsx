@@ -36,7 +36,7 @@ export default function Navigation() {
             </Link>
           </div>
 
-          {/* Right Section - Admin Info */}
+
           <div className="top-bar-right">
             <div className="admin-profile">
               <div className="admin-avatar">
