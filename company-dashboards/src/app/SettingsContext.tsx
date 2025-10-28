@@ -85,7 +85,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
     }, []);
 
-    // Save settings to localStorage when they change
     useEffect(() => {
         localStorage.setItem('audit-app-settings', JSON.stringify(settings));
         setIsModified(false);
