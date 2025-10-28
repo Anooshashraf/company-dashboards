@@ -53,7 +53,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             root.style.setProperty('--glass-dark', 'rgba(248, 250, 252, 0.9)');
             root.style.setProperty('--glass-light', 'rgba(241, 245, 249, 0.6)');
         } else {
-            // Dark theme - ONLY color changes (your original theme)
             root.style.setProperty('--bg-primary', '#0f172a');
             root.style.setProperty('--bg-secondary', '#1e293b');
             root.style.setProperty('--bg-tertiary', '#334155');
