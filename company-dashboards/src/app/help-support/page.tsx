@@ -25,19 +25,19 @@ export default function HelpSupportPage() {
         {
             icon: '📧',
             title: 'Email Support',
-            details: 'support@inventorysystem.com',
+            details: 'inventory@texasmobilepcs.com',
             response: 'Response within 2 hours'
         },
         {
             icon: '💬',
             title: 'Live Chat',
-            details: 'Available 9AM-6PM (EST)',
+            details: 'Available 5PM-8AM (PST)',
             response: 'Instant response during business hours'
         },
         {
             icon: '📞',
             title: 'Phone Support',
-            details: '+1 (555) 123-4567',
+            details: ['+92 311 6584420', '+92 310 2774543'],
             response: '24/7 for critical issues'
         }
     ];
@@ -82,12 +82,7 @@ export default function HelpSupportPage() {
                     >
                         📞 Contact Support
                     </button>
-                    <button
-                        className={`help-tab ${activeTab === 'resources' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('resources')}
-                    >
-                        🛠️ Resources
-                    </button>
+
                 </div>
 
                 {/* Main Content */}
@@ -95,7 +90,7 @@ export default function HelpSupportPage() {
                     {activeTab === 'guides' && <GuidesSection />}
                     {activeTab === 'faq' && <FAQSection faqs={faqs} />}
                     {activeTab === 'contact' && <ContactSection contactMethods={contactMethods} />}
-                    {activeTab === 'resources' && <ResourcesSection />}
+
                 </div>
             </div>
         </div>
@@ -184,7 +179,7 @@ const ContactSection = ({ contactMethods }: { contactMethods: any[] }) => (
         </div>
 
         {/* Support Form */}
-        <div className="support-form">
+        {/* <div className="support-form">
             <h3>Send us a Message</h3>
             <form className="message-form">
                 <div className="form-group">
@@ -209,7 +204,7 @@ const ContactSection = ({ contactMethods }: { contactMethods: any[] }) => (
                 </div>
                 <button type="submit" className="submit-ticket-btn">Submit Support Ticket</button>
             </form>
-        </div>
+        </div> */}
     </div>
 );
 
@@ -219,11 +214,6 @@ const ResourcesSection = () => (
         <h2>Additional Resources</h2>
 
         <div className="resources-grid">
-            <div className="resource-card">
-                <h3>📋 API Documentation</h3>
-                <p>Technical documentation for system integration</p>
-                <button className="resource-btn">View Docs</button>
-            </div>
 
             <div className="resource-card">
                 <h3>🎥 Video Tutorials</h3>

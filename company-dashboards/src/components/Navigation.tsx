@@ -106,11 +106,11 @@ export default function Navigation() {
                 <span className="nav-text">RMA Management</span>
               </Link>
               <Link
-                href="/dashboard/inventory"
-                className={`nav-item ${pathname === '/dashboard/inventory' ? 'nav-item-active' : ''}`}
+                href="/dashboard/ordering"
+                className={`nav-item ${pathname === '/dashboard/ordering' ? 'nav-item-active' : ''}`}
               >
                 <span className="nav-icon">📦</span>
-                <span className="nav-text">Inventory</span>
+                <span className="nav-text">Ordering</span>
               </Link>
             </div>
 
