@@ -152,7 +152,6 @@ export default function Navigation() {
 
           {/* Sidebar Footer */}
           <div className="sidebar-footer">
-            <div className="app-version">v2.1.0</div>
             <div className="copyright">© 2024 InventoryPro</div>
           </div>
         </div>
