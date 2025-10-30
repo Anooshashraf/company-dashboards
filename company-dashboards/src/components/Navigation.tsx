@@ -86,7 +86,7 @@ export default function Navigation() {
       {/* Sidebar Navigation */}
       <aside className={`sidebar ${isSidebarOpen ? 'sidebar-open' : 'sidebar-collapsed'}`}>
         <div className="sidebar-content">
-          {/* Main Navigation */}
+
           <nav className="sidebar-nav">
             <div className="nav-section">
               <div className="nav-section-label">MAIN</div>
