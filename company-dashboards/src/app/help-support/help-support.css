@@ -1,0 +1,389 @@
+.help-support-page {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    color: var(--text-primary);
+}
+
+.help-header {
+    text-align: center;
+    margin-bottom: 2rem;
+
+}
+
+.help-header h1 {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+.help-header p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+/* Search Bar */
+.search-container {
+    display: flex;
+    max-width: 600px;
+    margin: 0 auto;
+    gap: 1rem;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--glass);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.search-btn {
+    padding: 0.75rem 1.5rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.search-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+}
+
+/* Layout */
+.help-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+    background: var(--glass-dark);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    min-height: 600px;
+}
+
+.help-sidebar {
+    background: var(--glass);
+    padding: 2rem 0;
+    border-right: 1px solid var(--border);
+}
+
+.help-tab {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.help-tab:hover {
+    background: var(--glass-light);
+    color: var(--text-primary);
+    transform: translateX(5px);
+}
+
+.help-tab.active {
+    background: var(--accent);
+    color: white;
+    font-weight: 600;
+}
+
+.help-content {
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.help-section h2 {
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 0.5rem;
+}
+
+/* Guides Grid */
+.guides-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.guide-card {
+    background: var(--glass);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.guide-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2);
+}
+
+.guide-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.guide-card h3 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.guide-card p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.guide-btn {
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.guide-btn:hover {
+    background: var(--accent-hover);
+}
+
+/* FAQ Styles */
+.faq-list {
+    margin-bottom: 2rem;
+}
+
+.faq-item {
+    background: var(--glass);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+}
+
+.faq-question {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.faq-answer {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.faq-contact-prompt {
+    text-align: center;
+    padding: 2rem;
+    background: var(--glass-light);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.contact-prompt-btn {
+    padding: 0.75rem 1.5rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 1rem;
+}
+
+/* Contact Methods */
+.contact-intro {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.contact-methods {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.contact-card {
+    background: var(--glass);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.contact-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+}
+
+.contact-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.contact-info h3 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.contact-detail {
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.contact-response {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Support Form */
+.support-form {
+    background: var(--glass);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.support-form h3 {
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+.message-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--glass-dark);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.submit-ticket-btn {
+    padding: 0.75rem 1.5rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.submit-ticket-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+}
+
+/* Resources Grid */
+.resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.resource-card {
+    background: var(--glass);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.resource-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+}
+
+.resource-card h3 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.resource-card p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.resource-btn {
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .help-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .help-sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .search-container {
+        flex-direction: column;
+    }
+
+    .guides-grid,
+    .contact-methods,
+    .resources-grid {
+        grid-template-columns: 1fr;
+    }
+}

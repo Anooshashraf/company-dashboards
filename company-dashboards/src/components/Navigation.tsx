@@ -1,6 +1,7 @@
 "use client";
 import { useAuth } from "./AuthProvider";
 import { SettingsProvider } from '../app/SettingsContext';
+
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
@@ -141,8 +142,8 @@ export default function Navigation() {
                 <span className="nav-text">Settings</span>
               </Link>
               <Link
-                href="/dashboard/support"
-                className={`nav-item ${pathname === '/dashboard/support' ? 'nav-item-active' : ''}`}
+                href="/help-support"
+                className={`nav-item ${pathname === '/help-support' ? 'nav-item-active' : ''}`}
               >
                 <span className="nav-icon">💬</span>
                 <span className="nav-text">Help & Support</span>
@@ -152,18 +153,20 @@ export default function Navigation() {
 
           {/* Sidebar Footer */}
           <div className="sidebar-footer">
-            <div className="copyright">© 2024 InventoryPro</div>
+            <div className="copyright">© 2024 Inventory Analytics</div>
           </div>
-        </div>
-      </aside>
+        </div >
+      </aside >
 
       {/* Overlay for mobile */}
-      {isSidebarOpen && (
-        <div
-          className="sidebar-overlay"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+      {
+        isSidebarOpen && (
+          <div
+            className="sidebar-overlay"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )
+      }
     </>
   );
 }
