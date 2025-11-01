@@ -102,7 +102,7 @@ export default function RMADashboard() {
       : 0;
   };
 
-  // Improved field detection
+
   const detectKey = (candidates: string[]): string => {
     if (!filteredData || filteredData.length === 0) return candidates[0];
 
@@ -392,7 +392,7 @@ export default function RMADashboard() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "tradeins_export.csv";
+    a.download = "rma_export.csv";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
