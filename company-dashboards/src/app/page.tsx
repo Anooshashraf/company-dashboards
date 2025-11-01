@@ -27,7 +27,7 @@ const dashboardCards = [
     color: "card-emerald",
   },
   {
-    title: "ISR Reports",
+    title: "IAS Reports",
     description: "Internal Service Reports and analytics",
     href: "/dashboard/isr",
     icon: "📈",

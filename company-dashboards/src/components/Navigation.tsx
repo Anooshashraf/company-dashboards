@@ -112,25 +112,15 @@ export default function Navigation() {
                 <span className="nav-icon">📦</span>
                 <span className="nav-text">Ordering</span>
               </Link>
-            </div>
-
-            <div className="nav-section">
-              <div className="nav-section-label">ANALYTICS</div>
               <Link
-                href="/dashboard/analytics"
-                className={`nav-item ${pathname === '/dashboard/analytics' ? 'nav-item-active' : ''}`}
+                href="/dashboard/isr"
+                className={`nav-item ${pathname === '/dashboard/isr' ? 'nav-item-active' : ''}`}
               >
                 <span className="nav-icon">📈</span>
-                <span className="nav-text">Analytics</span>
-              </Link>
-              <Link
-                href="/dashboard/reports"
-                className={`nav-item ${pathname === '/dashboard/reports' ? 'nav-item-active' : ''}`}
-              >
-                <span className="nav-icon">📋</span>
-                <span className="nav-text">Reports</span>
+                <span className="nav-text">IAS report</span>
               </Link>
             </div>
+
 
             <div className="nav-section">
               <div className="nav-section-label">TOOLS</div>

@@ -41,7 +41,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         const root = document.documentElement;
 
         if (theme === 'light') {
-            // Light theme - ONLY color changes
+
             root.style.setProperty('--bg-primary', '#f8fafc');
             root.style.setProperty('--bg-secondary', '#f1f5f9');
             root.style.setProperty('--bg-tertiary', '#e2e8f0');
