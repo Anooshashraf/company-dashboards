@@ -648,6 +648,72 @@ export default function RMADashboard() {
     );
   };
 
+  // const renderDetailedTable = (data: RMAItem[]) => {
+  //   return (
+  //     <div className="rma-table-block">
+  //       <div className="rma-table-header">
+  //         <h2>Detailed — {selectedType}</h2>
+  //         <div className="rma-meta">{data.length} rows</div>
+  //       </div>
+
+  //       <div className="rma-table-wrapper">
+  //         <table className="rma-table">
+  //           <thead>
+  //             <tr>
+  //               <th>Processed Date</th>
+  //               <th>Market</th>
+  //               <th>DM NAME</th>
+  //               <th>Type</th>
+  //               <th className="rma-col-right">Devices</th>
+  //               <th className="rma-col-right">Cost</th>
+  //               <th>Days</th>
+  //               <th>Assurant Status</th>
+  //             </tr>
+  //           </thead>
+  //           <tbody>
+  //             {data.map((row, index) => {
+  //               const processedDate = getField(row, [
+  //                 "Processed Date",
+  //                 "ProcessedDate",
+  //               ]);
+  //               const market = getField(row, ["Market", "Market Name"]);
+  //               const dm = getField(row, ["DM NAME", "DM Name"]);
+  //               const type = getField(row, ["Type", "TYPE"]);
+  //               const devices = countNonEmptyIMEI(row);
+  //               const cost = formatCurrency(
+  //                 parseCurrency(getField(row, ["COST", "Cost"]))
+  //               );
+  //               const days = getField(row, ["Days", "DAY", "day"]);
+  //               const assurant = getField(row, [
+  //                 "Assurant Status",
+  //                 "Assurant_STATUS",
+  //                 "Assurant",
+  //                 "assurant",
+  //               ]);
+
+  //               return (
+  //                 <tr key={index}>
+  //                   <td>{processedDate}</td>
+  //                   <td>{market}</td>
+  //                   <td>{dm}</td>
+  //                   <td>{type}</td>
+  //                   <td className="rma-col-right">{devices}</td>
+  //                   <td className="rma-col-right">{cost}</td>
+  //                   <td>
+  //                     {days && days !== "Unknown" && (
+  //                       <span className="rma-days-pill">{days}</span>
+  //                     )}
+  //                   </td>
+  //                   <td>{assurant}</td>
+  //                 </tr>
+  //               );
+  //             })}
+  //           </tbody>
+  //         </table>
+  //       </div>
+  //     </div>
+  //   );
+  // };
   const renderDetailedTable = (data: RMAItem[]) => {
     return (
       <div className="rma-table-block">
@@ -664,6 +730,7 @@ export default function RMADashboard() {
                 <th>Market</th>
                 <th>DM NAME</th>
                 <th>Type</th>
+                <th>IMEI</th>
                 <th className="rma-col-right">Devices</th>
                 <th className="rma-col-right">Cost</th>
                 <th>Days</th>
@@ -679,6 +746,12 @@ export default function RMADashboard() {
                 const market = getField(row, ["Market", "Market Name"]);
                 const dm = getField(row, ["DM NAME", "DM Name"]);
                 const type = getField(row, ["Type", "TYPE"]);
+                const imei = getField(row, [
+                  "Customer IMEI",
+                  "IMEI",
+                  "imei",
+                  "CUSTOMER IMEI",
+                ]);
                 const devices = countNonEmptyIMEI(row);
                 const cost = formatCurrency(
                   parseCurrency(getField(row, ["COST", "Cost"]))
@@ -697,6 +770,7 @@ export default function RMADashboard() {
                     <td>{market}</td>
                     <td>{dm}</td>
                     <td>{type}</td>
+                    <td>{imei}</td>
                     <td className="rma-col-right">{devices}</td>
                     <td className="rma-col-right">{cost}</td>
                     <td>
@@ -728,7 +802,7 @@ export default function RMADashboard() {
 
   if (!isAuthenticated) return null;
 
-  // MAIN COMPONENT RETURN - This was missing
+
   return (
     <div className="main-content">
       <div className="content-wrapper">
