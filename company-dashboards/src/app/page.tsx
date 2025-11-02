@@ -57,7 +57,7 @@ export default function Home() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="main-content"> {/* Keep this wrapper */}
+    <div className="main-content">
       <div className="content-wrapper"> {/* Keep this wrapper */}
         <header className="topbar">
           <div className="brand">
