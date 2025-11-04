@@ -173,7 +173,6 @@
 
 "use client";
 import { useAuth } from "./AuthProvider";
-import { SettingsProvider } from '../app/SettingsContext';
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
@@ -299,8 +298,8 @@ export default function Navigation() {
                 <span className="nav-text">Ordering</span>
               </Link>
               <Link
-                href="/dashboard/isr"
-                className={`nav-item ${pathname === '/dashboard/isr' ? 'nav-item-active' : ''}`}
+                href="/dashboard/ias"
+                className={`nav-item ${pathname === '/dashboard/ias' ? 'nav-item-active' : ''}`}
                 onClick={() => window.innerWidth < 768 && setIsSidebarOpen(false)}
               >
                 <span className="nav-icon">📈</span>

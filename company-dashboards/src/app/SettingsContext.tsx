@@ -4,7 +4,11 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 export interface AppSettings {
     theme: 'light' | 'dark';
     language: 'en' | 'es' | 'ur';
-    export: ExportSettings;
+    export: {
+        defaultFormat: 'csv' | 'excel' | 'pdf';
+        includeHeaders: boolean;
+        compressExports: boolean;
+    };
 }
 
 export interface ExportSettings {
@@ -21,7 +25,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
         defaultFormat: 'csv',
         includeHeaders: true,
         compressExports: false,
-        exportLocation: 'downloads'
+        // exportLocation: 'downloads';
     }
 };
 
@@ -131,3 +135,11 @@ export const useSettings = () => {
     }
     return context;
 };
+
+
+
+
+
+
+
+

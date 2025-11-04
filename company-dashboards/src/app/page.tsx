@@ -73,7 +73,7 @@ export default function Home() {
 
         <main className="main-area">
           <section className="dashboard-grid">
-            {dashboardCards.map((card, index) => (
+            {dashboardCards.map((card) => (
               <Link
                 key={card.title}
                 href={card.href}
