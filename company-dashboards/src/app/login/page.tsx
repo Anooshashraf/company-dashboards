@@ -124,7 +124,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "../../components/AuthProvider";
 
 const AUTHENTICATED_USERS = [
-  { email: "inventory_active8@gmail.com", password: "inventory123", role: "Administrator" },
+  { email: "inventory_active8@gmail.com", password: "inventory", role: "Administrator" },
   { email: "fahad@techno-communications.com", password: "fahad123", role: "Manager" },
   { email: "GHANI@TEXASMOBILEPCS.COM", password: "ghani123", role: "Auditor" },
   { email: "aleem.ghori@techno-communications.com", password: "aleem123", role: "Analyst" },
