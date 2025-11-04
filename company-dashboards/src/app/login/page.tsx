@@ -3,13 +3,11 @@
 // import { useRouter } from "next/navigation";
 // import { useAuth } from "../../components/AuthProvider";
 
-
 // const AUTHENTICATED_USERS = [
-//   { email: "inventory_active8@gmail.com", password: "inventory123", role: "Administrator" },
 //   { email: "fahad@techno-communications.com", password: "fahad123", role: "Manager" },
 //   { email: "GHANI@TEXASMOBILEPCS.COM", password: "ghani123", role: "Auditor" },
 //   { email: "aleem.ghori@techno-communications.com", password: "aleem123", role: "Analyst" },
-//   { email: "hasnain.mustaqeem@techno-communications.com", password: "hm123", role: "Viewer" }
+//   { email: "hasnain.mustaqeem@techno-communications.com", password: "hasnain123", role: "Viewer" }
 // ];
 
 // export default function Login() {
@@ -21,6 +19,12 @@
 //   const router = useRouter();
 
 //   useEffect(() => {
+//     // Initialize users in localStorage if not present
+//     const savedUsers = localStorage.getItem("inventoryUsers");
+//     if (!savedUsers) {
+//       localStorage.setItem("inventoryUsers", JSON.stringify(AUTHENTICATED_USERS));
+//     }
+
 //     if (isAuthenticated && !isLoading) {
 //       router.push("/");
 //     }
@@ -44,12 +48,9 @@
 
 //     await new Promise(resolve => setTimeout(resolve, 800));
 
-//     const validUser = AUTHENTICATED_USERS.find(
-//       user => user.email === email && user.password === password
-//     );
+//     const success = login(email, password);
 
-//     if (validUser) {
-//       login();
+//     if (success) {
 //       router.push("/");
 //     } else {
 //       setError("Invalid email or password. Please check your credentials.");
@@ -115,9 +116,6 @@
 // }
 
 
-
-
-
 "use client";
 import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
@@ -135,7 +133,7 @@ export default function Login() {
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const { isAuthenticated, login, isLoading } = useAuth();
+  const { isAuthenticated, login, isLoading, user } = useAuth(); // Added user here
   const router = useRouter();
 
   useEffect(() => {
@@ -168,7 +166,7 @@ export default function Login() {
 
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    const success = login(email, password);
+    const success = login(email, password); // This now works with your updated AuthProvider
 
     if (success) {
       router.push("/");
@@ -226,8 +224,13 @@ export default function Login() {
         <div className="demo-box">
           <p className="demo-title">Demo Credentials</p>
           <div className="demo-text">
-            <p>Email: <span className="demo-code">example@gmail.com</span></p>
-            <p>Password: <span className="demo-code">company123</span></p>
+            {AUTHENTICATED_USERS.map((user, index) => (
+              <div key={index} className="user-credential">
+                <p>Email: <span className="demo-code">{user.email}</span></p>
+                <p>Password: <span className="demo-code">{user.password}</span></p>
+                <p>Role: <span className="demo-code">{user.role}</span></p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
