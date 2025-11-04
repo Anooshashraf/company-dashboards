@@ -127,7 +127,7 @@ const AUTHENTICATED_USERS = [
   { email: "fahad@techno-communications.com", password: "fahad123", role: "Manager" },
   { email: "GHANI@TEXASMOBILEPCS.COM", password: "ghani123", role: "Auditor" },
   { email: "aleem.ghori@techno-communications.com", password: "aleem123", role: "Analyst" },
-  { email: "hasnain.mustaqeem@techno-communications.com", password: "hm123", role: "Viewer" }
+  { email: "hasnain.mustaqeem@techno-communications.com", password: "hasnain123", role: "Viewer" }
 ];
 
 export default function Login() {
