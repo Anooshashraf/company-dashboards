@@ -224,13 +224,17 @@ export default function Login() {
         <div className="demo-box">
           <p className="demo-title">Demo Credentials</p>
           <div className="demo-text">
-            {AUTHENTICATED_USERS.map((user, index) => (
+            {/* {AUTHENTICATED_USERS.map((user, index) => (
               <div key={index} className="user-credential">
                 <p>Email: <span className="demo-code">{user.email}</span></p>
                 <p>Password: <span className="demo-code">{user.password}</span></p>
                 <p>Role: <span className="demo-code">{user.role}</span></p>
               </div>
-            ))}
+            ))} */}
+            <div className="user-credential">
+              <p>Demo Email: <span className="demo-code">example@gmail.com</span></p>
+              <p>Demo Password: <span className="demo-code">example123</span></p>
+            </div>
           </div>
         </div>
       </div>
