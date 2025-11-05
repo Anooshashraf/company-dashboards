@@ -27,9 +27,9 @@ const dashboardCards = [
     color: "card-emerald",
   },
   {
-    title: "IAS Reports",
+    title: "IAS Report",
     description: "Internal Service Reports and analytics",
-    href: "/dashboard/isr",
+    href: "/dashboard/ias",
     icon: "📈",
     color: "card-orange",
   },
