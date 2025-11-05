@@ -2411,7 +2411,7 @@ export default function IASReportsPage() {
                     <div className="brand">
                         <div className="logo">📈</div>
                         <div className="title">
-                            <div className="main">IAS Reports</div>
+                            <div className="main">IAS Report</div>
                             <div className="sub">
                                 Inventory Analytics System - Store Performance
                             </div>
