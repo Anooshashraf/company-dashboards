@@ -593,3 +593,38 @@
     color: var(--accent);
     border: 1px solid rgba(139, 92, 246, 0.3);
 }
+
+/* Date Filters - Right Side */
+.ias-date-filters {
+    display: flex;
+    gap: 15px;
+    align-items: end;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    margin-top: 0;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-group label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+/* Responsive design for date filters */
+@media (max-width: 768px) {
+    .ias-date-filters {
+        justify-content: stretch;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-group {
+        width: 100%;
+    }
+}
