@@ -2543,13 +2543,93 @@ export default function OrderingReportsPage() {
         </div>
     );
 
+    // const renderHierarchicalTable = (data: OrderingReport[], level: string, onRowClick: (group: AggregatedGroup) => void) => {
+    //     const aggregated = aggregate(data, level);
+    //     const maxAmount = Math.max(...aggregated.map((a) => a.poRecAmount), 1);
+    //     const totalAmount = aggregated.reduce((sum, group) => sum + group.poRecAmount, 0);
+
+    //     let title = "";
+    //     let countLabel = "Tracking"; // Changed from "Store Count" to "Tracking"
+    //     switch (level) {
+    //         case "regions":
+    //             title = "Regions";
+    //             break;
+    //         case "markets":
+    //             title = "Markets";
+    //             break;
+    //         case "stores":
+    //             title = "Stores";
+    //             countLabel = "Store Count"; // Keep "Store Count" for store level
+    //             break;
+    //     }
+
+    //     return (
+    //         <div className="ordering-table-block">
+    //             <div className="ordering-table-header">
+    //                 <h2>{title}</h2>
+    //                 <div className="ordering-meta">
+    //                     {aggregated.length} groups — {getUniqueStoreCount(data)} unique stores — total received amount ${totalAmount.toLocaleString()}
+    //                 </div>
+    //             </div>
+
+    //             <div className="ordering-table-wrapper">
+    //                 <table className="ordering-table">
+    //                     <thead>
+    //                         <tr>
+    //                             <th>{title}</th>
+    //                             <th className="ordering-col-right">{countLabel}</th> {/* Updated label */}
+    //                             <th className="ordering-col-right">PO Count</th>
+    //                             <th className="ordering-col-right">PO Received</th>
+    //                             <th className="ordering-col-right">PO Rec Amount</th>
+    //                             <th className="ordering-col-right">Pending POs</th>
+    //                             <th className="ordering-col-right">Open Amount</th>
+    //                             <th>Value Distribution</th>
+    //                         </tr>
+    //                     </thead>
+    //                     <tbody>
+    //                         {aggregated.map((group, index) => {
+    //                             const pct = Math.round((group.poRecAmount / maxAmount) * 100);
+    //                             const fillClass = pct >= 70 ? "ordering-fill-green" : pct >= 40 ? "ordering-fill-amber" : "ordering-fill-red";
+
+    //                             return (
+    //                                 <tr key={index} onClick={() => onRowClick(group)} className="clickable-row">
+    //                                     <td>{group.key}</td>
+    //                                     <td className="ordering-col-right">{group.count}</td> {/* Now shows tracking count */}
+    //                                     <td className="ordering-col-right">{group.poCount}</td>
+    //                                     <td className="ordering-col-right">{group.poReceived}</td>
+    //                                     <td className="ordering-col-right">${group.poRecAmount.toLocaleString()}</td>
+    //                                     <td className="ordering-col-right">{group.pendingPOs}</td>
+    //                                     <td className="ordering-col-right">${group.poOpenAmount.toLocaleString()}</td>
+    //                                     <td>
+    //                                         <div className="ordering-bar-cell">
+    //                                             <div className="ordering-bar-track">
+    //                                                 <div
+    //                                                     className={`ordering-bar-fill ${fillClass}`}
+    //                                                     style={{ width: `${pct}%` }}
+    //                                                 ></div>
+    //                                             </div>
+    //                                             <div style={{ minWidth: "52px", textAlign: "right" }}>
+    //                                                 {pct}%
+    //                                             </div>
+    //                                         </div>
+    //                                     </td>
+    //                                 </tr>
+    //                             );
+    //                         })}
+    //                     </tbody>
+    //                 </table>
+    //             </div>
+    //         </div>
+    //     );
+    // };
+
     const renderHierarchicalTable = (data: OrderingReport[], level: string, onRowClick: (group: AggregatedGroup) => void) => {
         const aggregated = aggregate(data, level);
         const maxAmount = Math.max(...aggregated.map((a) => a.poRecAmount), 1);
         const totalAmount = aggregated.reduce((sum, group) => sum + group.poRecAmount, 0);
 
         let title = "";
-        let countLabel = "Tracking"; // Changed from "Store Count" to "Tracking"
+        let countLabel = "Tracking";
         switch (level) {
             case "regions":
                 title = "Regions";
@@ -2559,7 +2639,7 @@ export default function OrderingReportsPage() {
                 break;
             case "stores":
                 title = "Stores";
-                countLabel = "Store Count"; // Keep "Store Count" for store level
+                countLabel = "Store Count";
                 break;
         }
 
@@ -2577,7 +2657,7 @@ export default function OrderingReportsPage() {
                         <thead>
                             <tr>
                                 <th>{title}</th>
-                                <th className="ordering-col-right">{countLabel}</th> {/* Updated label */}
+                                <th className="ordering-col-right">{countLabel}</th>
                                 <th className="ordering-col-right">PO Count</th>
                                 <th className="ordering-col-right">PO Received</th>
                                 <th className="ordering-col-right">PO Rec Amount</th>
@@ -2594,7 +2674,7 @@ export default function OrderingReportsPage() {
                                 return (
                                     <tr key={index} onClick={() => onRowClick(group)} className="clickable-row">
                                         <td>{group.key}</td>
-                                        <td className="ordering-col-right">{group.count}</td> {/* Now shows tracking count */}
+                                        <td className="ordering-col-right">{group.count}</td>
                                         <td className="ordering-col-right">{group.poCount}</td>
                                         <td className="ordering-col-right">{group.poReceived}</td>
                                         <td className="ordering-col-right">${group.poRecAmount.toLocaleString()}</td>
@@ -2606,7 +2686,7 @@ export default function OrderingReportsPage() {
                                                     <div
                                                         className={`ordering-bar-fill ${fillClass}`}
                                                         style={{ width: `${pct}%` }}
-                                                    ></div>
+                                                    />
                                                 </div>
                                                 <div style={{ minWidth: "52px", textAlign: "right" }}>
                                                     {pct}%
