@@ -1,7 +1,7 @@
 "use client";
 import { useAuth } from "../../../components/AuthProvider";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import "./audit-styles.css";
 
 interface AuditItem {
@@ -31,9 +31,6 @@ export default function AuditDashboard() {
     const [filteredData, setFilteredData] = useState<AuditItem[]>([]);
     const [fromDate, setFromDate] = useState<string>("");
     const [toDate, setToDate] = useState<string>("");
-    const [sheetUrl] = useState<string>(
-        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRhKMtyCA2gB3lHwcP9hGLhDgmCUUqXVNmthUsFggsgaFeFuOYOPzjctQmkHMZ4ZA/pub?gid=259016646&single=true&output=csv"
-    );
     const [isLoadingData, setIsLoadingData] = useState<boolean>(true);
     const [currentView, setCurrentView] = useState<
         "regions" | "market" | "status" | "detailed"
@@ -47,6 +44,12 @@ export default function AuditDashboard() {
     >([{ level: "Regions" }]);
     const [detectedFields, setDetectedFields] = useState<{ [key: string]: string }>({});
 
+    // Sheet URLs for both regions
+    const sheetUrls = [
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRhKMtyCA2gB3lHwcP9hGLhDgmCUUqXVNmthUsFggsgaFeFuOYOPzjctQmkHMZ4ZA/pub?gid=259016646&single=true&output=csv",
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRhKMtyCA2gB3lHwcP9hGLhDgmCUUqXVNmthUsFggsgaFeFuOYOPzjctQmkHMZ4ZA/pub?gid=1286573647&single=true&output=csv"
+    ];
+
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
             router.push("/login");
@@ -59,34 +62,143 @@ export default function AuditDashboard() {
         }
     }, [isAuthenticated]);
 
-    const parseCurrency = (v: any): number => {
-        if (v == null) return 0;
-        const s = String(v).replace(/[^0-9.\-]/g, "");
-        const n = parseFloat(s);
-        return isNaN(n) ? 0 : n;
-    };
+    // FIXED: Enhanced CSV parsing to handle line breaks and scientific notation
+    const parseCSV = useCallback((text: string): AuditItem[] => {
+        const lines = text.split('\n').filter(line => line.trim().length > 0);
+        if (lines.length < 2) return [];
 
-    const parseDateMDY = (s: string): Date | null => {
-        if (!s) return null;
-        if (/\d{1,2}\/\d{1,2}\/\d{4}/.test(s)) {
-            const [mm, dd, yy] = s.split("/");
-            return new Date(Number(yy), Number(mm) - 1, Number(dd));
+        // Get headers from first line
+        const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ""));
+
+        const data: AuditItem[] = [];
+        let currentRow: string[] = [];
+        let inQuotes = false;
+        let currentField = '';
+
+        // Process all lines except header
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i];
+
+            for (let j = 0; j < line.length; j++) {
+                const char = line[j];
+
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    currentRow.push(currentField.trim());
+                    currentField = '';
+                } else {
+                    currentField += char;
+                }
+            }
+
+            // If we're still in quotes, continue to next line
+            if (!inQuotes) {
+                currentRow.push(currentField.trim());
+
+                // Only process if we have the right number of columns
+                if (currentRow.length === headers.length) {
+                    const obj: AuditItem = {};
+                    headers.forEach((header, index) => {
+                        let value = currentRow[index] || "";
+
+                        // Clean up the value
+                        value = value.replace(/"/g, "").trim();
+
+                        // Handle scientific notation in IMEI
+                        if (header.toLowerCase().includes('imei') || header.toLowerCase().includes('fullimei')) {
+                            if (value.includes('E+') || value.includes('e+')) {
+                                try {
+                                    // Convert scientific notation to full number
+                                    const num = Number(value);
+                                    if (!isNaN(num)) {
+                                        value = BigInt(num).toString();
+                                    }
+                                } catch (e) {
+                                    console.warn('Could not convert IMEI:', value);
+                                }
+                            }
+                        }
+
+                        obj[header] = value;
+                    });
+
+                    // Only add row if it has valid data
+                    if (Object.values(obj).some(val => val !== "" && val !== undefined)) {
+                        data.push(obj);
+                    }
+                } else {
+                    console.warn('Skipping row with incorrect column count:', currentRow.length, 'expected:', headers.length);
+                }
+
+                currentRow = [];
+                currentField = '';
+            } else {
+                // Continue field to next line
+                currentField += '\n';
+            }
         }
-        const d = new Date(s);
+
+        console.log(`Parsed ${data.length} rows from CSV`);
+        return data;
+    }, []);
+
+    // Enhanced currency parsing
+    const parseCurrency = useCallback((v: any): number => {
+        if (v == null || v === "" || v === undefined) return 0;
+
+        const str = String(v).trim();
+
+        if (str === "" || str === "-" || str === "N/A" || str === "null" || str === " ") {
+            return 0;
+        }
+
+        const cleaned = str
+            .replace(/\$/g, '')
+            .replace(/,/g, '')
+            .replace(/\s+/g, '')
+            .replace(/[^\d.-]/g, "");
+
+        const parts = cleaned.split('.');
+        let finalNumber = parts[0];
+        if (parts.length > 1) {
+            finalNumber += '.' + parts.slice(1).join('');
+        }
+
+        const n = parseFloat(finalNumber);
+        return isNaN(n) ? 0 : n;
+    }, []);
+
+    const parseDateMDY = useCallback((s: string): Date | null => {
+        if (!s || s.trim() === "") return null;
+        const str = String(s).trim();
+
+        // Handle MM/DD/YYYY format
+        const mdyMatch = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (mdyMatch) {
+            const month = parseInt(mdyMatch[1]) - 1;
+            const day = parseInt(mdyMatch[2]);
+            const year = parseInt(mdyMatch[3]);
+            const date = new Date(year, month, day);
+            if (!isNaN(date.getTime())) {
+                return date;
+            }
+        }
+
+        const d = new Date(str);
         return isNaN(d.getTime()) ? null : d;
-    };
+    }, []);
 
-    const formatCurrency = (v: number): string => {
-        return (
-            "$" +
-            Number(v || 0).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            })
-        );
-    };
+    const formatCurrency = useCallback((v: number): string => {
+        return "$" + Number(v || 0).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }, []);
 
-    const getField = (obj: AuditItem, candidates: string[]): string => {
+    const getField = useCallback((obj: AuditItem, candidates: string[]): string => {
+        if (!obj) return "Unknown";
+
         for (const k of candidates) {
             if (k in obj && obj[k] !== "" && obj[k] != null) return String(obj[k]);
             const matched = Object.keys(obj).find(
@@ -96,36 +208,60 @@ export default function AuditDashboard() {
                 return String(obj[matched]);
         }
         return "Unknown";
-    };
+    }, []);
 
-    const countNonEmptyIMEI = (row: AuditItem): number => {
+    // Enhanced IMEI counting with scientific notation handling
+    const countNonEmptyIMEI = useCallback((row: AuditItem): number => {
         const imeiValue = getField(row, [
             "FullIMEI#",
             "IMEI",
             "imei",
             "CUSTOMER IMEI",
         ]);
-        return imeiValue &&
-            String(imeiValue).trim() !== "" &&
-            imeiValue !== "Unknown" &&
-            imeiValue !== "0"
-            ? 1
-            : 0;
-    };
 
-    const detectKey = (candidates: string[], data: AuditItem[]): string => {
+        if (!imeiValue) return 0;
+
+        let cleanedIMEI = String(imeiValue).trim();
+
+        // Handle scientific notation
+        if (cleanedIMEI.includes('E+') || cleanedIMEI.includes('e+')) {
+            try {
+                const num = Number(cleanedIMEI);
+                if (!isNaN(num)) {
+                    cleanedIMEI = BigInt(num).toString();
+                }
+            } catch (e) {
+                console.warn('Could not convert IMEI from scientific notation:', cleanedIMEI);
+            }
+        }
+
+        // More inclusive IMEI validation
+        if (!cleanedIMEI ||
+            cleanedIMEI === "Unknown" ||
+            cleanedIMEI === "0" ||
+            cleanedIMEI === "N/A" ||
+            cleanedIMEI === "null" ||
+            cleanedIMEI === "NULL" ||
+            cleanedIMEI.length < 5
+        ) {
+            return 0;
+        }
+
+        return 1;
+    }, [getField]);
+
+    // Enhanced field detection
+    const detectKey = useCallback((candidates: string[], data: AuditItem[]): string => {
         if (!data || data.length === 0) return candidates[0];
 
         const allKeys = Object.keys(data[0] || {});
 
-        // First try: exact match
         for (const candidate of candidates) {
             if (allKeys.includes(candidate)) {
                 return candidate;
             }
         }
 
-        // Second try: case-insensitive match
         for (const candidate of candidates) {
             const matchedKey = allKeys.find((key) =>
                 key.toLowerCase() === candidate.toLowerCase()
@@ -135,7 +271,6 @@ export default function AuditDashboard() {
             }
         }
 
-        // Third try: partial match with validation
         for (const candidate of candidates) {
             const matchedKey = allKeys.find((key) =>
                 key.toLowerCase().includes(candidate.toLowerCase())
@@ -151,137 +286,194 @@ export default function AuditDashboard() {
         }
 
         return candidates[0];
-    };
+    }, []);
 
-    const detectAllFields = (data: AuditItem[]) => {
+    const detectAllFields = useCallback((data: AuditItem[]) => {
         const fields = {
             status: detectKey(["Status", "STATUS", "status"], data),
-            cost: detectKey(["Cost", "COST", "cost"], data),
+            cost: detectKey(["Cost", "COST", "cost", " Total Cost"], data),
             region: detectKey(["Regions", "Region", "REGIONS"], data),
             market: detectKey(["Market", "Market Name", "MARKET"], data),
             date: detectKey(["SerialDate", "Date", "ProcessedDate"], data),
-            store: detectKey(["Store", "STORE"], data),
+            store: detectKey(["Store", "STORE", "Store Name"], data),
             techId: detectKey(["TechID", "Tech ID", "TECHID"], data),
             sku: detectKey(["SKUDescription", "SKU", "sku"], data),
             imei: detectKey(["FullIMEI#", "IMEI", "imei"], data),
             comments: detectKey(["FinalComments", "Comments", "COMMENTS"], data)
         };
 
+        console.log("Detected fields:", fields);
         setDetectedFields(fields);
         return fields;
-    };
+    }, [detectKey]);
 
-    const aggregate = (data: AuditItem[], keyField: string, level: string = ""): AggregatedGroup[] => {
-        const groups: {
-            [key: string]: {
-                count: number;
-                devices: number;
-                cost: number;
-                rows: AuditItem[];
-            };
-        } = {};
+    const fetchCSV = useCallback(async (url: string): Promise<AuditItem[]> => {
+        try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error("fetch error " + res.status);
+            const txt = await res.text();
 
-        const validRegions = ["Aleem Ghori Region", "Hasnain Mustaqeem Region"];
+            console.log(`Raw CSV text length: ${txt.length}`);
+            console.log("First 500 chars of CSV:", txt.substring(0, 500));
 
-        data.forEach((row) => {
-            const keyRaw = row[keyField];
-            const key = String(keyRaw || "").trim();
+            const data = parseCSV(txt);
+            console.log(`Parsed ${data.length} rows from ${url}`);
 
-            if (!key || key === "Unknown" || key === "") return;
-
-            if (level === "regions" && keyField.toLowerCase().includes("region")) {
-                const isValidRegion = validRegions.some(region =>
-                    region.toLowerCase() === key.toLowerCase()
-                );
-                if (!isValidRegion) return;
+            if (data.length > 0) {
+                console.log("Sample parsed row:", data[0]);
+                console.log("All columns in sample:", Object.keys(data[0]));
             }
 
-            if (!groups[key])
-                groups[key] = {
-                    count: 0,
-                    devices: 0,
-                    cost: 0,
-                    rows: [],
-                };
+            return data;
+        } catch (err) {
+            console.error("Fetching CSV failed:", err);
+            return [];
+        }
+    }, [parseCSV]);
 
-            groups[key].count += 1;
-            groups[key].devices += countNonEmptyIMEI(row);
-            groups[key].cost += parseCurrency(
-                row[detectedFields.cost] || getField(row, ["Cost", "COST", "cost"])
-            );
-            groups[key].rows.push(row);
+    // Fetch data from all sheets and combine
+    const fetchAllData = useCallback(async (): Promise<AuditItem[]> => {
+        try {
+            console.log("Fetching data from both regions...");
+
+            const fetchPromises = sheetUrls.map(url => fetchCSV(url));
+            const results = await Promise.all(fetchPromises);
+
+            const allData = results.flat();
+            console.log(`Combined data: ${allData.length} total rows from ${results.length} sheets`);
+
+            return allData;
+        } catch (err) {
+            console.error("Error fetching data from multiple sheets:", err);
+            return [];
+        }
+    }, [fetchCSV]);
+
+    const applyFilters = useCallback((data: AuditItem[]): AuditItem[] => {
+        const from = fromDate ? new Date(fromDate) : null;
+        const to = toDate ? new Date(toDate) : null;
+        if (!from && !to) return data;
+
+        return data.filter((row) => {
+            const raw = getField(row, ["SerialDate", "Date", "ProcessedDate"]);
+            const d = parseDateMDY(raw);
+            if (!d) return false;
+            if (from && d < from) return false;
+            if (to) {
+                const toEnd = new Date(to.getFullYear(), to.getMonth(), to.getDate(), 23, 59, 59);
+                if (d > toEnd) return false;
+            }
+            return true;
         });
+    }, [fromDate, toDate, getField, parseDateMDY]);
 
-        const result = Object.keys(groups)
-            .map((k) => ({
-                key: k,
-                count: groups[k].count,
-                devices: groups[k].devices,
-                cost: groups[k].cost,
-                rows: groups[k].rows,
-            }))
-            .sort((a, b) => b.cost - a.cost);
-
-        return result;
-    };
-
-    const getStatusColor = (status: string): string => {
+    const getStatusColor = useCallback((status: string): string => {
         const statusColors: { [key: string]: string } = {
-            'scanning': 'blue',
-            'rma': 'orange',
-            'resolved': 'green',
-            'chargeback': 'red',
-            'active': 'green',
+            'scanning': 'purple',
+            'rma': 'purple',
+            'resolved': 'purple',
+            'chargeback': 'purple',
+            'active': 'purple',
             'sold': 'purple',
             'demo': 'purple',
-            'adjustment': 'orange',
-            'returned': 'red',
-            'damaged': 'red',
-            'lost': 'gray',
-            'in stock': 'green',
-            'shipped': 'blue',
-            'pending': 'orange',
-            'completed': 'green',
-            'cancelled': 'red',
-            'refunded': 'orange',
-            'in progress': 'blue',
-            'waiting for parts': 'orange',
-            'repaired': 'green'
+            'adjustment': 'purple',
+            'returned': 'purple',
+            'damaged': 'purple',
+            'lost': 'purple',
+            'in stock': 'purple',
+            'shipped': 'purple',
+            'pending': 'purple',
+            'completed': 'purple',
+            'cancelled': 'purple',
+            'refunded': 'purple',
+            'in progress': 'purple',
+            'waiting for parts': 'purple',
+            'sold (glitch)': 'purple',
+            'repaired': 'purple',
+            'overage': 'purple',
+            'audit': 'purple',
+            'verified': 'purple'
         };
 
         const normalizedStatus = status.toLowerCase().trim();
         return statusColors[normalizedStatus] || 'gray';
-    };
+    }, []);
 
-    const buildStatusSummary = (data: AuditItem[]): StatusSummary[] => {
+    // FIXED: Enhanced status detection with better filtering
+    const isValidStatus = useCallback((status: string): boolean => {
+        if (!status || status.trim() === "") return false;
+
+        const cleanStatus = status.trim().toLowerCase();
+
+        // Skip cost values that appear in status column
+        if (/^\$?\d+\.?\d*\s*$/.test(cleanStatus)) {
+            return false;
+        }
+
+        // Skip numeric values
+        if (/^\d+\s*$/.test(cleanStatus)) {
+            return false;
+        }
+
+        // Skip common invalid status values
+        const invalidValues = ['unknown', 'n/a', 'null', 'undefined', '-', ''];
+        if (invalidValues.includes(cleanStatus)) {
+            return false;
+        }
+
+        // Valid status patterns
+        const validPatterns = [
+            'scanning', 'rma', 'resolved', 'chargeback', 'active', 'sold',
+            'demo', 'adjustment', 'returned', 'damaged', 'lost', 'in stock',
+            'shipped', 'pending', 'completed', 'cancelled', 'refunded',
+            'in progress', 'waiting for parts', 'repaired', 'overage',
+            'audit', 'verified'
+        ];
+
+        return validPatterns.some(pattern => cleanStatus.includes(pattern));
+    }, []);
+
+    // FIXED: Build status summary with proper filtering
+    const buildStatusSummary = useCallback((data: AuditItem[]): StatusSummary[] => {
         const statusGroups: { [key: string]: StatusSummary } = {};
         const statusField = detectedFields.status;
         const costField = detectedFields.cost;
 
-        data.forEach((row) => {
+        console.log("🔍 Building status summary...");
+        console.log(`Status field: ${statusField}`);
+        console.log(`Cost field: ${costField}`);
+        console.log("First few status values:", data.slice(0, 5).map(row => ({
+            status: row[statusField],
+            cost: row[costField]
+        })));
+
+        let validStatusCount = 0;
+        let invalidStatusCount = 0;
+
+        data.forEach((row, index) => {
             const rawStatus = String(row[statusField] || "").trim();
             const rawCost = row[costField];
             const cost = parseCurrency(rawCost);
             const devices = countNonEmptyIMEI(row);
 
             // Skip empty status
-            if (!rawStatus || rawStatus === "Unknown" || rawStatus === "" || rawStatus === "N/A") {
+            if (!rawStatus || rawStatus === "" || rawStatus === "N/A") {
+                invalidStatusCount++;
                 return;
             }
 
-            // Check if status value is actually a cost/number
-            const isCostValue = /^\$?\d+\.?\d*$/.test(rawStatus);
-            if (isCostValue) {
+            // Use enhanced status validation
+            if (!isValidStatus(rawStatus)) {
+                invalidStatusCount++;
                 return;
             }
 
             // Clean and normalize the status
-            const cleanStatus = rawStatus
-                .trim()
-                .replace(/\s+/g, ' ')
-                .replace(/^\s+|\s+$/g, '');
-
-            if (!cleanStatus) return;
+            const cleanStatus = rawStatus.trim().replace(/\s+/g, ' ');
+            if (!cleanStatus) {
+                invalidStatusCount++;
+                return;
+            }
 
             if (!statusGroups[cleanStatus]) {
                 statusGroups[cleanStatus] = {
@@ -296,83 +488,124 @@ export default function AuditDashboard() {
             statusGroups[cleanStatus].count += 1;
             statusGroups[cleanStatus].devices += devices;
             statusGroups[cleanStatus].cost += cost;
+            validStatusCount++;
         });
 
         const result = Object.values(statusGroups).sort((a, b) => b.cost - a.cost);
+
+        // Debug logging
+        console.log("📊 STATUS SUMMARY DEBUG:");
+        console.log(`- Total rows processed: ${data.length}`);
+        console.log(`- Valid status rows: ${validStatusCount}`);
+        console.log(`- Invalid status rows: ${invalidStatusCount}`);
+        console.log(`- Unique status types: ${result.length}`);
+        console.log(`- Total audits in summary: ${result.reduce((sum, s) => sum + s.count, 0)}`);
+        console.log(`- Total devices in summary: ${result.reduce((sum, s) => sum + s.devices, 0)}`);
+        console.log(`- Total cost in summary: ${result.reduce((sum, s) => sum + s.cost, 0)}`);
+        console.log("Status groups found:", result.map(s => ({ status: s.status, count: s.count })));
+
         return result;
-    };
+    }, [detectedFields, parseCurrency, countNonEmptyIMEI, getStatusColor, isValidStatus]);
 
-    const fetchCSV = async (url: string): Promise<AuditItem[]> => {
-        try {
-            const res = await fetch(url);
-            if (!res.ok) throw new Error("fetch error " + res.status);
-            const txt = await res.text();
+    // Enhanced aggregation with perfect counts
+    const aggregate = useCallback((data: AuditItem[], keyField: string, level: string = ""): AggregatedGroup[] => {
+        console.log(`🔍 AGGREGATING ${level}`);
+        console.log(`Total input rows: ${data.length}`);
+        console.log(`Key field: ${keyField}`);
 
-            const lines = txt.split("\n").filter((line) => line.trim());
-            if (lines.length < 2) return [];
+        const groups: { [key: string]: AggregatedGroup } = {};
+        let totalRowsProcessed = 0;
+        let totalRowsSkipped = 0;
 
-            const headers = lines[0]
-                .split(",")
-                .map((h) => h.trim().replace(/"/g, ""));
-            const data = lines
-                .slice(1)
-                .map((line) => {
-                    const values = line.split(",").map((v) => v.trim().replace(/"/g, ""));
-                    const obj: AuditItem = {};
-                    headers.forEach((header, index) => {
-                        obj[header] = values[index] || "";
-                    });
-                    return obj;
-                })
-                .filter((row) => Object.values(row).some((val) => val !== ""));
+        data.forEach((row) => {
+            totalRowsProcessed++;
 
-            return data;
-        } catch (err) {
-            console.error("Fetching CSV failed:", err);
-            return [];
-        }
-    };
-
-    const applyFilters = (data: AuditItem[]): AuditItem[] => {
-        const from = fromDate ? new Date(fromDate) : null;
-        const to = toDate ? new Date(toDate) : null;
-        if (!from && !to) return data;
-
-        return data.filter((row) => {
-            const raw = getField(row, [
-                "SerialDate",
-                "Date",
-                "ProcessedDate",
-            ]);
-            const d = parseDateMDY(raw);
-            if (!d) return false;
-            if (from && d < from) return false;
-            if (to) {
-                const toEnd = new Date(
-                    to.getFullYear(),
-                    to.getMonth(),
-                    to.getDate(),
-                    23,
-                    59,
-                    59
-                );
-                if (d > toEnd) return false;
+            if (!row) {
+                totalRowsSkipped++;
+                return;
             }
-            return true;
-        });
-    };
 
-    const buildSummaryCards = (data: AuditItem[]) => {
-        const totalAudits = data.length;
-        const totalDevices = data.reduce((s, r) => s + countNonEmptyIMEI(r), 0);
-        const totalCost = data.reduce(
+            const keyRaw = row[keyField];
+            const key = String(keyRaw || "").trim();
+
+            if (!key || key === "Unknown" || key === "" || key === "N/A") {
+                totalRowsSkipped++;
+                return;
+            }
+
+            if (level === "regions") {
+                const validRegions = ["Aleem Ghori Region", "Hasnain Mustaqeem Region"];
+                const isValidRegion = validRegions.some(region =>
+                    region.toLowerCase() === key.toLowerCase()
+                );
+                if (!isValidRegion) {
+                    totalRowsSkipped++;
+                    return;
+                }
+            }
+
+            if (!groups[key]) {
+                groups[key] = {
+                    key: key,
+                    count: 0,
+                    devices: 0,
+                    cost: 0,
+                    rows: [],
+                };
+            }
+
+            groups[key].count += 1;
+            groups[key].devices += countNonEmptyIMEI(row);
+
+            const costValue = row[detectedFields.cost] || getField(row, ["Cost", "COST", "cost"]);
+            const cost = parseCurrency(costValue);
+            groups[key].cost += cost;
+
+            groups[key].rows.push(row);
+        });
+
+        const result = Object.values(groups).sort((a, b) => b.cost - a.cost);
+
+        console.log(`📊 AGGREGATION SUMMARY for ${level}:`);
+        console.log(`   Total Rows: ${data.length}`);
+        console.log(`   Processed: ${totalRowsProcessed}`);
+        console.log(`   Skipped: ${totalRowsSkipped}`);
+        console.log(`   Groups: ${result.length}`);
+
+        // Log specific group details for debugging
+        result.forEach((group, index) => {
+            console.log(`   Group ${index + 1}: ${group.key} - Count: ${group.count}, Devices: ${group.devices}, Cost: ${group.cost}`);
+        });
+
+        return result;
+    }, [countNonEmptyIMEI, parseCurrency, detectedFields, getField]);
+
+    // Summary cards calculation
+    const summaryCards = useMemo(() => {
+        if (filteredData.length === 0) {
+            return [
+                { label: "Total Audits", value: 0, icon: "📋" },
+                { label: "Total Devices", value: 0, icon: "📱" },
+                { label: "Total Value", value: formatCurrency(0), icon: "💰" },
+                { label: "Status Types", value: 0, icon: "🏷️" },
+            ];
+        }
+
+        const totalAudits = filteredData.length;
+        const totalDevices = filteredData.reduce((s, r) => s + countNonEmptyIMEI(r), 0);
+        const totalCost = filteredData.reduce(
             (s, r) => s + parseCurrency(r[detectedFields.cost] || getField(r, ["Cost", "COST", "cost"])),
             0
         );
 
-        // Use the same logic as buildStatusSummary to count unique statuses
-        const statusSummary = buildStatusSummary(data);
+        const statusSummary = buildStatusSummary(filteredData);
         const uniqueStatuses = statusSummary.length;
+
+        console.log("🎯 SUMMARY CARDS CALCULATION:");
+        console.log(`- Total Audits: ${totalAudits}`);
+        console.log(`- Total Devices: ${totalDevices}`);
+        console.log(`- Total Cost: ${totalCost}`);
+        console.log(`- Unique Statuses: ${uniqueStatuses}`);
 
         const cards = [
             { label: "Total Audits", value: totalAudits, icon: "📋" },
@@ -382,19 +615,22 @@ export default function AuditDashboard() {
         ];
 
         return cards;
-    };
+    }, [filteredData, detectedFields, parseCurrency, getField, countNonEmptyIMEI, buildStatusSummary, formatCurrency]);
 
+    // Initialize data from multiple sheets
     const initData = async () => {
         setIsLoadingData(true);
-        const data = await fetchCSV(sheetUrl);
+        const data = await fetchAllData();
 
         if (data && data.length > 0) {
+            console.log("📥 Initial data loaded:", data.length, "rows");
+            console.log("Sample row:", data[0]);
+
             setRawData(data);
             const filtered = applyFilters(data);
             setFilteredData(filtered);
             setCurrentData(filtered);
 
-            // Detect all fields
             detectAllFields(filtered);
 
             const dateVals = data
@@ -409,12 +645,12 @@ export default function AuditDashboard() {
 
             setHistoryStack([{ level: "Regions" }]);
         } else {
+            console.error("❌ No data loaded");
             setFilteredData([]);
             setCurrentData([]);
         }
         setIsLoadingData(false);
     };
-
     const handleApplyFilters = () => {
         const filtered = applyFilters(rawData);
         setFilteredData(filtered);
@@ -464,8 +700,8 @@ export default function AuditDashboard() {
     };
 
     const handleRegionClick = (region: AggregatedGroup) => {
-        const marketData = region.rows;
-        setCurrentData(marketData);
+        const regionData = region.rows;
+        setCurrentData(regionData);
         setCurrentView("market");
         setSelectedRegion(region.key);
         setHistoryStack([
@@ -475,8 +711,8 @@ export default function AuditDashboard() {
     };
 
     const handleMarketClick = (market: AggregatedGroup) => {
-        const statusData = market.rows;
-        setCurrentData(statusData);
+        const marketData = market.rows;
+        setCurrentData(marketData);
         setCurrentView("status");
         setSelectedMarket(market.key);
         setHistoryStack([
@@ -551,7 +787,7 @@ export default function AuditDashboard() {
         ));
     };
 
-    const renderStatusSummary = (data: AuditItem[]) => {
+    const renderStatusSummary = useCallback((data: AuditItem[]) => {
         const statusSummary = buildStatusSummary(data);
         const totalCost = statusSummary.reduce((sum, item) => sum + item.cost, 0);
 
@@ -578,7 +814,6 @@ export default function AuditDashboard() {
                         <tbody>
                             {statusSummary.map((status, index) => {
                                 const pct = totalCost > 0 ? Math.round((status.cost / totalCost) * 100) : 0;
-
 
                                 let barColor = '';
                                 if (pct >= 50) {
@@ -626,9 +861,9 @@ export default function AuditDashboard() {
                 </div>
             </div>
         );
-    };
+    }, [selectedMarket, buildStatusSummary, formatCurrency, detectedFields]);
 
-    const renderTable = (
+    const renderTable = useCallback((
         data: AuditItem[],
         level: string,
         onRowClick: (group: AggregatedGroup) => void
@@ -711,9 +946,9 @@ export default function AuditDashboard() {
                 </div>
             </div>
         );
-    };
+    }, [detectedFields, renderStatusSummary, aggregate, formatCurrency]);
 
-    const renderDetailedTable = (data: AuditItem[]) => {
+    const renderDetailedTable = useCallback((data: AuditItem[]) => {
         return (
             <div className="audit-table-block">
                 <div className="audit-table-header">
@@ -771,9 +1006,21 @@ export default function AuditDashboard() {
                 </div>
             </div>
         );
-    };
+    }, [selectedStatus, getField, formatCurrency, parseCurrency, detectedFields, getStatusColor]);
 
-    const summaryCards = buildSummaryCards(filteredData);
+    const renderSummaryCards = () => (
+        <section className="dashboard-grid">
+            {summaryCards.map((card, index) => (
+                <div key={index} className="dashboard-card card-purple">
+                    <div className="card-icon">{card.icon}</div>
+                    <div className="card-content">
+                        <h3 className="card-title">{card.label}</h3>
+                        <p className="card-description">{card.value}</p>
+                    </div>
+                </div>
+            ))}
+        </section>
+    );
 
     if (isLoading) {
         return (
@@ -785,6 +1032,8 @@ export default function AuditDashboard() {
     }
 
     if (!isAuthenticated) return null;
+
+
 
     return (
         <div className="main-content">
@@ -865,7 +1114,9 @@ export default function AuditDashboard() {
                         >
                             ← Back
                         </button>
-
+                        <div className="audit-breadcrumb">
+                            {renderBreadcrumb()}
+                        </div>
                     </div>
 
                     <section className="audit-stacked">
@@ -890,8 +1141,3 @@ export default function AuditDashboard() {
         </div>
     );
 }
-
-
-
-
-

@@ -1357,48 +1357,72 @@ export default function OrderingReportsPage() {
         );
     };
 
+    // Add this function to calculate total order count
+    const getTotalOrderCount = (): number => {
+        if (!orderingData.length) return 0;
+
+        // Count all unique markets in ordering data and sum their order counts
+        const uniqueMarkets = new Set(
+            orderingData.map(row => getValue(row, ['Market', 'marketid', 'MARKET', 'market'])).filter(m => m)
+        );
+
+        let totalOrderCount = 0;
+        uniqueMarkets.forEach(market => {
+            totalOrderCount += getOrderCount(market);
+        });
+
+        return totalOrderCount;
+    };
+
     const renderSummaryCards = () => (
         <section className="dashboard-grid">
-            <div className="dashboard-card card-blue">
+            <div className="dashboard-card card-purple">
                 <div className="card-icon">🏪</div>
                 <div className="card-content">
                     <h3 className="card-title">Total Stores</h3>
                     <p className="card-description">{summaryStats.totalStores}</p>
                 </div>
             </div>
-            <div className="dashboard-card card-blue">
+            <div className="dashboard-card card-purple">
                 <div className="card-icon">📄</div>
                 <div className="card-content">
                     <h3 className="card-title">Total POs</h3>
                     <p className="card-description">{summaryStats.totalPOs}</p>
                 </div>
             </div>
-            <div className="dashboard-card card-blue">
+            <div className="dashboard-card card-purple">
                 <div className="card-icon">📦</div>
                 <div className="card-content">
                     <h3 className="card-title">PO Received</h3>
                     <p className="card-description">{summaryStats.totalPoReceived}</p>
                 </div>
             </div>
-            <div className="dashboard-card card-blue">
+            <div className="dashboard-card card-purple">
                 <div className="card-icon">💰</div>
                 <div className="card-content">
                     <h3 className="card-title">PO Rec Amount</h3>
                     <p className="card-description">${summaryStats.totalPoRecAmount.toLocaleString()}</p>
                 </div>
             </div>
-            <div className="dashboard-card card-orange">
+            <div className="dashboard-card card-purple">
                 <div className="card-icon">⏳</div>
                 <div className="card-content">
                     <h3 className="card-title">Pending POs</h3>
                     <p className="card-description">{summaryStats.totalPendingPOs}</p>
                 </div>
             </div>
-            <div className="dashboard-card card-orange">
+            <div className="dashboard-card card-purple">
                 <div className="card-icon">💳</div>
                 <div className="card-content">
                     <h3 className="card-title">Open Amount</h3>
                     <p className="card-description">${summaryStats.totalPoOpenAmount.toLocaleString()}</p>
+                </div>
+            </div>
+            <div className="dashboard-card card-purple">
+                <div className="card-icon">📋</div>
+                <div className="card-content">
+                    <h3 className="card-title">Order Count</h3>
+                    <p className="card-description">{getTotalOrderCount()}</p>
                 </div>
             </div>
         </section>
