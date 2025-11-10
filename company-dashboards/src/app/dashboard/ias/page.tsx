@@ -147,7 +147,7 @@ export default function IASReportsPage() {
     // Enhanced cost calculation
     const calculateTotalCost = useCallback((report: IASReport): number => {
         // First try to use TOTAL COST column directly
-        const totalCostFromColumn = parseCurrency(report["TOTAL COST"]);
+        const totalCostFromColumn = parseCurrency(report["Cost"]);
         if (totalCostFromColumn > 0) {
             return totalCostFromColumn;
         }
@@ -321,16 +321,45 @@ export default function IASReportsPage() {
         return uniqueStores.size;
     };
 
-    // FIXED: Enhanced search function that properly searches all relevant fields
+
+
+
+    // // Enhanced search function for better results
+    // const searchData = useCallback((data: IASReport[], searchTerm: string): IASReport[] => {
+    //     if (!searchTerm.trim()) {
+    //         return data;
+    //     }
+
+    //     const searchLower = searchTerm.toLowerCase().trim();
+    //     console.log(`🔍 Searching for: "${searchLower}" in ${data.length} records`);
+
+    //     return data.filter((report) => {
+    //         // Search across all relevant fields
+    //         return (
+    //             report.Market?.toLowerCase().includes(searchLower) ||
+    //             report.ID?.toLowerCase().includes(searchLower) ||
+    //             report.SKU?.toLowerCase().includes(searchLower) ||
+    //             report.Product?.toLowerCase().includes(searchLower) ||
+    //             report["Store Name"]?.toLowerCase().includes(searchLower) ||
+    //             report.Model?.toLowerCase().includes(searchLower) ||
+    //             report.Status?.toLowerCase().includes(searchLower) ||
+    //             report["Sub Market"]?.toLowerCase().includes(searchLower) ||
+    //             report.Region?.toLowerCase().includes(searchLower) ||
+    //             report["Store Address"]?.toLowerCase().includes(searchLower)
+    //         );
+    //     });
+    // }, []);
+    // Enhanced search function for comprehensive searching
     const searchData = useCallback((data: IASReport[], searchTerm: string): IASReport[] => {
         if (!searchTerm.trim()) {
             return data;
         }
 
         const searchLower = searchTerm.toLowerCase().trim();
-        console.log(`Searching for: "${searchLower}" in ${data.length} records`);
+        console.log(`🔍 Searching for: "${searchLower}" in ${data.length} records`);
 
         const results = data.filter((report) => {
+            // Search across ALL relevant fields
             const searchableFields = [
                 report.Market,
                 report.ID,
@@ -340,24 +369,65 @@ export default function IASReportsPage() {
                 report.Model,
                 report.Status,
                 report["Sub Market"],
-            ].filter((field) => field && field !== "");
+                report.Region,
+                report["Store Address"],
+                report.INSTOCK,
+                report["ON TRANSFER"],
+                report["IN Transit"],
+                report.BACKDATED,
+                report.Cost,
+                report["TOTAL COST"],
+                report["Net Worth"],
+                report.ALLOCATION,
+                report["New Activation"],
+                report.SWITCHER,
+                report.UPGRADE,
+                report["%"],
+                report.Friday,
+                report.Monday,
+                report.GROUND,
+                report.TOTAL,
+                report.QUOTA,
+                report["2days"],
+                report.LWS,
+                report.L2WS,
+                report.L3WS,
+                report.L4WS,
+                report.L5WS,
+                report["3W ACT"],
+                report["3W UPG"],
+                report["SUG QTY"],
+                report["OVERNIGHT QTY"],
+                report["2nd DAY"],
+                report["GROUND QTY"],
+                report["Total ACC Sale"],
+                report.PPD,
+                report["ACC Per BOX"],
+                report["#"]
+            ].filter((field) => field && field !== "" && field !== undefined);
 
             return searchableFields.some((field) =>
-                field.toLowerCase().includes(searchLower)
+                String(field).toLowerCase().includes(searchLower)
             );
         });
 
-        console.log(`Found ${results.length} results for search: "${searchLower}"`);
+        console.log(`✅ Found ${results.length} results for: "${searchLower}"`);
+
+        // Debug: Show sample of what was found
         if (results.length > 0) {
-            console.log("Sample results:", results.slice(0, 3).map((r) => ({
+            console.log("Sample matching records:", results.slice(0, 3).map(r => ({
                 store: r["Store Name"],
                 id: r.ID,
-                market: r.Market
+                market: r.Market,
+                sku: r.SKU,
+                product: r.Product
             })));
         }
 
         return results;
     }, []);
+
+
 
     // Enhanced aggregation with all required sums
     const aggregate = (data: IASReport[], level: string): AggregatedGroup[] => {
@@ -675,7 +745,31 @@ export default function IASReportsPage() {
             </div>
         );
     };
+    const handleExportCSV = () => {
+        const csvData = currentView === "detailed" ? filteredReports : currentData;
+        if (csvData.length) {
+            const keys = Object.keys(csvData[0]);
+            const csv = [keys.join(",")]
+                .concat(
+                    csvData.map((r) =>
+                        keys
+                            .map((k) => `"${String(r[k as keyof IASReport] || "").replace(/"/g, '""')}"`)
+                            .join(",")
+                    )
+                )
+                .join("\n");
 
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "ias_export.csv";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    };
     const renderDetailedTable = () => {
         return (
             <div className="ias-table-block">
@@ -867,6 +961,349 @@ export default function IASReportsPage() {
         );
     }
 
+    // return (
+    //     <div className="main-content">
+    //         <div className="content-wrapper">
+    //             <header className="topbar">
+    //                 <div className="brand">
+    //                     <div className="logo">📈</div>
+    //                     <div className="title">
+    //                         <div className="main">IAS Report</div>
+    //                         <div className="sub">Inventory Analytics System - Store Performance</div>
+    //                     </div>
+    //                 </div>
+    //             </header>
+
+    //             <main className="main-area">
+    //                 <div className="ias-layout-container">
+    //                     {/* Left Sidebar with Search */}
+    //                     <div className="ias-sidebar">
+    //                         <div className="search-section">
+    //                             <h3>Search Inventory</h3>
+    //                             <div className="search-box">
+    //                                 <input
+    //                                     type="text"
+    //                                     placeholder="Search TECH IDs, stores, markets, SKUs..."
+    //                                     value={searchTerm}
+    //                                     onChange={(e) => setSearchTerm(e.target.value)}
+    //                                     className="search-input"
+    //                                 />
+    //                                 <span className="search-icon">🔍</span>
+    //                                 {searchTerm && (
+    //                                     <button
+    //                                         onClick={() => setSearchTerm("")}
+    //                                         className="clear-search"
+    //                                         title="Clear search"
+    //                                     >
+    //                                         ✕
+    //                                     </button>
+    //                                 )}
+    //                             </div>
+    //                             <div className="search-hint">
+    //                                 Try:  "Houston", "MOT XT24191", etc.
+    //                             </div>
+    //                         </div>
+
+    //                         <div className="action-buttons">
+    //                             <button
+    //                                 className="btn btn-success"
+    //                                 onClick={() => {
+    //                                     const csvData = currentView === "detailed" ? filteredReports : currentData;
+    //                                     if (csvData.length) {
+    //                                         const keys = Object.keys(csvData[0]);
+    //                                         const csv = [keys.join(",")]
+    //                                             .concat(
+    //                                                 csvData.map((r) =>
+    //                                                     keys
+    //                                                         .map((k) => `"${String(r[k as keyof IASReport] || "").replace(/"/g, '""')}"`)
+    //                                                         .join(",")
+    //                                                 )
+    //                                             )
+    //                                             .join("\n");
+
+    //                                         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    //                                         const url = URL.createObjectURL(blob);
+    //                                         const a = document.createElement("a");
+    //                                         a.href = url;
+    //                                         a.download = "ias_export.csv";
+    //                                         document.body.appendChild(a);
+    //                                         a.click();
+    //                                         document.body.removeChild(a);
+    //                                         URL.revokeObjectURL(url);
+    //                                     }
+    //                                 }}
+    //                             >
+    //                                 Export CSV
+    //                             </button>
+    //                             <button className="btn btn-primary" onClick={fetchIASData}>
+    //                                 Refresh Data
+    //                             </button>
+    //                         </div>
+
+    //                         {/* Quick Stats in Sidebar */}
+    //                         <div className="sidebar-stats">
+    //                             <h4>Quick Overview</h4>
+    //                             <div className="stat-item">
+    //                                 <span className="stat-label">Total Stores:</span>
+    //                                 <span className="stat-value">{summaryStats.totalStores}</span>
+    //                             </div>
+    //                             <div className="stat-item">
+    //                                 <span className="stat-label">IN STOCK:</span>
+    //                                 <span className="stat-value">{summaryStats.totalInventory.toLocaleString()}</span>
+    //                             </div>
+    //                             <div className="stat-item">
+    //                                 <span className="stat-label">Total Value:</span>
+    //                                 <span className="stat-value">${summaryStats.totalValue.toLocaleString()}</span>
+    //                             </div>
+    //                         </div>
+    //                     </div>
+
+    //                     {/* Main Content Area */}
+    //                     <div className="ias-main-content">
+    //                         {/* Enhanced Dashboard Cards */}
+    //                         <section className="dashboard-grid">
+    //                             <div className="dashboard-card card-purple">
+    //                                 <div className="card-icon">🏪</div>
+    //                                 <div className="card-content">
+    //                                     <h3 className="card-title">Total Stores</h3>
+    //                                     <p className="card-description">{summaryStats.totalStores}</p>
+    //                                 </div>
+    //                             </div>
+    //                             <div className="dashboard-card card-blue">
+    //                                 <div className="card-icon">📦</div>
+    //                                 <div className="card-content">
+    //                                     <h3 className="card-title">IN STOCK</h3>
+    //                                     <p className="card-description">{summaryStats.totalInventory.toLocaleString()}</p>
+    //                                 </div>
+    //                             </div>
+    //                             <div className="dashboard-card card-orange">
+    //                                 <div className="card-icon">🔄</div>
+    //                                 <div className="card-content">
+    //                                     <h3 className="card-title">ON TRANSFER</h3>
+    //                                     <p className="card-description">{summaryStats.totalOnTransfer.toLocaleString()}</p>
+    //                                 </div>
+    //                             </div>
+    //                             <div className="dashboard-card card-yellow">
+    //                                 <div className="card-icon">🚚</div>
+    //                                 <div className="card-content">
+    //                                     <h3 className="card-title">IN TRANSIT</h3>
+    //                                     <p className="card-description">{summaryStats.totalInTransit.toLocaleString()}</p>
+    //                                 </div>
+    //                             </div>
+    //                             <div className="dashboard-card card-red">
+    //                                 <div className="card-icon">📅</div>
+    //                                 <div className="card-content">
+    //                                     <h3 className="card-title">BACKDATED</h3>
+    //                                     <p className="card-description">{summaryStats.totalBackdated.toLocaleString()}</p>
+    //                                 </div>
+    //                             </div>
+    //                             <div className="dashboard-card card-green">
+    //                                 <div className="card-icon">💰</div>
+    //                                 <div className="card-content">
+    //                                     <h3 className="card-title">Total Value</h3>
+    //                                     <p className="card-description">${summaryStats.totalValue.toLocaleString()}</p>
+    //                                 </div>
+    //                             </div>
+    //                         </section>
+
+    //                         <div className="ias-nav-row">
+    //                             <button className={`btn ${historyStack.length <= 1 ? "hidden" : ""}`} onClick={handleBackClick}>
+    //                                 ← Back
+    //                             </button>
+    //                             <div className="ias-breadcrumb">{renderBreadcrumb()}</div>
+    //                         </div>
+
+    //                         <section className="ias-stacked">
+    //                             {currentView === "regions" && renderHierarchicalTable(currentData, "regions", handleRegionClick)}
+    //                             {currentView === "markets" && renderHierarchicalTable(currentData, "markets", handleMarketClick)}
+    //                             {currentView === "stores" && renderHierarchicalTable(currentData, "stores", handleStoreClick)}
+    //                             {currentView === "detailed" && renderDetailedTable()}
+    //                         </section>
+    //                     </div>
+    //                 </div>
+
+    //                 {selectedDetails && (
+    //                     <div className="modal-overlay" onClick={closeDetails}>
+    //                         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    //                             <div className="modal-header">
+    //                                 <h3>SKU Details - {selectedDetails.SKU}</h3>
+    //                                 <button className="close-btn" onClick={closeDetails}>×</button>
+    //                             </div>
+    //                             <div className="modal-body">
+    //                                 <div className="detail-grid">
+    //                                     <div><strong>Store:</strong> {selectedDetails["Store Name"]}</div>
+    //                                     <div><strong>Market:</strong> {selectedDetails.Market}</div>
+    //                                     <div><strong>Model:</strong> {selectedDetails.Model}</div>
+    //                                     <div><strong>Product:</strong> {selectedDetails.Product}</div>
+    //                                     <div>
+    //                                         <strong>Status:</strong>
+    //                                         <span className={`status-indicator status-${getStatusColor(selectedDetails.Status)}`}>
+    //                                             {selectedDetails.Status}
+    //                                         </span>
+    //                                     </div>
+    //                                     <div><strong>IN STOCK:</strong> {selectedDetails.INSTOCK}</div>
+    //                                     <div><strong>ON TRANSFER:</strong> {selectedDetails["ON TRANSFER"]}</div>
+    //                                     <div><strong>IN TRANSIT:</strong> {selectedDetails["IN Transit"]}</div>
+    //                                     <div><strong>BACKDATED:</strong> {selectedDetails.BACKDATED}</div>
+    //                                     <div><strong>Unit Cost:</strong> {selectedDetails.Cost}</div>
+    //                                     <div><strong>Net Worth:</strong> {selectedDetails["Net Worth"]}</div>
+    //                                     <div><strong>Total Cost:</strong> {selectedDetails["TOTAL COST"]}</div>
+    //                                     <div><strong>Calculated Value:</strong> ${calculateTotalCost(selectedDetails).toLocaleString()}</div>
+    //                                     <div><strong>Allocation:</strong> {selectedDetails.ALLOCATION}</div>
+    //                                     <div><strong>Performance:</strong> {selectedDetails["%"]}</div>
+    //                                 </div>
+    //                                 <div className="modal-actions">
+    //                                     <button className="btn btn-primary" onClick={closeDetails}>Close</button>
+    //                                 </div>
+    //                             </div>
+    //                         </div>
+    //                     </div>
+    //                 )}
+    //             </main>
+    //         </div>
+    //     </div>
+    // );
+
+    // return (
+    //     <div className="main-content">
+    //         <div className="content-wrapper">
+    //             <header className="topbar">
+    //                 <div className="brand">
+    //                     <div className="logo">📈</div>
+    //                     <div className="title">
+    //                         <div className="main">IAS Report</div>
+    //                         <div className="sub">Inventory Analytics System - Store Performance</div>
+    //                     </div>
+    //                 </div>
+    //             </header>
+
+    //             <main className="main-area">
+    //                 {/* Controls Section - Exactly like audit report */}
+    //                 <div className="audit-controls-section">
+    //                     <div className="audit-controls-grid">
+    //                         <div className="audit-action-buttons">
+    //                             <button
+    //                                 className="btn btn-success"
+    //                                 onClick={handleExportCSV}
+    //                             >
+    //                                 Export CSV
+    //                             </button>
+    //                             <button
+    //                                 className="btn btn-primary"
+    //                                 onClick={fetchIASData}
+    //                             >
+    //                                 Refresh Data
+    //                             </button>
+    //                         </div>
+    //                     </div>
+    //                 </div>
+
+    //                 {/* Dashboard Cards */}
+    //                 <section className="dashboard-grid">
+    //                     <div className="dashboard-card card-purple">
+    //                         <div className="card-icon">🏪</div>
+    //                         <div className="card-content">
+    //                             <h3 className="card-title">Total Stores</h3>
+    //                             <p className="card-description">{summaryStats.totalStores}</p>
+    //                         </div>
+    //                     </div>
+    //                     <div className="dashboard-card card-blue">
+    //                         <div className="card-icon">📦</div>
+    //                         <div className="card-content">
+    //                             <h3 className="card-title">IN STOCK</h3>
+    //                             <p className="card-description">{summaryStats.totalInventory.toLocaleString()}</p>
+    //                         </div>
+    //                     </div>
+    //                     <div className="dashboard-card card-orange">
+    //                         <div className="card-icon">🔄</div>
+    //                         <div className="card-content">
+    //                             <h3 className="card-title">ON TRANSFER</h3>
+    //                             <p className="card-description">{summaryStats.totalOnTransfer.toLocaleString()}</p>
+    //                         </div>
+    //                     </div>
+    //                     <div className="dashboard-card card-yellow">
+    //                         <div className="card-icon">🚚</div>
+    //                         <div className="card-content">
+    //                             <h3 className="card-title">IN TRANSIT</h3>
+    //                             <p className="card-description">{summaryStats.totalInTransit.toLocaleString()}</p>
+    //                         </div>
+    //                     </div>
+    //                     <div className="dashboard-card card-red">
+    //                         <div className="card-icon">📅</div>
+    //                         <div className="card-content">
+    //                             <h3 className="card-title">BACKDATED</h3>
+    //                             <p className="card-description">{summaryStats.totalBackdated.toLocaleString()}</p>
+    //                         </div>
+    //                     </div>
+    //                     <div className="dashboard-card card-green">
+    //                         <div className="card-icon">💰</div>
+    //                         <div className="card-content">
+    //                             <h3 className="card-title">Total Value</h3>
+    //                             <p className="card-description">${summaryStats.totalValue.toLocaleString()}</p>
+    //                         </div>
+    //                     </div>
+    //                 </section>
+
+    //                 {/* Navigation */}
+    //                 <div className="audit-nav-row">
+    //                     <button className={`btn ${historyStack.length <= 1 ? "hidden" : ""}`} onClick={handleBackClick}>
+    //                         ← Back
+    //                     </button>
+    //                     <div className="audit-breadcrumb">{renderBreadcrumb()}</div>
+    //                 </div>
+
+    //                 {/* Table Content */}
+    //                 <section className="audit-stacked">
+    //                     {currentView === "regions" && renderHierarchicalTable(currentData, "regions", handleRegionClick)}
+    //                     {currentView === "markets" && renderHierarchicalTable(currentData, "markets", handleMarketClick)}
+    //                     {currentView === "stores" && renderHierarchicalTable(currentData, "stores", handleStoreClick)}
+    //                     {currentView === "detailed" && renderDetailedTable()}
+    //                 </section>
+    //             </main>
+    //         </div>
+
+    //         {/* Modal */}
+    //         {selectedDetails && (
+    //             <div className="modal-overlay" onClick={closeDetails}>
+    //                 <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    //                     <div className="modal-header">
+    //                         <h3>SKU Details - {selectedDetails.SKU}</h3>
+    //                         <button className="close-btn" onClick={closeDetails}>×</button>
+    //                     </div>
+    //                     <div className="modal-body">
+    //                         <div className="detail-grid">
+    //                             <div><strong>Store:</strong> {selectedDetails["Store Name"]}</div>
+    //                             <div><strong>Market:</strong> {selectedDetails.Market}</div>
+    //                             <div><strong>Model:</strong> {selectedDetails.Model}</div>
+    //                             <div><strong>Product:</strong> {selectedDetails.Product}</div>
+    //                             <div>
+    //                                 <strong>Status:</strong>
+    //                                 <span className={`status-indicator status-${getStatusColor(selectedDetails.Status)}`}>
+    //                                     {selectedDetails.Status}
+    //                                 </span>
+    //                             </div>
+    //                             <div><strong>IN STOCK:</strong> {selectedDetails.INSTOCK}</div>
+    //                             <div><strong>ON TRANSFER:</strong> {selectedDetails["ON TRANSFER"]}</div>
+    //                             <div><strong>IN TRANSIT:</strong> {selectedDetails["IN Transit"]}</div>
+    //                             <div><strong>BACKDATED:</strong> {selectedDetails.BACKDATED}</div>
+    //                             <div><strong>Unit Cost:</strong> {selectedDetails.Cost}</div>
+    //                             <div><strong>Net Worth:</strong> {selectedDetails["Net Worth"]}</div>
+    //                             <div><strong>Total Cost:</strong> {selectedDetails["TOTAL COST"]}</div>
+    //                             <div><strong>Calculated Value:</strong> ${calculateTotalCost(selectedDetails).toLocaleString()}</div>
+    //                             <div><strong>Allocation:</strong> {selectedDetails.ALLOCATION}</div>
+    //                             <div><strong>Performance:</strong> {selectedDetails["%"]}</div>
+    //                         </div>
+    //                         <div className="modal-actions">
+    //                             <button className="btn btn-primary" onClick={closeDetails}>Close</button>
+    //                         </div>
+    //                     </div>
+    //                 </div>
+    //             </div>
+    //         )}
+    //     </div>
+    // );
+
+
     return (
         <div className="main-content">
             <div className="content-wrapper">
@@ -881,192 +1318,150 @@ export default function IASReportsPage() {
                 </header>
 
                 <main className="main-area">
-                    <div className="ias-layout-container">
-                        {/* Left Sidebar with Search */}
-                        <div className="ias-sidebar">
-                            <div className="search-section">
-                                <h3>Search Inventory</h3>
-                                <div className="search-box">
-                                    <input
-                                        type="text"
-                                        placeholder="Search TECH IDs, stores, markets, SKUs..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="search-input"
-                                    />
-                                    <span className="search-icon">🔍</span>
-                                    {searchTerm && (
-                                        <button
-                                            onClick={() => setSearchTerm("")}
-                                            className="clear-search"
-                                            title="Clear search"
-                                        >
-                                            ✕
-                                        </button>
-                                    )}
-                                </div>
-                                <div className="search-hint">
-                                    Try:  "Houston", "MOT XT24191", etc.
-                                </div>
+                    {/* Controls Section with Search on Left, Buttons on Right */}
+                    <div className="ias-controls-section">
+                        <div className="ias-controls-grid">
+                            {/* Search Bar on Left */}
+                            <div className="search-box">
+                                <input
+                                    type="text"
+                                    placeholder="Search TECH IDs, stores, markets, SKUs..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="search-input"
+                                />
+                                <span className="search-icon">🔍</span>
+                                {searchTerm && (
+                                    <button
+                                        onClick={() => setSearchTerm("")}
+                                        className="clear-search"
+                                        title="Clear search"
+                                    >
+                                        ✕
+                                    </button>
+                                )}
                             </div>
 
-                            <div className="action-buttons">
+                            {/* Buttons on Right */}
+                            <div className="ias-action-buttons">
                                 <button
                                     className="btn btn-success"
-                                    onClick={() => {
-                                        const csvData = currentView === "detailed" ? filteredReports : currentData;
-                                        if (csvData.length) {
-                                            const keys = Object.keys(csvData[0]);
-                                            const csv = [keys.join(",")]
-                                                .concat(
-                                                    csvData.map((r) =>
-                                                        keys
-                                                            .map((k) => `"${String(r[k as keyof IASReport] || "").replace(/"/g, '""')}"`)
-                                                            .join(",")
-                                                    )
-                                                )
-                                                .join("\n");
-
-                                            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-                                            const url = URL.createObjectURL(blob);
-                                            const a = document.createElement("a");
-                                            a.href = url;
-                                            a.download = "ias_export.csv";
-                                            document.body.appendChild(a);
-                                            a.click();
-                                            document.body.removeChild(a);
-                                            URL.revokeObjectURL(url);
-                                        }
-                                    }}
+                                    onClick={handleExportCSV}
                                 >
                                     Export CSV
                                 </button>
-                                <button className="btn btn-primary" onClick={fetchIASData}>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={fetchIASData}
+                                >
                                     Refresh Data
                                 </button>
                             </div>
-
-                            {/* Quick Stats in Sidebar */}
-                            <div className="sidebar-stats">
-                                <h4>Quick Overview</h4>
-                                <div className="stat-item">
-                                    <span className="stat-label">Total Stores:</span>
-                                    <span className="stat-value">{summaryStats.totalStores}</span>
-                                </div>
-                                <div className="stat-item">
-                                    <span className="stat-label">IN STOCK:</span>
-                                    <span className="stat-value">{summaryStats.totalInventory.toLocaleString()}</span>
-                                </div>
-                                <div className="stat-item">
-                                    <span className="stat-label">Total Value:</span>
-                                    <span className="stat-value">${summaryStats.totalValue.toLocaleString()}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Main Content Area */}
-                        <div className="ias-main-content">
-                            {/* Enhanced Dashboard Cards */}
-                            <section className="dashboard-grid">
-                                <div className="dashboard-card card-purple">
-                                    <div className="card-icon">🏪</div>
-                                    <div className="card-content">
-                                        <h3 className="card-title">Total Stores</h3>
-                                        <p className="card-description">{summaryStats.totalStores}</p>
-                                    </div>
-                                </div>
-                                <div className="dashboard-card card-blue">
-                                    <div className="card-icon">📦</div>
-                                    <div className="card-content">
-                                        <h3 className="card-title">IN STOCK</h3>
-                                        <p className="card-description">{summaryStats.totalInventory.toLocaleString()}</p>
-                                    </div>
-                                </div>
-                                <div className="dashboard-card card-orange">
-                                    <div className="card-icon">🔄</div>
-                                    <div className="card-content">
-                                        <h3 className="card-title">ON TRANSFER</h3>
-                                        <p className="card-description">{summaryStats.totalOnTransfer.toLocaleString()}</p>
-                                    </div>
-                                </div>
-                                <div className="dashboard-card card-yellow">
-                                    <div className="card-icon">🚚</div>
-                                    <div className="card-content">
-                                        <h3 className="card-title">IN TRANSIT</h3>
-                                        <p className="card-description">{summaryStats.totalInTransit.toLocaleString()}</p>
-                                    </div>
-                                </div>
-                                <div className="dashboard-card card-red">
-                                    <div className="card-icon">📅</div>
-                                    <div className="card-content">
-                                        <h3 className="card-title">BACKDATED</h3>
-                                        <p className="card-description">{summaryStats.totalBackdated.toLocaleString()}</p>
-                                    </div>
-                                </div>
-                                <div className="dashboard-card card-green">
-                                    <div className="card-icon">💰</div>
-                                    <div className="card-content">
-                                        <h3 className="card-title">Total Value</h3>
-                                        <p className="card-description">${summaryStats.totalValue.toLocaleString()}</p>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <div className="ias-nav-row">
-                                <button className={`btn ${historyStack.length <= 1 ? "hidden" : ""}`} onClick={handleBackClick}>
-                                    ← Back
-                                </button>
-                                <div className="ias-breadcrumb">{renderBreadcrumb()}</div>
-                            </div>
-
-                            <section className="ias-stacked">
-                                {currentView === "regions" && renderHierarchicalTable(currentData, "regions", handleRegionClick)}
-                                {currentView === "markets" && renderHierarchicalTable(currentData, "markets", handleMarketClick)}
-                                {currentView === "stores" && renderHierarchicalTable(currentData, "stores", handleStoreClick)}
-                                {currentView === "detailed" && renderDetailedTable()}
-                            </section>
                         </div>
                     </div>
 
-                    {selectedDetails && (
-                        <div className="modal-overlay" onClick={closeDetails}>
-                            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                                <div className="modal-header">
-                                    <h3>SKU Details - {selectedDetails.SKU}</h3>
-                                    <button className="close-btn" onClick={closeDetails}>×</button>
-                                </div>
-                                <div className="modal-body">
-                                    <div className="detail-grid">
-                                        <div><strong>Store:</strong> {selectedDetails["Store Name"]}</div>
-                                        <div><strong>Market:</strong> {selectedDetails.Market}</div>
-                                        <div><strong>Model:</strong> {selectedDetails.Model}</div>
-                                        <div><strong>Product:</strong> {selectedDetails.Product}</div>
-                                        <div>
-                                            <strong>Status:</strong>
-                                            <span className={`status-indicator status-${getStatusColor(selectedDetails.Status)}`}>
-                                                {selectedDetails.Status}
-                                            </span>
-                                        </div>
-                                        <div><strong>IN STOCK:</strong> {selectedDetails.INSTOCK}</div>
-                                        <div><strong>ON TRANSFER:</strong> {selectedDetails["ON TRANSFER"]}</div>
-                                        <div><strong>IN TRANSIT:</strong> {selectedDetails["IN Transit"]}</div>
-                                        <div><strong>BACKDATED:</strong> {selectedDetails.BACKDATED}</div>
-                                        <div><strong>Unit Cost:</strong> {selectedDetails.Cost}</div>
-                                        <div><strong>Net Worth:</strong> {selectedDetails["Net Worth"]}</div>
-                                        <div><strong>Total Cost:</strong> {selectedDetails["TOTAL COST"]}</div>
-                                        <div><strong>Calculated Value:</strong> ${calculateTotalCost(selectedDetails).toLocaleString()}</div>
-                                        <div><strong>Allocation:</strong> {selectedDetails.ALLOCATION}</div>
-                                        <div><strong>Performance:</strong> {selectedDetails["%"]}</div>
-                                    </div>
-                                    <div className="modal-actions">
-                                        <button className="btn btn-primary" onClick={closeDetails}>Close</button>
-                                    </div>
-                                </div>
+                    {/* Dashboard Cards */}
+                    <section className="dashboard-grid">
+                        <div className="dashboard-card card-purple">
+                            <div className="card-icon">🏪</div>
+                            <div className="card-content">
+                                <h3 className="card-title">Total Stores</h3>
+                                <p className="card-description">{summaryStats.totalStores}</p>
                             </div>
                         </div>
-                    )}
+                        <div className="dashboard-card card-blue">
+                            <div className="card-icon">📦</div>
+                            <div className="card-content">
+                                <h3 className="card-title">IN STOCK</h3>
+                                <p className="card-description">{summaryStats.totalInventory.toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <div className="dashboard-card card-orange">
+                            <div className="card-icon">🔄</div>
+                            <div className="card-content">
+                                <h3 className="card-title">ON TRANSFER</h3>
+                                <p className="card-description">{summaryStats.totalOnTransfer.toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <div className="dashboard-card card-yellow">
+                            <div className="card-icon">🚚</div>
+                            <div className="card-content">
+                                <h3 className="card-title">IN TRANSIT</h3>
+                                <p className="card-description">{summaryStats.totalInTransit.toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <div className="dashboard-card card-red">
+                            <div className="card-icon">📅</div>
+                            <div className="card-content">
+                                <h3 className="card-title">BACKDATED</h3>
+                                <p className="card-description">{summaryStats.totalBackdated.toLocaleString()}</p>
+                            </div>
+                        </div>
+                        <div className="dashboard-card card-green">
+                            <div className="card-icon">💰</div>
+                            <div className="card-content">
+                                <h3 className="card-title">Total Value</h3>
+                                <p className="card-description">${summaryStats.totalValue.toLocaleString()}</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Navigation */}
+                    <div className="ias-nav-row">
+                        <button className={`btn ${historyStack.length <= 1 ? "hidden" : ""}`} onClick={handleBackClick}>
+                            ← Back
+                        </button>
+                        <div className="ias-breadcrumb">{renderBreadcrumb()}</div>
+                    </div>
+
+                    {/* Table Content */}
+                    <section className="ias-stacked">
+                        {currentView === "regions" && renderHierarchicalTable(currentData, "regions", handleRegionClick)}
+                        {currentView === "markets" && renderHierarchicalTable(currentData, "markets", handleMarketClick)}
+                        {currentView === "stores" && renderHierarchicalTable(currentData, "stores", handleStoreClick)}
+                        {currentView === "detailed" && renderDetailedTable()}
+                    </section>
                 </main>
             </div>
+
+            {/* Modal */}
+            {selectedDetails && (
+                <div className="modal-overlay" onClick={closeDetails}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h3>SKU Details - {selectedDetails.SKU}</h3>
+                            <button className="close-btn" onClick={closeDetails}>×</button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="detail-grid">
+                                <div><strong>Store:</strong> {selectedDetails["Store Name"]}</div>
+                                <div><strong>Market:</strong> {selectedDetails.Market}</div>
+                                <div><strong>Model:</strong> {selectedDetails.Model}</div>
+                                <div><strong>Product:</strong> {selectedDetails.Product}</div>
+                                <div>
+                                    <strong>Status:</strong>
+                                    <span className={`status-indicator status-${getStatusColor(selectedDetails.Status)}`}>
+                                        {selectedDetails.Status}
+                                    </span>
+                                </div>
+                                <div><strong>IN STOCK:</strong> {selectedDetails.INSTOCK}</div>
+                                <div><strong>ON TRANSFER:</strong> {selectedDetails["ON TRANSFER"]}</div>
+                                <div><strong>IN TRANSIT:</strong> {selectedDetails["IN Transit"]}</div>
+                                <div><strong>BACKDATED:</strong> {selectedDetails.BACKDATED}</div>
+                                <div><strong>Unit Cost:</strong> {selectedDetails.Cost}</div>
+                                <div><strong>Net Worth:</strong> {selectedDetails["Net Worth"]}</div>
+                                <div><strong>Total Cost:</strong> {selectedDetails["TOTAL COST"]}</div>
+                                <div><strong>Calculated Value:</strong> ${calculateTotalCost(selectedDetails).toLocaleString()}</div>
+                                <div><strong>Allocation:</strong> {selectedDetails.ALLOCATION}</div>
+                                <div><strong>Performance:</strong> {selectedDetails["%"]}</div>
+                            </div>
+                            <div className="modal-actions">
+                                <button className="btn btn-primary" onClick={closeDetails}>Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
