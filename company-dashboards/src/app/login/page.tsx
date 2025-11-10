@@ -115,17 +115,28 @@
 //   );
 // }
 
-
 "use client";
 import { useState, useEffect, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../components/AuthProvider";
 
 const AUTHENTICATED_USERS = [
-  { email: "fahad@techno-communications.com", password: "fahad123", role: "Manager" },
+  {
+    email: "fahad@techno-communications.com",
+    password: "fahad123",
+    role: "Manager",
+  },
   { email: "GHANI@TEXASMOBILEPCS.COM", password: "ghani123", role: "Auditor" },
-  { email: "aleem.ghori@techno-communications.com", password: "aleem123", role: "Analyst" },
-  { email: "hasnain.mustaqeem@techno-communications.com", password: "hasnain123", role: "Viewer" }
+  {
+    email: "aleem.ghori@techno-communications.com",
+    password: "aleem123",
+    role: "Analyst",
+  },
+  {
+    email: "hasnain.mustaqeem@techno-communications.com",
+    password: "hasnain123",
+    role: "Viewer",
+  },
 ];
 
 export default function Login() {
@@ -140,7 +151,10 @@ export default function Login() {
     // Initialize users in localStorage if not present
     const savedUsers = localStorage.getItem("inventoryUsers");
     if (!savedUsers) {
-      localStorage.setItem("inventoryUsers", JSON.stringify(AUTHENTICATED_USERS));
+      localStorage.setItem(
+        "inventoryUsers",
+        JSON.stringify(AUTHENTICATED_USERS)
+      );
     }
 
     if (isAuthenticated && !isLoading) {
@@ -151,7 +165,7 @@ export default function Login() {
   if (isLoading || isAuthenticated) {
     return (
       <div className="login-page">
-        <div style={{ textAlign: 'center', color: 'white' }}>
+        <div style={{ textAlign: "center", color: "white" }}>
           <div className="loading-spinner"></div>
           <p>Loading...</p>
         </div>
@@ -164,7 +178,7 @@ export default function Login() {
     setError("");
     setIsSubmitting(true);
 
-    await new Promise(resolve => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
     const success = login(email, password); // This now works with your updated AuthProvider
 
@@ -212,11 +226,7 @@ export default function Login() {
 
           {error && <div className="error-box">{error}</div>}
 
-          <button
-            type="submit"
-            className="submit-btn"
-            disabled={isSubmitting}
-          >
+          <button type="submit" className="submit-btn" disabled={isSubmitting}>
             {isSubmitting ? "Signing in..." : "Sign in"}
           </button>
         </form>
@@ -232,8 +242,12 @@ export default function Login() {
               </div>
             ))} */}
             <div className="user-credential">
-              <p>Demo Email: <span className="demo-code">example@gmail.com</span></p>
-              <p>Demo Password: <span className="demo-code">example123</span></p>
+              <p>
+                Demo Email: <span className="demo-code">example@gmail.com</span>
+              </p>
+              <p>
+                Demo Password: <span className="demo-code">example123</span>
+              </p>
             </div>
           </div>
         </div>

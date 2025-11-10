@@ -147,7 +147,7 @@ export default function IASReportsPage() {
     // Enhanced cost calculation
     const calculateTotalCost = useCallback((report: IASReport): number => {
         // First try to use TOTAL COST column directly
-        const totalCostFromColumn = parseCurrency(report["Cost"]);
+        const totalCostFromColumn = parseCurrency(report["TOTAL COST"]);
         if (totalCostFromColumn > 0) {
             return totalCostFromColumn;
         }
@@ -358,55 +358,6 @@ export default function IASReportsPage() {
 
         return results;
     }, []);
-
-    // FIXED: Simplified search handler
-    const handleSearch = useCallback(
-        (term: string) => {
-            console.log("Handling search for:", term);
-            setSearchTerm(term);
-            setCurrentPage(1);
-
-            if (term.trim()) {
-                const searchResults = searchData(reports, term);
-                console.log(`Found ${searchResults.length} results for: "${term}"`);
-
-                setCurrentData(searchResults);
-                setCurrentView("detailed");
-                setSelectedStore(`Search: "${term}"`);
-                setHistoryStack([
-                    { level: "Regions" },
-                    { level: "Search Results", selected: term },
-                ]);
-            } else {
-                // Clear search
-                setCurrentData(reports);
-                setCurrentView("regions");
-                setSelectedStore("");
-                setHistoryStack([{ level: "Regions" }]);
-            }
-        },
-        [reports, searchData]
-    );
-
-    // Real-time search effect
-    useEffect(() => {
-        if (searchTerm.trim()) {
-            const searchResults = searchData(reports, searchTerm);
-            setCurrentData(searchResults);
-            setCurrentView("detailed");
-            setSelectedStore(`Search: "${searchTerm}"`);
-            setHistoryStack([
-                { level: "Regions" },
-                { level: "Search Results", selected: searchTerm },
-            ]);
-        } else if (searchTerm === "") {
-            // Only reset when search is explicitly cleared
-            setCurrentData(reports);
-            setCurrentView("regions");
-            setSelectedStore("");
-            setHistoryStack([{ level: "Regions" }]);
-        }
-    }, [searchTerm, reports, searchData]);
 
     // Enhanced aggregation with all required sums
     const aggregate = (data: IASReport[], level: string): AggregatedGroup[] => {
