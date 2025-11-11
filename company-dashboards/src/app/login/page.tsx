@@ -22,7 +22,7 @@ const AUTHENTICATED_USERS = [
     role: "Viewer",
   },
   {
-    email: "inventory2025gmail.com",
+    email: "inventory2025@gmail.com",
     password: "inventory2025",
     role: "Viewer",
   },
