@@ -2004,7 +2004,7 @@ export default function AuditDashboard() {
             setSelectedMarket("");
             setSelectedStatus("");
             setSearchTerm("");
-            setCurrentPage(1);
+            setCurrentPage(1); // Reset to page 1
         } else {
             const newStack = historyStack.slice(0, -1);
             setHistoryStack(newStack);
@@ -2016,7 +2016,7 @@ export default function AuditDashboard() {
                 setCurrentView("regions");
                 setSelectedRegion("");
                 setSearchTerm("");
-                setCurrentPage(1);
+                setCurrentPage(1); // Reset to page 1
             } else if (previousLevel.level === "Market") {
                 const regionKey = detectedFields.region;
                 const regionData = filteredData.filter(
@@ -2026,7 +2026,7 @@ export default function AuditDashboard() {
                 setCurrentView("market");
                 setSelectedMarket("");
                 setSearchTerm("");
-                setCurrentPage(1);
+                setCurrentPage(1); // Reset to page 1
             } else if (previousLevel.level === "Status") {
                 const regionKey = detectedFields.region;
                 const marketKey = detectedFields.market;
@@ -2039,7 +2039,7 @@ export default function AuditDashboard() {
                 setCurrentView("status");
                 setSelectedStatus("");
                 setSearchTerm("");
-                setCurrentPage(1);
+                setCurrentPage(1); // Reset to page 1
             }
         }
     };
@@ -2217,10 +2217,119 @@ export default function AuditDashboard() {
         );
     }, [detectedFields, renderStatusSummary, aggregate, formatCurrency, searchTerm]);
 
+    // const renderDetailedTable = useCallback((data: AuditItem[]) => {
+    //     // Use paginatedData for the table, but show total count from searchedData
+    //     const displayData = searchTerm.trim() ? paginatedData : data;
+    //     const totalRecords = searchTerm.trim() ? searchedData.length : data.length;
+
+    //     return (
+    //         <div className="audit-table-block">
+    //             <div className="audit-table-header">
+    //                 <h2>Detailed Audit - {selectedStatus}</h2>
+    //                 <div className="audit-meta">
+    //                     {totalRecords} audit records
+    //                     {searchTerm && ` matching "${searchTerm}"`}
+    //                     {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
+    //                 </div>
+    //             </div>
+
+    //             <div className="audit-table-wrapper">
+    //                 <table className="audit-table">
+    //                     <thead>
+    //                         <tr>
+    //                             <th>Serial Date</th>
+    //                             <th>Market</th>
+    //                             <th>Store</th>
+    //                             <th>Tech ID</th>
+    //                             <th>SKU Description</th>
+    //                             <th>Full IMEI</th>
+    //                             <th className="audit-col-right">Cost</th>
+    //                             <th>Status</th>
+    //                             <th>Final Comments</th>
+    //                         </tr>
+    //                     </thead>
+    //                     <tbody>
+    //                         {displayData.map((row, index) => {
+    //                             const serialDate = getField(row, ["SerialDate", "Date"]);
+    //                             const market = getField(row, ["Market", "Market Name"]);
+    //                             const store = getField(row, ["Store"]);
+    //                             const techId = getField(row, ["TechID"]);
+    //                             const sku = getField(row, ["SKUDescription"]);
+    //                             const imei = getField(row, ["FullIMEI#"]);
+    //                             const cost = formatCurrency(parseCurrency(row[detectedFields.cost] || getField(row, ["Cost", "COST"])));
+    //                             const status = row[detectedFields.status];
+    //                             const comments = getField(row, ["FinalComments"]);
+
+    //                             return (
+    //                                 <tr key={index}>
+    //                                     <td>{serialDate}</td>
+    //                                     <td>{market}</td>
+    //                                     <td>{store}</td>
+    //                                     <td>{techId}</td>
+    //                                     <td>{sku.split('|').pop() || sku}</td>
+    //                                     <td>{imei}</td>
+    //                                     <td className="audit-col-right">{cost}</td>
+    //                                     <td>
+    //                                         <span className={`status-indicator status-${getStatusColor(String(status))}`}>
+    //                                             {status}
+    //                                         </span>
+    //                                     </td>
+    //                                     <td>{comments}</td>
+    //                                 </tr>
+    //                             );
+    //                         })}
+    //                     </tbody>
+    //                 </table>
+
+    //                 {/* No data message */}
+    //                 {displayData.length === 0 && (
+    //                     <div className="no-data">
+    //                         {searchTerm
+    //                             ? `No audit records found matching "${searchTerm}"`
+    //                             : "No audit records found matching your criteria."
+    //                         }
+    //                     </div>
+    //                 )}
+    //             </div>
+
+    //             {/* Pagination */}
+    //             {totalPages > 1 && (
+    //                 <div className="pagination">
+    //                     <button
+    //                         onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+    //                         disabled={currentPage === 1}
+    //                         className="pagination-btn"
+    //                     >
+    //                         Previous
+    //                     </button>
+
+    //                     <span className="page-info">
+    //                         Page {currentPage} of {totalPages}
+    //                     </span>
+
+    //                     <button
+    //                         onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+    //                         disabled={currentPage === totalPages}
+    //                         className="pagination-btn"
+    //                     >
+    //                         Next
+    //                     </button>
+    //                 </div>
+    //             )}
+    //         </div>
+    //     );
+    // }, [selectedStatus, getField, formatCurrency, parseCurrency, detectedFields, getStatusColor, searchTerm, paginatedData, searchedData, totalPages, currentPage]);
     const renderDetailedTable = useCallback((data: AuditItem[]) => {
-        // Use paginatedData for the table, but show total count from searchedData
-        const displayData = searchTerm.trim() ? paginatedData : data;
-        const totalRecords = searchTerm.trim() ? searchedData.length : data.length;
+        // For detailed view, we need to use the drilled-down data (currentData) but apply pagination to it
+        const detailedData = data; // This is the drilled-down data
+        const totalRecords = detailedData.length;
+
+        // Apply pagination to the detailed data
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const paginatedDetailedData = detailedData.slice(startIndex, startIndex + itemsPerPage);
+
+        const totalPages = Math.ceil(totalRecords / itemsPerPage);
+        const shouldShowPagination = totalRecords > itemsPerPage;
 
         return (
             <div className="audit-table-block">
@@ -2229,7 +2338,7 @@ export default function AuditDashboard() {
                     <div className="audit-meta">
                         {totalRecords} audit records
                         {searchTerm && ` matching "${searchTerm}"`}
-                        {totalPages > 1 && ` • Page ${currentPage} of ${totalPages}`}
+                        {shouldShowPagination && ` • Page ${currentPage} of ${totalPages}`}
                     </div>
                 </div>
 
@@ -2249,7 +2358,7 @@ export default function AuditDashboard() {
                             </tr>
                         </thead>
                         <tbody>
-                            {displayData.map((row, index) => {
+                            {paginatedDetailedData.map((row, index) => {
                                 const serialDate = getField(row, ["SerialDate", "Date"]);
                                 const market = getField(row, ["Market", "Market Name"]);
                                 const store = getField(row, ["Store"]);
@@ -2282,7 +2391,7 @@ export default function AuditDashboard() {
                     </table>
 
                     {/* No data message */}
-                    {displayData.length === 0 && (
+                    {paginatedDetailedData.length === 0 && (
                         <div className="no-data">
                             {searchTerm
                                 ? `No audit records found matching "${searchTerm}"`
@@ -2292,8 +2401,8 @@ export default function AuditDashboard() {
                     )}
                 </div>
 
-                {/* Pagination */}
-                {totalPages > 1 && (
+                {/* Pagination - Only show when needed */}
+                {shouldShowPagination && (
                     <div className="pagination">
                         <button
                             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -2318,8 +2427,7 @@ export default function AuditDashboard() {
                 )}
             </div>
         );
-    }, [selectedStatus, getField, formatCurrency, parseCurrency, detectedFields, getStatusColor, searchTerm, paginatedData, searchedData, totalPages, currentPage]);
-
+    }, [selectedStatus, getField, formatCurrency, parseCurrency, detectedFields, getStatusColor, searchTerm, currentPage, itemsPerPage]);
     const renderSummaryCards = () => (
         <section className="dashboard-grid">
             {summaryCards.map((card, index) => (

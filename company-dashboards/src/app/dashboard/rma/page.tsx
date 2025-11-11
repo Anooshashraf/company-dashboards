@@ -1,7 +1,7 @@
 "use client";
 import { useAuth } from "../../../components/AuthProvider";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import "./rma-styles.css";
 
 interface RMAItem {
@@ -40,6 +40,11 @@ export default function RMADashboard() {
     { level: string; selected?: string }[]
   >([{ level: "Regions" }]);
 
+  // New state for search and pagination
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(100); // 100 lines per page
+
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push("/login");
@@ -51,6 +56,88 @@ export default function RMADashboard() {
       initData();
     }
   }, [isAuthenticated]);
+
+  const getField = (obj: RMAItem, candidates: string[]): string => {
+    for (const k of candidates) {
+      if (k in obj && obj[k] !== "" && obj[k] != null) return String(obj[k]);
+      const matched = Object.keys(obj).find(
+        (x) => x.toLowerCase() === k.toLowerCase()
+      );
+      if (matched && obj[matched] !== "" && obj[matched] != null)
+        return String(obj[matched]);
+    }
+    return "Unknown";
+  };
+
+  // Enhanced search function for RMA data - SIMPLIFIED VERSION
+  const searchData = (data: RMAItem[], searchTerm: string): RMAItem[] => {
+    if (!searchTerm.trim()) {
+      return data;
+    }
+
+    const searchLower = searchTerm.toLowerCase().trim();
+    console.log(`🔍 Searching RMA data for: "${searchLower}" in ${data.length} records`);
+
+    const results = data.filter((row) => {
+      // Search across key RMA fields
+      const searchableFields = [
+        getField(row, ["Regions", "Region", "REGIONS"]),
+        getField(row, ["Market", "Market Name", "MARKET"]),
+        getField(row, ["DM NAME", "DM Name", "DM"]),
+        getField(row, ["Type", "TYPE", "type"]),
+        getField(row, ["Customer IMEI", "IMEI", "imei"]),
+        getField(row, ["Assurant Status", "Assurant_STATUS", "Assurant"]),
+        getField(row, ["Days", "DAY", "day"])
+      ].filter((field) => field && field !== "" && field !== "Unknown");
+
+      return searchableFields.some((field) =>
+        String(field).toLowerCase().includes(searchLower)
+      );
+    });
+
+    console.log(`✅ Found ${results.length} RMA results for: "${searchTerm}"`);
+    return results;
+  };
+
+  // Apply search filter to data
+  const searchedData = useMemo(() => {
+    if (searchTerm.trim()) {
+      return searchData(filteredData, searchTerm);
+    }
+    return filteredData;
+  }, [filteredData, searchTerm]);
+
+  // Apply pagination
+  const totalPages = Math.ceil(searchedData.length / itemsPerPage);
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return searchedData.slice(startIndex, startIndex + itemsPerPage);
+  }, [searchedData, currentPage, itemsPerPage]);
+
+  // Real-time search effect - navigate to detailed view when searching
+  useEffect(() => {
+    if (searchTerm.trim()) {
+      const searchResults = searchData(filteredData, searchTerm);
+
+      // Always navigate to detailed view with search results
+      setCurrentData(searchResults);
+      setCurrentView("detailed");
+      setSelectedType(`Search: "${searchTerm}"`);
+      setHistoryStack([
+        { level: "Regions" },
+        { level: "Search Results", selected: searchTerm },
+      ]);
+      setCurrentPage(1);
+
+    } else if (searchTerm === "") {
+      // Only reset when search is explicitly cleared
+      setCurrentData(filteredData);
+      setCurrentView("regions");
+      setSelectedType("");
+      setHistoryStack([{ level: "Regions" }]);
+      setCurrentPage(1);
+    }
+  }, [searchTerm, filteredData]);
 
   const parseCurrency = (v: any): number => {
     if (v == null) return 0;
@@ -76,18 +163,6 @@ export default function RMADashboard() {
     );
   };
 
-  const getField = (obj: RMAItem, candidates: string[]): string => {
-    for (const k of candidates) {
-      if (k in obj && obj[k] !== "" && obj[k] != null) return String(obj[k]);
-      const matched = Object.keys(obj).find(
-        (x) => x.toLowerCase() === k.toLowerCase()
-      );
-      if (matched && obj[matched] !== "" && obj[matched] != null)
-        return String(obj[matched]);
-    }
-    return "Unknown";
-  };
-
   const countNonEmptyIMEI = (row: RMAItem): number => {
     const imeiValue = getField(row, [
       "Customer IMEI",
@@ -101,7 +176,6 @@ export default function RMADashboard() {
       ? 1
       : 0;
   };
-
 
   const detectKey = (candidates: string[]): string => {
     if (!filteredData || filteredData.length === 0) return candidates[0];
@@ -303,9 +377,11 @@ export default function RMADashboard() {
 
   // UI rendering functions
   const buildSummaryCards = (data: RMAItem[]) => {
-    const totalLabels = data.length;
-    const totalDevices = data.reduce((s, r) => s + countNonEmptyIMEI(r), 0);
-    const totalCost = data.reduce(
+    const dataToUse = searchTerm.trim() ? searchedData : data;
+
+    const totalLabels = dataToUse.length;
+    const totalDevices = dataToUse.reduce((s, r) => s + countNonEmptyIMEI(r), 0);
+    const totalCost = dataToUse.reduce(
       (s, r) => s + parseCurrency(getField(r, ["COST", "Cost", "cost"])),
       0
     );
@@ -359,6 +435,8 @@ export default function RMADashboard() {
     setSelectedMarket("");
     setSelectedDM("");
     setSelectedType("");
+    setSearchTerm("");
+    setCurrentPage(1);
   };
 
   const handleResetFilters = () => {
@@ -372,15 +450,18 @@ export default function RMADashboard() {
     setSelectedMarket("");
     setSelectedDM("");
     setSelectedType("");
+    setSearchTerm("");
+    setCurrentPage(1);
   };
 
   const handleExportCSV = () => {
-    if (!filteredData.length) return;
+    const dataToExport = searchTerm.trim() ? searchedData : filteredData;
+    if (!dataToExport.length) return;
 
-    const keys = Object.keys(filteredData[0]);
+    const keys = Object.keys(dataToExport[0]);
     const csv = [keys.join(",")]
       .concat(
-        filteredData.map((r) =>
+        dataToExport.map((r) =>
           keys
             .map((k) => `"${String(r[k] || "").replace(/"/g, '""')}"`)
             .join(",")
@@ -399,7 +480,6 @@ export default function RMADashboard() {
     URL.revokeObjectURL(url);
   };
 
-  // Drill-down handlers
   const handleRegionClick = (region: AggregatedGroup) => {
     const marketData = region.rows;
     setCurrentData(marketData);
@@ -409,6 +489,8 @@ export default function RMADashboard() {
       { level: "Regions" },
       { level: "Market", selected: region.key },
     ]);
+    setSearchTerm("");
+    setCurrentPage(1); // Reset to page 1
   };
 
   const handleMarketClick = (market: AggregatedGroup) => {
@@ -421,6 +503,8 @@ export default function RMADashboard() {
       { level: "Market", selected: selectedRegion },
       { level: "DM", selected: market.key },
     ]);
+    setSearchTerm("");
+    setCurrentPage(1); // Reset to page 1
   };
 
   const handleDMClick = (dm: AggregatedGroup) => {
@@ -434,6 +518,8 @@ export default function RMADashboard() {
       { level: "DM", selected: selectedMarket },
       { level: "Type", selected: dm.key },
     ]);
+    setSearchTerm("");
+    setCurrentPage(1); // Reset to page 1
   };
 
   const handleTypeClick = (type: AggregatedGroup) => {
@@ -448,6 +534,8 @@ export default function RMADashboard() {
       { level: "Type", selected: selectedDM },
       { level: "Detailed", selected: type.key },
     ]);
+    setSearchTerm("");
+    setCurrentPage(1); // Reset to page 1
   };
 
   const handleBackClick = () => {
@@ -459,6 +547,8 @@ export default function RMADashboard() {
       setSelectedMarket("");
       setSelectedDM("");
       setSelectedType("");
+      setSearchTerm("");
+      setCurrentPage(1); // Reset to page 1
     } else {
       const newStack = historyStack.slice(0, -1);
       setHistoryStack(newStack);
@@ -469,6 +559,8 @@ export default function RMADashboard() {
         setCurrentData(filteredData);
         setCurrentView("regions");
         setSelectedRegion("");
+        setSearchTerm("");
+        setCurrentPage(1); // Reset to page 1
       } else if (previousLevel.level === "Market") {
         const regionKey = detectKey([
           "Regions",
@@ -482,6 +574,8 @@ export default function RMADashboard() {
         setCurrentData(regionData);
         setCurrentView("market");
         setSelectedMarket("");
+        setSearchTerm("");
+        setCurrentPage(1); // Reset to page 1
       } else if (previousLevel.level === "DM") {
         const regionKey = detectKey([
           "Regions",
@@ -503,6 +597,8 @@ export default function RMADashboard() {
         setCurrentData(dmData);
         setCurrentView("dm");
         setSelectedDM("");
+        setSearchTerm("");
+        setCurrentPage(1); // Reset to page 1
       } else if (previousLevel.level === "Type") {
         const regionKey = detectKey([
           "Regions",
@@ -526,6 +622,8 @@ export default function RMADashboard() {
         setCurrentData(typeData);
         setCurrentView("type");
         setSelectedType("");
+        setSearchTerm("");
+        setCurrentPage(1);
       }
     }
   };
@@ -591,6 +689,7 @@ export default function RMADashboard() {
           <div className="rma-meta">
             {aggregated.length} groups — total cost{" "}
             {formatCurrency(aggregated.reduce((s, a) => s + a.cost, 0))}
+            {searchTerm && ` • Filtered by: "${searchTerm}"`}
           </div>
         </div>
 
@@ -649,11 +748,26 @@ export default function RMADashboard() {
   };
 
   const renderDetailedTable = (data: RMAItem[]) => {
+    // For detailed view, we need to use the drilled-down data (currentData) but apply pagination to it
+    const detailedData = data; // This is the drilled-down data
+    const totalRecords = detailedData.length;
+
+    // Apply pagination to the detailed data
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedDetailedData = detailedData.slice(startIndex, startIndex + itemsPerPage);
+
+    const totalPages = Math.ceil(totalRecords / itemsPerPage);
+    const shouldShowPagination = totalRecords > itemsPerPage;
+
     return (
       <div className="rma-table-block">
         <div className="rma-table-header">
           <h2>Detailed — {selectedType}</h2>
-          <div className="rma-meta">{data.length} rows</div>
+          <div className="rma-meta">
+            {totalRecords} rows
+            {searchTerm && ` matching "${searchTerm}"`}
+            {shouldShowPagination && ` • Page ${currentPage} of ${totalPages}`}
+          </div>
         </div>
 
         <div className="rma-table-wrapper">
@@ -672,7 +786,7 @@ export default function RMADashboard() {
               </tr>
             </thead>
             <tbody>
-              {data.map((row, index) => {
+              {paginatedDetailedData.map((row, index) => {
                 const processedDate = getField(row, [
                   "Processed Date",
                   "ProcessedDate",
@@ -718,7 +832,42 @@ export default function RMADashboard() {
               })}
             </tbody>
           </table>
+
+          {/* No data message */}
+          {paginatedDetailedData.length === 0 && (
+            <div className="no-data">
+              {searchTerm
+                ? `No RMA records found matching "${searchTerm}"`
+                : "No RMA records found matching your criteria."
+              }
+            </div>
+          )}
         </div>
+
+        {/* Pagination - Only show when needed */}
+        {shouldShowPagination && (
+          <div className="pagination">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="pagination-btn"
+            >
+              Previous
+            </button>
+
+            <span className="page-info">
+              Page {currentPage} of {totalPages}
+            </span>
+
+            <button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="pagination-btn"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
     );
   };
@@ -736,7 +885,6 @@ export default function RMADashboard() {
 
   if (!isAuthenticated) return null;
 
-
   return (
     <div className="main-content">
       <div className="content-wrapper">
@@ -753,23 +901,28 @@ export default function RMADashboard() {
         </header>
 
         <main className="main-area">
-          {/* Controls Section */}
+          {/* Controls Section with Filters on Left and Buttons on Right */}
           <div className="rma-controls-section">
             <div className="rma-controls-grid">
+              {/* FILTERS ON LEFT SIDE */}
               <div className="rma-date-inputs">
                 <input
                   type="date"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
                   className="rma-input"
+                  placeholder="From Date"
                 />
                 <input
                   type="date"
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
                   className="rma-input"
+                  placeholder="To Date"
                 />
               </div>
+
+              {/* BUTTONS ON RIGHT SIDE */}
               <div className="rma-action-buttons">
                 <button
                   className="btn btn-primary"
@@ -808,6 +961,27 @@ export default function RMADashboard() {
             ))}
           </section>
 
+          {/* Search Bar */}
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="Search by Region, Market, DM, Type, IMEI..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+            <span className="search-icon">🔍</span>
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="clear-search"
+                title="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
           {/* Navigation */}
           <div className="rma-nav-row">
             <button
@@ -816,9 +990,10 @@ export default function RMADashboard() {
             >
               ← Back
             </button>
-
+            <div className="rma-breadcrumb">
+              {renderBreadcrumb()}
+            </div>
           </div>
-
 
           <section className="rma-stacked">
             {currentView === "regions" &&
