@@ -238,15 +238,7 @@
     font-weight: 600;
     margin-right: 8px;
     border: 1px solid rgba(139, 92, 246, 0.3);
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-}
 
-.rma-days-pill:hover {
-    background: var(--accent);
-    color: white;
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
 }
 
 .rma-loading {
@@ -724,13 +716,6 @@
     border: 1px solid rgba(139, 92, 246, 0.3);
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
-}
-
-.rma-days-pill:hover {
-    background: var(--accent);
-    color: white;
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
 }
 
 .rma-loading {

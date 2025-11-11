@@ -652,7 +652,7 @@ export default function IASReportsPage() {
         return historyStack.map((item, index) => (
             <span key={index} className="ias-breadcrumb">
                 {item.selected ? `${item.level} — ${item.selected}` : item.level}
-                {index < historyStack.length - 1 && <span className="mx-2 text-gray-400">›</span>}
+                {index < historyStack.length - 1 && <span className="mx-2 text-gray-400"> › </span>}
             </span>
         ));
     };

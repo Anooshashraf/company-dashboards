@@ -633,7 +633,7 @@ export default function RMADashboard() {
       <span key={index} className="text-gray-600">
         {item.selected ? `${item.level} — ${item.selected}` : item.level}
         {index < historyStack.length - 1 && (
-          <span className="mx-2 text-gray-400">›</span>
+          <span className="mx-2 text-gray-400"> › </span>
         )}
       </span>
     ));
