@@ -37,7 +37,7 @@ export default function HelpSupportPage() {
         {
             icon: '📞',
             title: 'Phone Support',
-            details: ['+92 311 6584420', '+92 310 2774543'],
+            details: ['+92 311 6584420', ' , ', '+92 310 2774543'],
             response: '24/7 for critical issues'
         }
     ];
@@ -107,28 +107,24 @@ const GuidesSection = () => (
                 <div className="guide-icon">📊</div>
                 <h3>Audit Dashboard</h3>
                 <p>Learn how to conduct inventory audits, track status, and generate reports</p>
-                <button className="guide-btn">View Guide</button>
             </div>
 
             <div className="guide-card">
                 <div className="guide-icon">📦</div>
                 <h3>Inventory Management</h3>
                 <p>Add, edit, and manage inventory items, categories, and stock levels</p>
-                <button className="guide-btn">View Guide</button>
             </div>
 
             <div className="guide-card">
                 <div className="guide-icon">🔄</div>
                 <h3>RMA Processing</h3>
                 <p>Handle returns, repairs, and customer service requests efficiently</p>
-                <button className="guide-btn">View Guide</button>
             </div>
 
             <div className="guide-card">
                 <div className="guide-icon">📈</div>
                 <h3>Reports & Analytics</h3>
                 <p>Generate insights and export data for business intelligence</p>
-                <button className="guide-btn">View Guide</button>
             </div>
         </div>
     </div>
@@ -177,34 +173,6 @@ const ContactSection = ({ contactMethods }: { contactMethods: any[] }) => (
                 </div>
             ))}
         </div>
-
-        {/* Support Form */}
-        {/* <div className="support-form">
-            <h3>Send us a Message</h3>
-            <form className="message-form">
-                <div className="form-group">
-                    <label>Subject</label>
-                    <input type="text" placeholder="Brief description of your issue" />
-                </div>
-                <div className="form-group">
-                    <label>Message</label>
-                    <textarea
-                        rows={5}
-                        placeholder="Please describe your issue in detail..."
-                    ></textarea>
-                </div>
-                <div className="form-group">
-                    <label>Priority</label>
-                    <select>
-                        <option>Low - General question</option>
-                        <option>Medium - Feature request</option>
-                        <option>High - System issue</option>
-                        <option>Critical - System down</option>
-                    </select>
-                </div>
-                <button type="submit" className="submit-ticket-btn">Submit Support Ticket</button>
-            </form>
-        </div> */}
     </div>
 );
 
