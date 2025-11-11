@@ -220,11 +220,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Default users - same as in login
 const DEFAULT_USERS = [
-  { email: "inventory2025@gmail.com", password: "inventory2025", role: "Administrator" },
+  { email: "inventory2025@gmail.com", password: "inventory2025", role: "Analyst" },
   { email: "fahad@techno-communications.com", password: "fahad123", role: "Manager" },
   { email: "GHANI@TEXASMOBILEPCS.COM", password: "ghani123", role: "Auditor" },
   { email: "aleem.ghori@techno-communications.com", password: "aleem123", role: "Analyst" },
-  { email: "hasnain.mustaqeem@techno-communications.com", password: "hm123", role: "Viewer" }
+  { email: "hasnain.mustaqeem@techno-communications.com", password: "hasnain123", role: "Viewer" }
 ];
 
 interface AuthProviderProps {
