@@ -26,6 +26,11 @@ const AUTHENTICATED_USERS = [
     password: "inventory2025",
     role: "Viewer",
   },
+  {
+    email: "nasim@techno-communications.com",
+    password: "nasim123",
+    role: "Viewer",
+  },
 ];
 
 export default function Login() {

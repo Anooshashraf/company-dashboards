@@ -380,6 +380,11 @@ const DEFAULT_USERS = [
     password: "inventory2025", // Make sure this matches exactly
     role: "Viewer",
   },
+  {
+    email: "nasim@techno-communications.com",
+    password: "nasim123",
+    role: "Viewer",
+  },
 ];
 
 interface AuthProviderProps {
