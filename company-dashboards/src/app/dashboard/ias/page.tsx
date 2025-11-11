@@ -1369,35 +1369,35 @@ export default function IASReportsPage() {
                                 <p className="card-description">{summaryStats.totalStores}</p>
                             </div>
                         </div>
-                        <div className="dashboard-card card-blue">
+                        <div className="dashboard-card card-purple">
                             <div className="card-icon">📦</div>
                             <div className="card-content">
                                 <h3 className="card-title">IN STOCK</h3>
                                 <p className="card-description">{summaryStats.totalInventory.toLocaleString()}</p>
                             </div>
                         </div>
-                        <div className="dashboard-card card-orange">
+                        <div className="dashboard-card card-purple">
                             <div className="card-icon">🔄</div>
                             <div className="card-content">
                                 <h3 className="card-title">ON TRANSFER</h3>
                                 <p className="card-description">{summaryStats.totalOnTransfer.toLocaleString()}</p>
                             </div>
                         </div>
-                        <div className="dashboard-card card-yellow">
+                        <div className="dashboard-card card-purple">
                             <div className="card-icon">🚚</div>
                             <div className="card-content">
                                 <h3 className="card-title">IN TRANSIT</h3>
                                 <p className="card-description">{summaryStats.totalInTransit.toLocaleString()}</p>
                             </div>
                         </div>
-                        <div className="dashboard-card card-red">
+                        <div className="dashboard-card card-purple">
                             <div className="card-icon">📅</div>
                             <div className="card-content">
                                 <h3 className="card-title">BACKDATED</h3>
                                 <p className="card-description">{summaryStats.totalBackdated.toLocaleString()}</p>
                             </div>
                         </div>
-                        <div className="dashboard-card card-green">
+                        <div className="dashboard-card card-purple">
                             <div className="card-icon">💰</div>
                             <div className="card-content">
                                 <h3 className="card-title">Total Value</h3>
