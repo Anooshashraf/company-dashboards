@@ -156,6 +156,11 @@ const AUTHENTICATED_USERS = [
     password: "hasnain123",
     role: "Viewer",
   },
+  {
+    email: "inventory-active8@gmail.com",
+    password: "inventory2025",
+    role: "Viewer",
+  },
 ];
 
 export default function Login() {
