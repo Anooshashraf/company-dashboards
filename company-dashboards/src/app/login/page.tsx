@@ -193,11 +193,11 @@ const AUTHENTICATED_USERS = [
     password: "fahad123",
     role: "Manager",
   },
-  { email: "GHANI@TEXASMOBILEPCS.COM", password: "ghani123", role: "Auditor" },
+  { email: "GHANI@TEXASMOBILEPCS.COM", password: "ghani123", role: "Manager" },
   {
     email: "aleem.ghori@techno-communications.com",
     password: "aleem123",
-    role: "Analyst",
+    role: "Viewer",
   },
   {
     email: "hasnain.mustaqeem@techno-communications.com",
