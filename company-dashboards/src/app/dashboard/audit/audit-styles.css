@@ -1082,3 +1082,129 @@
         text-align: center;
     }
 }
+
+
+
+/* Global Search Bar Styles */
+.search-box {
+    position: relative;
+    margin: 20px 0;
+    max-width: 500px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 14px 50px 14px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--glass-light);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.search-icon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.clear-search {
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: var(--accent);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.clear-search:hover {
+    background: var(--accent);
+    color: white;
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Pagination Styles */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+    padding: 16px;
+}
+
+.pagination-btn {
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--glass);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-info {
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+/* No Data Message */
+.no-data {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.clear-filters-btn {
+    margin-top: 12px;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--accent);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.clear-filters-btn:hover {
+    background: var(--accent);
+    color: white;
+}
