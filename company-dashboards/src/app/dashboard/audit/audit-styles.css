@@ -931,3 +931,154 @@
     color: white;
     border-color: var(--accent);
 }
+
+
+
+
+
+/* Audit Filter Controls */
+.audit-filter-controls {
+    display: flex;
+    gap: 20px;
+    align-items: end;
+    margin-bottom: 25px;
+    padding: 20px;
+    background: var(--glass-light);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.audit-filter-controls .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+}
+
+.audit-filter-controls .filter-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.audit-filter-controls .filter-input {
+    padding: 12px 40px 12px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--glass);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.audit-filter-controls .filter-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.audit-filter-controls .filter-input::placeholder {
+    color: var(--text-muted);
+}
+
+.audit-filter-controls .clear-filter {
+    position: absolute;
+    right: 12px;
+    top: 38px;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: var(--accent);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.audit-filter-controls .clear-filter:hover {
+    background: var(--accent);
+    color: white;
+    transform: scale(1.1);
+}
+
+.audit-filter-controls .clear-all-filters {
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    align-self: end;
+    margin-bottom: 8px;
+}
+
+.audit-filter-controls .clear-all-filters:hover {
+    background: #ef4444;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.audit-filter-controls .filter-indicator {
+    color: var(--accent);
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.audit-filter-controls .clear-filters-btn {
+    margin-top: 12px;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--accent);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.audit-filter-controls .clear-filters-btn:hover {
+    background: var(--accent);
+    color: white;
+}
+
+/* Enhanced SKU info display */
+.sku-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sku-description {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Responsive design for audit filters */
+@media (max-width: 768px) {
+    .audit-filter-controls {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .audit-filter-controls .filter-group {
+        min-width: 100%;
+    }
+
+    .audit-filter-controls .clear-all-filters {
+        align-self: stretch;
+        text-align: center;
+    }
+}
