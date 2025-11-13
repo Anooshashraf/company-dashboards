@@ -84,15 +84,12 @@ export default function IASReportsPage() {
     const [itemsPerPage] = useState(50);
     const [expandedRow, setExpandedRow] = useState<string | null>(null);
     const [selectedDetails, setSelectedDetails] = useState<IASReport | null>(null);
-
     const [currentView, setCurrentView] = useState<"regions" | "markets" | "stores" | "detailed">("regions");
     const [currentData, setCurrentData] = useState<IASReport[]>([]);
     const [selectedRegion, setSelectedRegion] = useState<string>("");
     const [selectedMarket, setSelectedMarket] = useState<string>("");
     const [selectedStore, setSelectedStore] = useState<string>("");
     const [historyStack, setHistoryStack] = useState<{ level: string; selected?: string }[]>([{ level: "Regions" }]);
-
-    // Add these new states for the product/SKU filter
     const [productFilter, setProductFilter] = useState("");
     const [skuFilter, setSkuFilter] = useState("");
 
