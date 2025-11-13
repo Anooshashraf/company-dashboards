@@ -1958,7 +1958,6 @@ export default function IASReportsPage() {
         return Object.values(groups).sort((a, b) => b.Cost - a.Cost);
     };
 
-    // FIXED: Apply search filter to ALL data when searching
     const filteredData = useMemo(() => {
         if (searchTerm.trim()) {
             return searchData(reports, searchTerm);
@@ -1970,11 +1969,9 @@ export default function IASReportsPage() {
         return filteredData;
     }, [filteredData]);
 
-    // Enhanced detailed data filtering with product/SKU filters
     const filteredDetailedData = useMemo(() => {
         let filtered = filteredData;
 
-        // Apply product filter - search in both Product and Model fields
         if (productFilter.trim()) {
             const productLower = productFilter.toLowerCase().trim();
             filtered = filtered.filter((report) =>
@@ -1984,7 +1981,6 @@ export default function IASReportsPage() {
             );
         }
 
-        // Apply SKU filter
         if (skuFilter.trim()) {
             const skuLower = skuFilter.toLowerCase().trim();
             filtered = filtered.filter((report) =>
@@ -2001,19 +1997,16 @@ export default function IASReportsPage() {
         return filteredDetailedData.slice(startIndex, startIndex + itemsPerPage);
     }, [filteredDetailedData, currentPage, itemsPerPage]);
 
-    // Clear filters when changing views or search
     useEffect(() => {
         setProductFilter("");
         setSkuFilter("");
         setCurrentPage(1);
     }, [currentView, searchTerm]);
 
-    // Reset page when filters change
     useEffect(() => {
         setCurrentPage(1);
     }, [productFilter, skuFilter]);
 
-    // Enhanced summary stats with all required sums
     const summaryStats = useMemo((): SummaryStats => {
         if (reports.length === 0) {
             return {
