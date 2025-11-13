@@ -2340,7 +2340,7 @@ export default function IASReportsPage() {
                 </div>
 
                 <div className="ias-table-wrapper">
-                    <table className="ias-table">
+                    <table className={`ias-table ${currentView === 'detailed' ? 'detailed-view' : ''}`}>
                         <thead>
                             <tr>
                                 <th>Store</th>

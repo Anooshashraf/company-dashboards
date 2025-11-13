@@ -134,7 +134,7 @@
 
 .ias-table th,
 .ias-table td {
-    padding: 18px 22px;
+    padding: 16px 20px;
     text-align: left;
     border-bottom: 1px solid var(--border);
 }
@@ -340,7 +340,7 @@
 /* Action Buttons */
 .details-btn,
 .expand-btn {
-    padding: 6px 12px;
+    padding: 4px 10px;
     border-radius: var(--radius);
     border: 1px solid var(--border);
     background: var(--glass-light);
@@ -348,7 +348,7 @@
     font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-right: 8px;
+    margin-right: 6px;
 }
 
 .details-btn:hover {
@@ -527,7 +527,7 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
     .ias-controls-grid {
         grid-template-columns: 1fr;
         gap: 15px;
@@ -560,13 +560,52 @@
         border-radius: var(--radius);
     }
 
-    .ias-table {
+    /* .ias-table {
         min-width: 700px;
-    }
+    } */
 
-    .search-input {
+/* .search-input {
         width: 100%;
     }
+}  */
+
+
+
+@media (max-width: 768px) {
+    .ias-controls-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .ias-date-inputs {
+        flex-direction: column;
+    }
+
+    .ias-action-buttons {
+        flex-direction: column;
+        justify-content: stretch;
+    }
+
+    .ias-nav-row {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .ias-table th,
+    .ias-table td {
+        padding: 12px 14px;
+        /* ← Reduced from 14px 16px */
+    }
+
+    .ias-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+    }
+
+
 }
 
 @media (max-width: 480px) {
@@ -821,195 +860,86 @@
 }
 
 
-
-
-/* Audit-Specific Color Theme - Distinct from main app */
-:root {
-    /* Audit Status Colors - Different from main app palette */
-    --audit-blue: #3b82f6;
-    --audit-orange: #f97316;
-    --audit-green: #10b981;
-    --audit-red: #ef4444;
-    --audit-teal: #14b8a6;
-    --audit-purple: #8b5cf6;
-    --audit-indigo: #6366f1;
-    --audit-amber: #f59e0b;
-    --audit-cyan: #06b6d4;
-    --audit-rose: #f43f5e;
-    --audit-gray: #6b7280;
-    --audit-emerald: #059669;
-    --audit-violet: #7c3aed;
-    --audit-yellow: #eab308;
-    --audit-lime: #84cc16;
-    --audit-pink: #ec4899;
-    --audit-fuchsia: #d946ef;
-    --audit-sky: #0ea5e9;
-    --audit-warning: #f59e0b;
-    --audit-success: #10b981;
-    --audit-info: #3b82f6;
-    --audit-primary: #8b5cf6;
-    --audit-secondary: #6b7280;
-    --audit-default: #6b7280;
+/* Smaller font for detailed table */
+.ias-table.detailed-view {
+    font-size: 0.75rem;
+    /* ← Even smaller */
 }
 
-/* Audit Status Indicators - Using audit-specific colors */
-.audit-status-indicator {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: capitalize;
-    border: 1px solid;
-    backdrop-filter: blur(10px);
+/* Reduced padding for detailed table */
+.ias-table.detailed-view th,
+.ias-table.detailed-view td {
+    padding: 8px 10px;
+    /* ← Reduced from 10px 12px */
 }
 
-.audit-status-audit-blue {
-    background: rgba(59, 130, 246, 0.15);
-    color: var(--audit-blue);
-    border-color: rgba(59, 130, 246, 0.3);
+/* Compact action buttons for detailed view */
+.ias-table.detailed-view .details-btn,
+.ias-table.detailed-view .expand-btn {
+    padding: 3px 6px;
+    /* ← More compact */
+    font-size: 0.65rem;
+    /* ← Smaller */
+    margin-right: 3px;
+    /* ← Less space */
 }
 
-.audit-status-audit-orange {
-    background: rgba(249, 115, 22, 0.15);
-    color: var(--audit-orange);
-    border-color: rgba(249, 115, 22, 0.3);
+/* Make product info more compact but flexible */
+.ias-table.detailed-view .product-info,
+.ias-table.detailed-view .sku-info {
+    /* REMOVE fixed widths - let content determine size */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.audit-status-audit-green {
-    background: rgba(16, 185, 129, 0.15);
-    color: var(--audit-green);
-    border-color: rgba(16, 185, 129, 0.3);
+/* Ensure table fits container */
+.ias-table.detailed-view {
+    table-layout: auto;
+    /* ← CHANGED from fixed to auto */
+    width: 100%;
 }
 
-.audit-status-audit-red {
-    background: rgba(239, 68, 68, 0.15);
-    color: var(--audit-red);
-    border-color: rgba(239, 68, 68, 0.3);
+
+/* Extra compact styles for detailed table columns */
+.ias-table.detailed-view .store-info {
+    max-width: 120px;
 }
 
-.audit-status-audit-teal {
-    background: rgba(20, 184, 166, 0.15);
-    color: var(--audit-teal);
-    border-color: rgba(20, 184, 166, 0.3);
+.ias-table.detailed-view .product-info {
+    max-width: 140px;
 }
 
-.audit-status-audit-purple {
-    background: rgba(139, 92, 246, 0.15);
-    color: var(--audit-purple);
-    border-color: rgba(139, 92, 246, 0.3);
+.ias-table.detailed-view .sku-info {
+    max-width: 100px;
 }
 
-.audit-status-audit-indigo {
-    background: rgba(99, 102, 241, 0.15);
-    color: var(--audit-indigo);
-    border-color: rgba(99, 102, 241, 0.3);
+.ias-table.detailed-view .status-indicator {
+    padding: 2px 8px;
+    font-size: 0.7rem;
 }
 
-.audit-status-audit-amber {
-    background: rgba(245, 158, 11, 0.15);
-    color: var(--audit-amber);
-    border-color: rgba(245, 158, 11, 0.3);
+/* Hide less important columns on mobile */
+@media (max-width: 1024px) {
+
+    .ias-table.detailed-view th:nth-child(5),
+    /* SKU column */
+    .ias-table.detailed-view td:nth-child(5) {
+        display: none;
+    }
 }
 
-.audit-status-audit-cyan {
-    background: rgba(6, 182, 212, 0.15);
-    color: var(--audit-cyan);
-    border-color: rgba(6, 182, 212, 0.3);
-}
+@media (max-width: 768px) {
 
-.audit-status-audit-rose {
-    background: rgba(244, 63, 94, 0.15);
-    color: var(--audit-rose);
-    border-color: rgba(244, 63, 94, 0.3);
-}
-
-.audit-status-audit-gray {
-    background: rgba(107, 114, 128, 0.15);
-    color: var(--audit-gray);
-    border-color: rgba(107, 114, 128, 0.3);
-}
-
-.audit-status-audit-emerald {
-    background: rgba(5, 150, 105, 0.15);
-    color: var(--audit-emerald);
-    border-color: rgba(5, 150, 105, 0.3);
-}
-
-.audit-status-audit-violet {
-    background: rgba(124, 58, 237, 0.15);
-    color: var(--audit-violet);
-    border-color: rgba(124, 58, 237, 0.3);
-}
-
-.audit-status-audit-yellow {
-    background: rgba(234, 179, 8, 0.15);
-    color: var(--audit-yellow);
-    border-color: rgba(234, 179, 8, 0.3);
-}
-
-.audit-status-audit-lime {
-    background: rgba(132, 204, 22, 0.15);
-    color: var(--audit-lime);
-    border-color: rgba(132, 204, 22, 0.3);
-}
-
-.audit-status-audit-pink {
-    background: rgba(236, 72, 153, 0.15);
-    color: var(--audit-pink);
-    border-color: rgba(236, 72, 153, 0.3);
-}
-
-.audit-status-audit-fuchsia {
-    background: rgba(217, 70, 239, 0.15);
-    color: var(--audit-fuchsia);
-    border-color: rgba(217, 70, 239, 0.3);
-}
-
-.audit-status-audit-sky {
-    background: rgba(14, 165, 233, 0.15);
-    color: var(--audit-sky);
-    border-color: rgba(14, 165, 233, 0.3);
-}
-
-.audit-status-audit-warning {
-    background: rgba(245, 158, 11, 0.15);
-    color: var(--audit-warning);
-    border-color: rgba(245, 158, 11, 0.3);
-}
-
-.audit-status-audit-success {
-    background: rgba(16, 185, 129, 0.15);
-    color: var(--audit-success);
-    border-color: rgba(16, 185, 129, 0.3);
-}
-
-.audit-status-audit-info {
-    background: rgba(59, 130, 246, 0.15);
-    color: var(--audit-info);
-    border-color: rgba(59, 130, 246, 0.3);
-}
-
-.audit-status-audit-primary {
-    background: rgba(139, 92, 246, 0.15);
-    color: var(--audit-primary);
-    border-color: rgba(139, 92, 246, 0.3);
-}
-
-.audit-status-audit-secondary {
-    background: rgba(107, 114, 128, 0.15);
-    color: var(--audit-secondary);
-    border-color: rgba(107, 114, 128, 0.3);
-}
-
-.audit-status-audit-default {
-    background: rgba(107, 114, 128, 0.15);
-    color: var(--audit-default);
-    border-color: rgba(107, 114, 128, 0.3);
-}
-
-/* Hover effects for audit status indicators */
-.audit-status-indicator:hover {
-    transform: scale(1.05);
-    transition: all 0.3s ease;
+    .ias-table.detailed-view th:nth-child(3),
+    /* Status column */
+    .ias-table.detailed-view td:nth-child(3),
+    .ias-table.detailed-view th:nth-child(7),
+    /* ON TRANSFER column */
+    .ias-table.detailed-view td:nth-child(7),
+    .ias-table.detailed-view th:nth-child(8),
+    /* IN TRANSIT column */
+    .ias-table.detailed-view td:nth-child(8) {
+        display: none;
+    }
 }
