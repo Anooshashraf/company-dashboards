@@ -33,6 +33,13 @@ const dashboardCards = [
     icon: "📈",
     color: "card-orange",
   },
+  {
+    title: "RMA Live Report",
+    description: "Return Merchandise Authorization live report and analytics",
+    href: "/dashboard/rma-live",
+    icon: "📊",
+    color: "card-purple",
+  },
 ];
 
 export default function Home() {

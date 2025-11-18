@@ -305,6 +305,14 @@ export default function Navigation() {
                 <span className="nav-icon">📈</span>
                 <span className="nav-text">IAS report</span>
               </Link>
+              <Link
+                href="/dashboard/rma-live"
+                className={`nav-item ${pathname === '/dashboard/rma-live' ? 'nav-item-active' : ''}`}
+                onClick={() => window.innerWidth < 768 && setIsSidebarOpen(false)}
+              >
+                <span className="nav-icon">🔄</span>
+                <span className="nav-text">RMA Live Report</span>
+              </Link>
             </div>
 
             <div className="nav-section">
