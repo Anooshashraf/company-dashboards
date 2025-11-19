@@ -1,0 +1,948 @@
+/* RMA Live Dashboard Styles - EXACT IAS MATCH */
+.rma-page {
+    min-height: calc(100vh - 70px);
+    background: transparent;
+}
+
+/* Keep the RMA page vertically centered like other dashboards */
+.home-page-content.rma-page {
+    align-items: center !important;
+}
+
+.rma-page .main-content {
+    margin-left: 280px;
+    margin-top: 70px;
+    min-height: calc(100vh - 70px);
+    background: transparent;
+    display: flex;
+    /* Align content to the start so the content area can expand like the IAS page */
+    justify-content: flex-start;
+}
+
+.rma-page .content-wrapper {
+    padding: 30px;
+    /* Allow RMA to use the full available screen space (minus sidebar)
+       while keeping content visually centered. Subtracting 320px
+       accounts for sidebar width and page padding; adjust if your
+       sidebar size changes. */
+    max-width: none;
+    width: calc(100vw - 320px);
+    margin: 0 auto;
+    flex: 1;
+}
+
+/* Topbar - EXACT IAS MATCH */
+.rma-page .topbar {
+    margin-bottom: 40px;
+    animation: fadeInUp 0.6s ease-out;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.rma-page .brand {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+}
+
+.rma-page .logo {
+    width: 70px;
+    height: 70px;
+    border-radius: 16px;
+    background: var(--card-purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 28px;
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+    transition: all 0.3s ease;
+}
+
+.rma-page .logo:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 40px rgba(139, 92, 246, 0.4);
+}
+
+.rma-page .title .main {
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 2.5rem;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.rma-page .title .sub {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Dashboard Grid - EXACT IAS MATCH */
+.rma-page .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+    width: 100%;
+}
+
+.rma-page .dashboard-card {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    padding: 30px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.rma-page .dashboard-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.rma-page .dashboard-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--accent);
+}
+
+/* Card Colors - EXACT IAS MATCH */
+.rma-page .card-blue::before {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.rma-page .card-green::before {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.rma-page .card-purple::before {
+    background: var(--card-purple);
+}
+
+.rma-page .card-orange::before {
+    background: var(--card-orange);
+}
+
+.rma-page .card-red::before {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.rma-page .card-yellow::before {
+    background: linear-gradient(135deg, #eab308, #ca8a04);
+}
+
+.rma-page .card-teal::before {
+    background: linear-gradient(135deg, #14b8a6, #0d9488);
+}
+
+.rma-page .card-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    text-align: center;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.rma-page .card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.rma-page .card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.rma-page .card-description {
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 20px;
+    flex: 1;
+    text-align: center;
+}
+
+/* Controls Section - EXACT IAS MATCH */
+.rma-page .rma-controls-section {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    padding: 25px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    margin-bottom: 30px;
+    box-shadow: var(--shadow);
+}
+
+.rma-page .rma-controls-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+    align-items: end;
+}
+
+.rma-page .rma-action-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+/* Filter controls (Search by IMEI / Product) - side-by-side on wide screens */
+.rma-page .rma-filter-controls {
+    display: flex;
+    gap: 16px;
+    align-items: end;
+    margin-bottom: 20px;
+    padding: 12px;
+    background: var(--glass-light);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.rma-page .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1 1 320px;
+    min-width: 260px;
+}
+
+/* Search Box - EXACT IAS MATCH */
+.rma-page .search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.rma-page .search-input {
+    padding: 12px 16px 12px 40px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--glass-light);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    width: 300px;
+    transition: all 0.3s ease;
+}
+
+.rma-page .search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.rma-page .search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--text-muted);
+}
+
+.rma-page .clear-search {
+    position: absolute;
+    right: 12px;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: var(--accent);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.rma-page .clear-search:hover {
+    background: var(--accent);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Buttons - EXACT IAS MATCH */
+.rma-page .btn {
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--glass);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.rma-page .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.6s ease;
+}
+
+.rma-page .btn:hover::before {
+    left: 100%;
+}
+
+.rma-page .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+}
+
+.rma-page .btn-primary {
+    background: var(--card-purple);
+    border-color: transparent;
+}
+
+.rma-page .btn-success {
+    background: var(--card-emerald);
+    border-color: transparent;
+}
+
+/* Action buttons (Export / Refresh) — match IAS visuals and sizing */
+.rma-page .rma-action-buttons .btn {
+    min-width: 140px;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rma-page .rma-action-buttons .btn-success {
+    background: linear-gradient(90deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.12);
+}
+
+.rma-page .rma-action-buttons .btn-primary {
+    background: linear-gradient(90deg, #8b5cf6, #a855f7);
+    color: white;
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.12);
+}
+
+/* Inline action controls inside tables */
+.rma-page .details-btn,
+.rma-page .expand-btn {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 6px;
+}
+
+.rma-page .details-btn:hover,
+.rma-page .expand-btn:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+/* Expanded detail row & panel */
+.rma-page .detail-row {
+    background: rgba(139, 92, 246, 0.03) !important;
+}
+
+.rma-page .detail-panel {
+    padding: 20px;
+    background: var(--glass-light);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: visible;
+    max-width: 100%;
+}
+
+.rma-page .detail-panel .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.rma-page .detail-panel table {
+    width: 100%;
+    table-layout: auto;
+    border-collapse: collapse;
+}
+
+.rma-page .detail-panel table th,
+.rma-page .detail-panel table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.92rem;
+}
+
+.rma-page .detail-panel h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1rem;
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* Match IAS detail-grid cells: background, padding and subtle border */
+.rma-page .detail-panel .detail-grid div {
+    padding: 8px 12px;
+    background: rgba(139, 92, 246, 0.05);
+    border-radius: var(--radius);
+    border: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+/* Section wrappers inside the detail panel */
+.rma-page .detail-panel .detail-section {
+    margin-bottom: 16px;
+    padding-bottom: 6px;
+    display: block;
+}
+
+/* Align and style label text inside detail-grid cells to match IAS */
+.rma-page .detail-panel .detail-grid div strong {
+    display: inline-block;
+    min-width: 130px;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-right: 8px;
+}
+
+/* Modal detail grid styling (used inside the details modal) */
+.rma-page .modal-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    align-items: start;
+}
+
+/* Error / alert inline styles used in details */
+.rma-page .error-box {
+    display: inline-block;
+    padding: 6px 10px;
+    background: rgba(239, 68, 68, 0.06);
+    color: #991b1b;
+    border-radius: 8px;
+    border: 1px solid rgba(239, 68, 68, 0.12);
+    font-weight: 700;
+}
+
+.rma-page .error-text {
+    color: #b91c1c;
+    font-weight: 700;
+}
+
+/* Store address block styling as in IAS */
+.rma-page .store-address {
+    padding: 12px;
+    background: rgba(139, 92, 246, 0.05);
+    border-radius: var(--radius);
+    border: 1px solid rgba(139, 92, 246, 0.1);
+    font-style: italic;
+}
+
+/* Make sure expanded content doesn't force horizontal scroll on wide screens */
+.rma-page .rma-table-wrapper {
+    overflow-x: auto;
+}
+
+/* Modal (Details) - match IAS modal styles */
+.rma-page .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.rma-page .modal-content {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    padding: 0;
+    max-width: 720px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+}
+
+.rma-page .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.rma-page .modal-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.rma-page .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 6px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.rma-page .close-btn:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+}
+
+.rma-page .modal-body {
+    padding: 20px 24px;
+}
+
+/* Prevent internal scrolling inside the modal */
+.rma-page .modal-content {
+    overflow: hidden;
+}
+
+.rma-page .modal-body {
+    /* restrict modal body height so whole modal is fixed */
+    max-height: calc(80vh - 120px);
+    overflow: hidden;
+}
+
+/* Enhanced modal styling to match IAS visuals */
+.rma-page .modal-content {
+    /* Use the app's dark glass look so modal visually matches the app background */
+    background: var(--glass-dark);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    box-shadow: 0 35px 80px rgba(2, 6, 23, 0.65), 0 6px 18px rgba(16, 185, 129, 0.04);
+    position: relative;
+    z-index: 1001;
+}
+
+.rma-page .modal-content::after {
+    content: '';
+    position: absolute;
+    left: 20px;
+    bottom: -22px;
+    width: 120px;
+    height: 28px;
+    border-radius: 18px;
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.16), rgba(139, 92, 246, 0.06));
+    filter: blur(10px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.rma-page .modal-header h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.rma-page .modal-header {
+    padding: 18px 22px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.00));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.rma-page .modal-detail-grid div {
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    color: #d1d5db;
+}
+
+.rma-page .modal-detail-grid div strong {
+    min-width: 110px;
+    display: inline-block;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 800;
+}
+
+.rma-page .modal-actions {
+    padding: 16px 22px 22px 22px;
+    display: flex;
+    justify-content: flex-start;
+    gap: 12px;
+    background: transparent;
+}
+
+.rma-page .modal-close-cta {
+    background: linear-gradient(90deg, #8b5cf6, #a855f7);
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.16);
+    border: none;
+}
+
+.rma-page .modal-close-cta:hover {
+    transform: translateY(-2px);
+}
+
+.rma-page .modal-actions {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    border-top: 1px solid var(--border);
+}
+
+.rma-page .modal-actions .btn {
+    min-width: 100px;
+}
+
+/* Table Styles - EXACT IAS MATCH */
+.rma-page .rma-table-block {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    padding: 28px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s ease;
+}
+
+.rma-page .rma-table-block:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.rma-page .rma-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.rma-page .rma-table-header h2 {
+    margin: 0;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+}
+
+.rma-page .rma-meta {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.rma-page .rma-table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--radius);
+}
+
+.rma-page .rma-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    background: var(--glass-light);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.rma-page .rma-table th,
+.rma-page .rma-table td {
+    padding: 18px 22px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.rma-page .rma-table th {
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(139, 92, 246, 0.1);
+    border-bottom: 2px solid var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.85rem;
+}
+
+.rma-page .rma-table tbody tr {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    background: transparent;
+}
+
+.rma-page .rma-table tbody tr:hover {
+    background: rgba(139, 92, 246, 0.08);
+    transform: translateX(8px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.rma-page .rma-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.rma-page .rma-col-right {
+    text-align: right;
+}
+
+/* Progress Bars - EXACT IAS MATCH */
+.rma-page .rma-bar-cell {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.rma-page .rma-bar-track {
+    height: 12px;
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+    flex: 1;
+    overflow: hidden;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+}
+
+.rma-page .rma-bar-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 10px;
+    transition: width 800ms cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.rma-page .rma-bar-fill::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 100%;
+    }
+}
+
+.rma-page .rma-fill-green {
+    background: linear-gradient(90deg, var(--accent-3), #34d399);
+}
+
+.rma-page .rma-fill-amber {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.rma-page .rma-fill-red {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+/* Navigation - EXACT IAS MATCH */
+.rma-page .rma-nav-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin: 30px 0;
+    padding: 20px;
+    background: var(--glass);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+.rma-page .rma-breadcrumb {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+/* Responsive Design - EXACT IAS MATCH */
+@media (max-width: 768px) {
+    .rma-page .main-content {
+        margin-left: 0;
+        justify-content: flex-start;
+    }
+
+    .rma-page .content-wrapper {
+        padding: 20px;
+        width: 100%;
+    }
+
+    .rma-page .rma-controls-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .rma-page .rma-action-buttons {
+        flex-direction: column;
+        justify-content: stretch;
+    }
+
+    .rma-page .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rma-page .rma-nav-row {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .rma-page .rma-table th,
+    .rma-page .rma-table td {
+        padding: 14px 16px;
+    }
+
+    .rma-page .rma-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+    }
+
+    .rma-page .rma-table {
+        min-width: 700px;
+    }
+
+    .rma-page .search-input {
+        width: 100%;
+    }
+}
+
+/* Compact/detailed view rules to match IAS behavior */
+.rma-page .rma-table.detailed-view {
+    font-size: 0.75rem;
+    table-layout: auto;
+    width: 100%;
+}
+
+.rma-page .rma-table.detailed-view th,
+.rma-page .rma-table.detailed-view td {
+    padding: 8px 10px;
+}
+
+.rma-page .rma-table.detailed-view .details-btn,
+.rma-page .rma-table.detailed-view .expand-btn {
+    padding: 3px 6px;
+    font-size: 0.65rem;
+    margin-right: 3px;
+}
+
+.rma-page .rma-table.detailed-view .product-info,
+.rma-page .rma-table.detailed-view .sku-info {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rma-page .rma-table.detailed-view .store-info {
+    max-width: 120px;
+}
+
+.rma-page .rma-table.detailed-view .product-info {
+    max-width: 140px;
+}
+
+.rma-page .rma-table.detailed-view .sku-info {
+    max-width: 100px;
+}
+
+.rma-page .rma-table.detailed-view .status-indicator {
+    padding: 2px 8px;
+    font-size: 0.7rem;
+}
+
+/* Hide less important columns responsively (match IAS media breakpoints) */
+@media (max-width: 1024px) {
+
+    .rma-page .rma-table.detailed-view th:nth-child(5),
+    .rma-page .rma-table.detailed-view td:nth-child(5) {
+        display: none;
+        /* Model column */
+    }
+}
+
+@media (max-width: 768px) {
+
+    .rma-page .rma-table.detailed-view th:nth-child(3),
+    .rma-page .rma-table.detailed-view td:nth-child(3),
+    .rma-page .rma-table.detailed-view th:nth-child(7),
+    .rma-page .rma-table.detailed-view td:nth-child(7),
+    .rma-page .rma-table.detailed-view th:nth-child(8),
+    .rma-page .rma-table.detailed-view td:nth-child(8) {
+        display: none;
+    }
+}

@@ -36,7 +36,7 @@ const dashboardCards = [
   {
     title: "RMA Live Report",
     description: "Return Merchandise Authorization live report and analytics",
-    href: "/dashboard/rma-live",
+    href: "/dashboard/rma_live",
     icon: "📊",
     color: "card-purple",
   },
