@@ -209,13 +209,13 @@
     justify-content: flex-end;
 }
 
-/* Filter controls (Search by IMEI / Product) - side-by-side on wide screens */
+/* Filter Controls Styling - EXACT IAS MATCH */
 .rma-page .rma-filter-controls {
     display: flex;
-    gap: 16px;
+    gap: 20px;
     align-items: end;
-    margin-bottom: 20px;
-    padding: 12px;
+    margin-bottom: 25px;
+    padding: 20px;
     background: var(--glass-light);
     border-radius: var(--radius);
     border: 1px solid var(--border);
@@ -226,8 +226,104 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    flex: 1 1 320px;
-    min-width: 260px;
+    flex: 1;
+    min-width: 280px;
+}
+
+.rma-page .filter-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.rma-page .filter-input {
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--glass);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.rma-page .filter-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+    background: var(--glass-light);
+}
+
+.rma-page .filter-input:hover {
+    border-color: var(--accent);
+    background: var(--glass-light);
+}
+
+.rma-page .filter-input::placeholder {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.rma-page .clear-filter {
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: var(--accent);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border: none;
+    margin-left: 8px;
+}
+
+.rma-page .clear-filter:hover {
+    background: var(--accent);
+    color: white;
+    transform: scale(1.1);
+}
+
+.rma-page .clear-all-filters {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    align-self: end;
+    min-width: 140px;
+}
+
+.rma-page .clear-all-filters:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+}
+
+/* Filter group with clear button */
+.rma-page .filter-group:has(.clear-filter) {
+    flex-direction: row;
+    align-items: end;
+}
+
+.rma-page .filter-group:has(.clear-filter) label {
+    margin-bottom: 8px;
+}
+
+.rma-page .filter-group:has(.clear-filter) .filter-input {
+    flex: 1;
 }
 
 /* Search Box - EXACT IAS MATCH */
@@ -676,29 +772,76 @@
     }
 }
 
-.rma-page .rma-table-header {
+/* RMA Live Search Box - EXACT IAS MATCH */
+.rma-page .search-box {
+    position: relative;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    margin-bottom: 1.5rem;
 }
 
-.rma-page .rma-table-header h2 {
-    margin: 0;
-    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-weight: 800;
-    font-size: 1.5rem;
-    letter-spacing: -0.02em;
-}
-
-.rma-page .rma-meta {
-    color: var(--text-muted);
+.rma-page .search-input {
+    padding: 12px 16px 12px 40px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--glass-light);
+    color: var(--text-primary);
     font-size: 0.95rem;
-    font-weight: 500;
+    width: 300px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
 }
+
+.rma-page .search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+    background: var(--glass);
+}
+
+.rma-page .search-input:hover {
+    border-color: var(--accent);
+    background: var(--glass);
+}
+
+.rma-page .search-input::placeholder {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.rma-page .search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--text-muted);
+    font-size: 1rem;
+    pointer-events: none;
+}
+
+.rma-page .clear-search {
+    position: absolute;
+    right: 12px;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: var(--accent);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.rma-page .clear-search:hover {
+    background: var(--accent);
+    color: white;
+    transform: scale(1.1);
+}
+
 
 .rma-page .rma-table-wrapper {
     overflow-x: auto;
