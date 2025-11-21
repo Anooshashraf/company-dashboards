@@ -1,66 +1,72 @@
 /* RMA Live Dashboard Styles - EXACT IAS MATCH */
 .rma-page {
     min-height: calc(100vh - 70px);
-    background: transparent;
 }
 
-/* Keep the RMA page vertically centered like other dashboards */
-.home-page-content.rma-page {
-    align-items: center !important;
-}
-
-.rma-page .main-content {
-    margin-left: 280px;
-    margin-top: 70px;
-    min-height: calc(100vh - 70px);
-    background: transparent;
-    display: flex;
-    /* Align content to the start so the content area can expand like the IAS page */
-    justify-content: flex-start;
-}
-
-.rma-page .content-wrapper {
-    padding: 30px;
-    /* Allow RMA to use the full available screen space (minus sidebar)
-       while keeping content visually centered. Subtracting 320px
-       accounts for sidebar width and page padding; adjust if your
-       sidebar size changes. */
-    max-width: none;
-    width: calc(100vw - 320px);
-    margin: 0 auto;
-    flex: 1;
-}
-
-/* Topbar - EXACT IAS MATCH */
-.rma-page .topbar {
-    margin-bottom: 40px;
-    animation: fadeInUp 0.6s ease-out;
-    width: 100%;
+.rma-page .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
 }
 
-.rma-page .brand {
+.rma-page .modal-content {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    /* keep overall modal fixed but prevent double scrollbars by
+           delegating scrolling to the modal body only */
+    overflow: hidden;
     display: flex;
-    gap: 20px;
-    align-items: center;
-    text-align: center;
     flex-direction: column;
 }
 
-.rma-page .logo {
-    width: 70px;
-    height: 70px;
-    border-radius: 16px;
-    background: var(--card-purple);
+.rma-page .modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: between;
+    align-items: center;
+}
+
+.rma-page .modal-header h3 {
+    margin: 0;
+    color: #2d3748;
+    font-size: 1.25rem;
+}
+
+.rma-page .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #718096;
+    padding: 0;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-weight: 600;
-    font-size: 28px;
-    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
-    transition: all 0.3s ease;
+}
+
+.rma-page .close-btn:hover {
+    color: #4a5568;
+}
+
+.rma-page .modal-body {
+    padding: 1.5rem;
+    /* allow internal scrolling only in the modal body */
+    overflow-y: auto;
+    flex: 1;
 }
 
 .rma-page .logo:hover {
@@ -646,15 +652,16 @@
     padding: 20px 24px;
 }
 
-/* Prevent internal scrolling inside the modal */
+/* Allow internal scrolling inside the modal so long content (comments) is reachable */
 .rma-page .modal-content {
-    overflow: hidden;
+    /* permit the modal to scroll if content exceeds max-height */
+    overflow-y: auto;
 }
 
 .rma-page .modal-body {
-    /* restrict modal body height so whole modal is fixed */
+    /* keep a sensible max height but allow internal scroll for long content */
     max-height: calc(80vh - 120px);
-    overflow: hidden;
+    overflow-y: auto;
 }
 
 /* Enhanced modal styling to match IAS visuals */
@@ -1087,5 +1094,267 @@
     .rma-page .rma-table.detailed-view th:nth-child(8),
     .rma-page .rma-table.detailed-view td:nth-child(8) {
         display: none;
+    }
+}
+
+
+/* Comments Section Styles */
+.comments-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+    width: 100%;
+    display: block;
+}
+
+.comments-section h4 {
+    margin-bottom: 1rem;
+    color: #2d3748;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.comments-form {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 0.875rem;
+}
+
+.comments-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    resize: vertical;
+    transition: border-color 0.2s;
+    background: white;
+    box-sizing: border-box;
+    font-family: inherit;
+    min-height: 80px;
+}
+
+.comments-textarea:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.comments-textarea:disabled {
+    background-color: #f7fafc;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.comments-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.comments-actions .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    flex: 1;
+    min-width: 120px;
+}
+
+.comments-actions .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.current-comments {
+    background: white;
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.current-comments h5 {
+    margin-bottom: 0.75rem;
+    color: #4a5568;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.comments-display {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.comment-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 100%;
+}
+
+.comment-item strong {
+    color: #4a5568;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.comment-text {
+    background: #edf2f7;
+    padding: 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    border-left: 3px solid #4299e1;
+    word-wrap: break-word;
+}
+
+.comment-empty {
+    color: #a0aec0;
+    font-style: italic;
+    font-size: 0.875rem;
+    padding: 0.75rem;
+    background: #f7fafc;
+    border-radius: 4px;
+    border-left: 3px solid #e2e8f0;
+}
+
+/* Success Message */
+.success-message {
+    background: #f0fff4;
+    border: 1px solid #9ae6b4;
+    color: #276749;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Button variants */
+.btn-primary {
+    background: #4299e1;
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #3182ce;
+}
+
+.btn-danger {
+    background: #e53e3e;
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #c53030;
+}
+
+.btn-secondary {
+    background: #718096;
+    color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: #4a5568;
+}
+
+.btn-outline {
+    background: transparent;
+    color: #4a5568;
+    border: 1px solid #cbd5e0;
+}
+
+.btn-outline:hover:not(:disabled) {
+    background: #f7fafc;
+}
+
+/* Modal adjustments */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.rma-page .modal-detail-grid div {
+    padding: 0.5rem 0;
+}
+
+.rma-page .modal-actions {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.rma-page .modal-close-cta {
+    padding: 0.5rem 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .rma-page .modal-content {
+        width: 95%;
+        margin: 10px;
+    }
+
+    .rma-page .modal-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rma-page .comments-actions {
+        flex-direction: column;
+    }
+
+    .rma-page .comments-actions .btn {
+        width: 100%;
+    }
+
+    .rma-page .comments-form {
+        padding: 1rem;
     }
 }

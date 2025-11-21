@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <script>
+        async function testComments() {
+            const response = await fetch('http://localhost:3000/api/comments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    recordType: 'RMA',
+                    recordIdentifier: 'RMA25112009M', // Use an actual RMA # from your sheet
+                    dmComments: 'Test DM Comment from API',
+                    boComments: 'Test BO Comment from API'
+                })
+            });
+
+            const result = await response.json();
+            console.log('Test result:', result);
+        }
+        testComments();
+    </script>
+</body>
+
+</html>
