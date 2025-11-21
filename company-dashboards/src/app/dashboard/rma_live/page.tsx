@@ -1621,7 +1621,8 @@ export default function RMALivePage() {
     //     }
     // };
 
-    // Function to update comments in all data states
+
+
     // const updateCommentsInSheet = async (record: RMARecord, boComment: string, dmComment: string) => {
     //     try {
     //         if (!record || Object.keys(record).length === 0) {
@@ -1633,7 +1634,7 @@ export default function RMALivePage() {
     //         setUpdatingComments(true);
     //         setCommentsSuccess(null);
 
-    //         // Get the record identifier with better error handling
+    //         // Get the record identifier
     //         const recordIdentifier = record.RecordType === 'XBM'
     //             ? record["XBM Number"]
     //             : record["RMA #"];
@@ -1645,18 +1646,42 @@ export default function RMALivePage() {
     //             return;
     //         }
 
-    //         console.log('Updating comments for record:', {
+    //         console.log('🔄 Updating comments in Google Sheets:', {
     //             recordType: record.RecordType,
     //             identifier: recordIdentifier,
     //             boComment,
     //             dmComment
     //         });
 
-    //         // Update the data in state immediately for better UX
-    //         updateRecordComments(record, boComment, dmComment);
+    //         // Call the API to update comments in Google Sheets
+    //         const response = await fetch('/api/comments', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify({
+    //                 recordType: record.RecordType,
+    //                 recordIdentifier: recordIdentifier,
+    //                 dmComments: dmComment,
+    //                 boComments: boComment
+    //             }),
+    //         });
 
-    //         // Simulate API call delay
-    //         await new Promise(resolve => setTimeout(resolve, 1000));
+    //         if (!response.ok) {
+    //             const errorData = await response.json();
+    //             throw new Error(errorData.error || `HTTP ${response.status}`);
+    //         }
+
+    //         const result = await response.json();
+
+    //         if (!result.success) {
+    //             throw new Error(result.error || 'Failed to update comments');
+    //         }
+
+    //         console.log('✅ Comments updated in Google Sheets:', result);
+
+    //         // Also update the data in state for immediate UI feedback
+    //         updateRecordComments(record, boComment, dmComment);
 
     //         // Show success message
     //         setCommentsSuccess(`Comments updated successfully for ${recordIdentifier}`);
@@ -1664,55 +1689,12 @@ export default function RMALivePage() {
     //         // Clear success message after 3 seconds
     //         setTimeout(() => setCommentsSuccess(null), 3000);
 
-    //     } catch (error) {
-    //         console.error('Error updating comments:', error);
-    //         setError('Failed to update comments. Please try again.');
+    //     } catch (error: any) {
+    //         console.error('❌ Error updating comments:', error);
+    //         setError(`Failed to update comments: ${error.message}`);
     //     } finally {
     //         setUpdatingComments(false);
     //     }
-    // };
-
-    // const updateRecordComments = (record: RMARecord, boComment: string, dmComment: string) => {
-    //     const updateData = (data: RMARecord[]) =>
-    //         data.map(item => {
-    //             const itemIdentifier = String(item.RecordType === 'XBM' ? item["XBM Number"] : item["RMA #"] || '').trim();
-    //             const recordIdentifier = String(record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"] || '').trim();
-
-    //             if (itemIdentifier && recordIdentifier && itemIdentifier === recordIdentifier && item.RecordType === record.RecordType) {
-    //                 return {
-    //                     ...item,
-    //                     "BO COMMENTS": boComment,
-    //                     "DM COMMENTS": dmComment,
-    //                     "DM Comments": dmComment // Update both fields for consistency
-    //                 };
-    //             }
-    //             return item;
-    //         });
-
-    //     // Update all relevant data sets
-    //     setRmaData(prev => updateData(prev));
-    //     setXbmData(prev => updateData(prev));
-    //     setTradeInData(prev => updateData(prev));
-    //     setCombinedData(prev => updateData(prev));
-    //     setCurrentData(prev => updateData(prev));
-
-    //     // Also update the selected record if it's the same
-    //     if (selectedRecord) {
-    //         const selectedIdentifier = String(selectedRecord.RecordType === 'XBM' ? selectedRecord["XBM Number"] : selectedRecord["RMA #"] || '').trim();
-    //         const recordIdentifier = String(record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"] || '').trim();
-
-    //         if (selectedIdentifier && recordIdentifier && selectedIdentifier === recordIdentifier && selectedRecord.RecordType === record.RecordType) {
-    //             setSelectedRecord({
-    //                 ...selectedRecord,
-    //                 "BO COMMENTS": boComment,
-    //                 "DM COMMENTS": dmComment,
-    //                 "DM Comments": dmComment
-    //             });
-    //         }
-    //     }
-
-    //     // Debug: log counts after update
-    //     console.log('Comments updated in memory for', (record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"]), ' — new BO:', boComment, 'DM:', dmComment);
     // };
     const updateCommentsInSheet = async (record: RMARecord, boComment: string, dmComment: string) => {
         try {
@@ -1742,6 +1724,13 @@ export default function RMALivePage() {
                 identifier: recordIdentifier,
                 boComment,
                 dmComment
+            });
+
+            // DEBUG: Check what records exist with this identifier
+            console.log('🔍 DEBUG - Records with this identifier:', {
+                rmaRecords: rmaData.filter(r => r["RMA #"] === recordIdentifier).length,
+                xbmRecords: xbmData.filter(r => r["XBM Number"] === recordIdentifier).length,
+                tradeInRecords: tradeInData.filter(r => r["RMA #"] === recordIdentifier).length
             });
 
             // Call the API to update comments in Google Sheets
@@ -1788,23 +1777,89 @@ export default function RMALivePage() {
         }
     };
 
+    // const updateRecordComments = (record: RMARecord, boComment: string, dmComment: string) => {
+    //     // Don't proceed if record is empty
+    //     if (!record || Object.keys(record).length === 0) {
+    //         console.warn('updateRecordComments called with empty record');
+    //         return;
+    //     }
 
+    //     const updateData = (data: RMARecord[]) =>
+    //         data.map(item => {
+    //             // Skip if item is empty
+    //             if (!item || Object.keys(item).length === 0) return item;
+
+    //             const itemIdentifier = String(item.RecordType === 'XBM' ? item["XBM Number"] : item["RMA #"] || '').trim();
+    //             const recordIdentifier = String(record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"] || '').trim();
+
+    //             if (itemIdentifier && recordIdentifier && itemIdentifier === recordIdentifier && item.RecordType === record.RecordType) {
+    //                 return {
+    //                     ...item,
+    //                     "BO COMMENTS": boComment,
+    //                     "DM COMMENTS": dmComment,
+    //                     "DM Comments": dmComment
+    //                 };
+    //             }
+    //             return item;
+    //         });
+
+    //     // Update all relevant data sets
+    //     setRmaData(prev => updateData(prev));
+    //     setXbmData(prev => updateData(prev));
+    //     setTradeInData(prev => updateData(prev));
+    //     setCombinedData(prev => updateData(prev));
+    //     setCurrentData(prev => updateData(prev));
+
+    //     // Also update the selected record if it's the same
+    //     if (selectedRecord) {
+    //         const selectedIdentifier = String(selectedRecord.RecordType === 'XBM' ? selectedRecord["XBM Number"] : selectedRecord["RMA #"] || '').trim();
+    //         const recordIdentifier = String(record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"] || '').trim();
+
+    //         if (selectedIdentifier && recordIdentifier && selectedIdentifier === recordIdentifier && selectedRecord.RecordType === record.RecordType) {
+    //             setSelectedRecord({
+    //                 ...selectedRecord,
+    //                 "BO COMMENTS": boComment,
+    //                 "DM COMMENTS": dmComment,
+    //                 "DM Comments": dmComment
+    //             });
+    //         }
+    //     }
+
+    //     console.log('Comments updated in memory for', (record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"]));
+    // };
     const updateRecordComments = (record: RMARecord, boComment: string, dmComment: string) => {
-        // Don't proceed if record is empty
         if (!record || Object.keys(record).length === 0) {
             console.warn('updateRecordComments called with empty record');
             return;
         }
 
+        console.log('🔄 updateRecordComments called for:', {
+            type: record.RecordType,
+            identifier: record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"],
+            currentView,
+            currentDataLength: currentData.length
+        });
+
         const updateData = (data: RMARecord[]) =>
             data.map(item => {
-                // Skip if item is empty
                 if (!item || Object.keys(item).length === 0) return item;
 
-                const itemIdentifier = String(item.RecordType === 'XBM' ? item["XBM Number"] : item["RMA #"] || '').trim();
-                const recordIdentifier = String(record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"] || '').trim();
+                const itemIdentifier = String(
+                    item.RecordType === 'XBM' ? item["XBM Number"] : item["RMA #"] || ''
+                ).trim();
 
-                if (itemIdentifier && recordIdentifier && itemIdentifier === recordIdentifier && item.RecordType === record.RecordType) {
+                const recordIdentifier = String(
+                    record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"] || ''
+                ).trim();
+
+                // CRITICAL: Check both identifier AND record type
+                if (itemIdentifier &&
+                    recordIdentifier &&
+                    itemIdentifier === recordIdentifier &&
+                    item.RecordType === record.RecordType) {
+
+                    console.log(`✅ Updating ${item.RecordType}: ${itemIdentifier}`);
+
                     return {
                         ...item,
                         "BO COMMENTS": boComment,
@@ -1815,19 +1870,48 @@ export default function RMALivePage() {
                 return item;
             });
 
-        // Update all relevant data sets
-        setRmaData(prev => updateData(prev));
-        setXbmData(prev => updateData(prev));
-        setTradeInData(prev => updateData(prev));
+        // Update individual data sets
+        switch (record.RecordType) {
+            case 'RMA':
+                setRmaData(prev => updateData(prev));
+                break;
+            case 'XBM':
+                setXbmData(prev => updateData(prev));
+                break;
+            case 'TRADE_IN':
+                setTradeInData(prev => updateData(prev));
+                break;
+        }
+
+        // IMPORTANT: Update currentData FIRST to preserve the current view
+        setCurrentData(prev => {
+            const updated = updateData(prev);
+            console.log('🔄 Updated currentData:', {
+                before: prev.length,
+                after: updated.length,
+                view: currentView
+            });
+            return updated;
+        });
+
+        // Then update combinedData
         setCombinedData(prev => updateData(prev));
-        setCurrentData(prev => updateData(prev));
 
-        // Also update the selected record if it's the same
+        // Update selected record if it matches
         if (selectedRecord) {
-            const selectedIdentifier = String(selectedRecord.RecordType === 'XBM' ? selectedRecord["XBM Number"] : selectedRecord["RMA #"] || '').trim();
-            const recordIdentifier = String(record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"] || '').trim();
+            const selectedIdentifier = String(
+                selectedRecord.RecordType === 'XBM' ? selectedRecord["XBM Number"] : selectedRecord["RMA #"] || ''
+            ).trim();
 
-            if (selectedIdentifier && recordIdentifier && selectedIdentifier === recordIdentifier && selectedRecord.RecordType === record.RecordType) {
+            const recordIdentifier = String(
+                record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"] || ''
+            ).trim();
+
+            if (selectedIdentifier &&
+                recordIdentifier &&
+                selectedIdentifier === recordIdentifier &&
+                selectedRecord.RecordType === record.RecordType) {
+
                 setSelectedRecord({
                     ...selectedRecord,
                     "BO COMMENTS": boComment,
@@ -1836,10 +1920,7 @@ export default function RMALivePage() {
                 });
             }
         }
-
-        console.log('Comments updated in memory for', (record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"]));
     };
-
     const deleteComments = async (record: RMARecord) => {
         if (window.confirm('Are you sure you want to clear all comments for this record?')) {
             await updateCommentsInSheet(record, '', '');
@@ -1914,16 +1995,27 @@ export default function RMALivePage() {
         }
     }, [isAuthenticated]);
 
+    // Fix 1: Combine data only when all sources are loaded
     useEffect(() => {
-        if (rmaData.length > 0 || xbmData.length > 0 || tradeInData.length > 0) {
+        if (rmaData.length > 0 && xbmData.length > 0 && tradeInData.length > 0) {
+            console.log('🔄 All data loaded, combining...');
             combineData();
         }
-    }, [rmaData, xbmData, tradeInData]);
+    }, [rmaData.length, xbmData.length, tradeInData.length]);
 
+    // Fix 2: Simplify currentData management
     useEffect(() => {
-        setCurrentData(combinedData);
-    }, [combinedData]);
+        setCurrentData(prev => {
+            // Only reset to combinedData if we're at the top level
+            if (currentView === 'markets' && historyStack.length === 1) {
+                console.log('🔄 Setting currentData to combinedData (top level)');
+                return combinedData;
+            }
+            return prev;
+        });
+    }, [combinedData, currentView, historyStack.length]);
 
+    // Fix 3: Remove the problematic useEffect that was causing the hook error
     useEffect(() => {
         const prev = typeof document !== 'undefined' ? document.body.style.overflow : '';
         if (selectedRecord) {
@@ -2693,7 +2785,48 @@ export default function RMALivePage() {
         return Object.values(groups).sort((a, b) => b.cost - a.cost);
     };
 
+    // const handleMarketClick = (market: AggregatedGroup) => {
+    //     setCurrentData(market.rows);
+    //     setCurrentView('dm');
+    //     setSelectedMarket(market.key);
+    //     setHistoryStack([
+    //         { level: 'Markets' },
+    //         { level: 'District Managers', selected: market.key }
+    //     ]);
+    //     setSearchTerm('');
+    //     setCurrentPage(1);
+    // };
+
+
+    // const handleDMClick = (dm: AggregatedGroup) => {
+    //     setCurrentData(dm.rows);
+    //     setCurrentView('types');
+    //     setSelectedDM(dm.key);
+    //     setHistoryStack([
+    //         { level: 'Markets' },
+    //         { level: 'District Managers', selected: selectedMarket },
+    //         { level: 'Record Types', selected: dm.key }
+    //     ]);
+    //     setSearchTerm('');
+    //     setCurrentPage(1);
+    // };
+
+    // const handleTypeClick = (type: AggregatedGroup) => {
+    //     setCurrentData(type.rows);
+    //     setCurrentView('detailed');
+    //     setSelectedType(type.key);
+    //     setHistoryStack([
+    //         { level: 'Markets' },
+    //         { level: 'District Managers', selected: selectedMarket },
+    //         { level: 'Record Types', selected: selectedDM },
+    //         { level: 'Detailed', selected: type.key }
+    //     ]);
+    //     setSearchTerm('');
+    //     setCurrentPage(1);
+    // };
+
     const handleMarketClick = (market: AggregatedGroup) => {
+        console.log('📍 Market clicked:', market.key, 'Rows:', market.rows.length);
         setCurrentData(market.rows);
         setCurrentView('dm');
         setSelectedMarket(market.key);
@@ -2706,6 +2839,7 @@ export default function RMALivePage() {
     };
 
     const handleDMClick = (dm: AggregatedGroup) => {
+        console.log('📍 DM clicked:', dm.key, 'Rows:', dm.rows.length);
         setCurrentData(dm.rows);
         setCurrentView('types');
         setSelectedDM(dm.key);
@@ -2719,6 +2853,7 @@ export default function RMALivePage() {
     };
 
     const handleTypeClick = (type: AggregatedGroup) => {
+        console.log('📍 Type clicked:', type.key, 'Rows:', type.rows.length);
         setCurrentData(type.rows);
         setCurrentView('detailed');
         setSelectedType(type.key);
