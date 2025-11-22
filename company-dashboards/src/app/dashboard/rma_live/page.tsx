@@ -1475,6 +1475,7 @@ interface SummaryStats {
 export default function RMALivePage() {
     const { isAuthenticated, isLoading } = useAuth();
     const router = useRouter();
+    const [sortBy, setSortBy] = useState<'alphabetical' | 'cost'>('alphabetical');
     const [rmaData, setRmaData] = useState<RMARecord[]>([]);
     const [xbmData, setXbmData] = useState<RMARecord[]>([]);
     const [tradeInData, setTradeInData] = useState<RMARecord[]>([]);
@@ -1696,12 +1697,94 @@ export default function RMALivePage() {
     //         setUpdatingComments(false);
     //     }
     // };
+
+
+    // const updateCommentsInSheet = async (record: RMARecord, boComment: string, dmComment: string) => {
+    //     try {
+    //         if (!record || Object.keys(record).length === 0) {
+    //             console.warn('updateCommentsInSheet called with empty record');
+    //             setError('No record selected to update');
+    //             return;
+    //         }
+
+    //         setUpdatingComments(true);
+    //         setCommentsSuccess(null);
+
+    //         // Get the record identifier
+    //         const recordIdentifier = record.RecordType === 'XBM'
+    //             ? record["XBM Number"]
+    //             : record["RMA #"];
+
+    //         if (!recordIdentifier || recordIdentifier.trim() === '') {
+    //             console.error('No record identifier found for record:', record);
+    //             setError('No reference number found for this record');
+    //             setUpdatingComments(false);
+    //             return;
+    //         }
+
+    //         console.log('🔄 Updating comments in Google Sheets:', {
+    //             recordType: record.RecordType,
+    //             identifier: recordIdentifier,
+    //             boComment,
+    //             dmComment
+    //         });
+
+    //         // DEBUG: Check what records exist with this identifier
+    //         console.log('🔍 DEBUG - Records with this identifier:', {
+    //             rmaRecords: rmaData.filter(r => r["RMA #"] === recordIdentifier).length,
+    //             xbmRecords: xbmData.filter(r => r["XBM Number"] === recordIdentifier).length,
+    //             tradeInRecords: tradeInData.filter(r => r["RMA #"] === recordIdentifier).length
+    //         });
+
+    //         // Call the API to update comments in Google Sheets
+    //         const response = await fetch('/api/comments', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify({
+    //                 recordType: record.RecordType,
+    //                 recordIdentifier: recordIdentifier,
+    //                 dmComments: dmComment,
+    //                 boComments: boComment
+    //             }),
+    //         });
+
+    //         if (!response.ok) {
+    //             const errorData = await response.json();
+    //             throw new Error(errorData.error || `HTTP ${response.status}`);
+    //         }
+
+    //         const result = await response.json();
+
+    //         if (!result.success) {
+    //             throw new Error(result.error || 'Failed to update comments');
+    //         }
+
+    //         console.log('✅ Comments updated in Google Sheets:', result);
+
+    //         // Also update the data in state for immediate UI feedback
+    //         updateRecordComments(record, boComment, dmComment);
+
+    //         // Show success message
+    //         setCommentsSuccess(`Comments updated successfully for ${recordIdentifier}`);
+
+    //         // Clear success message after 3 seconds
+    //         setTimeout(() => setCommentsSuccess(null), 3000);
+
+    //     } catch (error: any) {
+    //         console.error('❌ Error updating comments:', error);
+    //         setError(`Failed to update comments: ${error.message}`);
+    //     } finally {
+    //         setUpdatingComments(false);
+    //     }
+    // };
     const updateCommentsInSheet = async (record: RMARecord, boComment: string, dmComment: string) => {
         try {
             if (!record || Object.keys(record).length === 0) {
                 console.warn('updateCommentsInSheet called with empty record');
                 setError('No record selected to update');
-                return;
+                return; // Make sure to return here
             }
 
             setUpdatingComments(true);
@@ -1715,7 +1798,7 @@ export default function RMALivePage() {
             if (!recordIdentifier || recordIdentifier.trim() === '') {
                 console.error('No record identifier found for record:', record);
                 setError('No reference number found for this record');
-                setUpdatingComments(false);
+                setUpdatingComments(false); // Reset here too
                 return;
             }
 
@@ -1724,13 +1807,6 @@ export default function RMALivePage() {
                 identifier: recordIdentifier,
                 boComment,
                 dmComment
-            });
-
-            // DEBUG: Check what records exist with this identifier
-            console.log('🔍 DEBUG - Records with this identifier:', {
-                rmaRecords: rmaData.filter(r => r["RMA #"] === recordIdentifier).length,
-                xbmRecords: xbmData.filter(r => r["XBM Number"] === recordIdentifier).length,
-                tradeInRecords: tradeInData.filter(r => r["RMA #"] === recordIdentifier).length
             });
 
             // Call the API to update comments in Google Sheets
@@ -1758,7 +1834,7 @@ export default function RMALivePage() {
                 throw new Error(result.error || 'Failed to update comments');
             }
 
-            console.log('✅ Comments updated in Google Sheets:', result);
+            console.log('Comments updated in Google Sheets:', result);
 
             // Also update the data in state for immediate UI feedback
             updateRecordComments(record, boComment, dmComment);
@@ -1773,60 +1849,11 @@ export default function RMALivePage() {
             console.error('❌ Error updating comments:', error);
             setError(`Failed to update comments: ${error.message}`);
         } finally {
-            setUpdatingComments(false);
+            setUpdatingComments(false); // This should always run
         }
     };
 
-    // const updateRecordComments = (record: RMARecord, boComment: string, dmComment: string) => {
-    //     // Don't proceed if record is empty
-    //     if (!record || Object.keys(record).length === 0) {
-    //         console.warn('updateRecordComments called with empty record');
-    //         return;
-    //     }
 
-    //     const updateData = (data: RMARecord[]) =>
-    //         data.map(item => {
-    //             // Skip if item is empty
-    //             if (!item || Object.keys(item).length === 0) return item;
-
-    //             const itemIdentifier = String(item.RecordType === 'XBM' ? item["XBM Number"] : item["RMA #"] || '').trim();
-    //             const recordIdentifier = String(record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"] || '').trim();
-
-    //             if (itemIdentifier && recordIdentifier && itemIdentifier === recordIdentifier && item.RecordType === record.RecordType) {
-    //                 return {
-    //                     ...item,
-    //                     "BO COMMENTS": boComment,
-    //                     "DM COMMENTS": dmComment,
-    //                     "DM Comments": dmComment
-    //                 };
-    //             }
-    //             return item;
-    //         });
-
-    //     // Update all relevant data sets
-    //     setRmaData(prev => updateData(prev));
-    //     setXbmData(prev => updateData(prev));
-    //     setTradeInData(prev => updateData(prev));
-    //     setCombinedData(prev => updateData(prev));
-    //     setCurrentData(prev => updateData(prev));
-
-    //     // Also update the selected record if it's the same
-    //     if (selectedRecord) {
-    //         const selectedIdentifier = String(selectedRecord.RecordType === 'XBM' ? selectedRecord["XBM Number"] : selectedRecord["RMA #"] || '').trim();
-    //         const recordIdentifier = String(record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"] || '').trim();
-
-    //         if (selectedIdentifier && recordIdentifier && selectedIdentifier === recordIdentifier && selectedRecord.RecordType === record.RecordType) {
-    //             setSelectedRecord({
-    //                 ...selectedRecord,
-    //                 "BO COMMENTS": boComment,
-    //                 "DM COMMENTS": dmComment,
-    //                 "DM Comments": dmComment
-    //             });
-    //         }
-    //     }
-
-    //     console.log('Comments updated in memory for', (record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"]));
-    // };
     const updateRecordComments = (record: RMARecord, boComment: string, dmComment: string) => {
         if (!record || Object.keys(record).length === 0) {
             console.warn('updateRecordComments called with empty record');
@@ -2134,77 +2161,6 @@ export default function RMALivePage() {
         return 'NotPending';
     };
 
-    // const fetchDataSource = async (source: any): Promise<Row[]> => {
-    //     try {
-    //         const response = await fetch(source.url);
-    //         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    //         const csvText = await response.text();
-    //         if (!csvText || csvText.trim().length === 0) throw new Error('Empty response');
-    //         const parsedData = parseCSV(csvText);
-    //         if (parsedData.length === 0) throw new Error('No data parsed');
-
-    //         const filteredData = filterDataAtSource(parsedData, source.type);
-
-    //         console.log(`📊 ${source.name} - Source filtering:`, {
-    //             raw: parsedData.length,
-    //             filtered: filteredData.length,
-    //             removed: parsedData.length - filteredData.length
-    //         });
-
-    //         return filteredData;
-    //     } catch (err) {
-    //         console.error(`Error fetching ${source.name}:`, err);
-    //         return [];
-    //     }
-    // };
-
-    // const fetchDataSource = async (source: any): Promise<Row[]> => {
-    //     try {
-    //         console.log(`🔄 Fetching ${source.name} data via Google Sheets API v4.1.1...`);
-
-    //         // Call our API endpoint
-    //         const apiResponse = await fetch(`/api/sheets-data?type=${source.type}`);
-
-    //         if (!apiResponse.ok) {
-    //             const errorText = await apiResponse.text();
-    //             console.error(`API Error ${apiResponse.status}:`, errorText);
-    //             throw new Error(`API returned ${apiResponse.status}`);
-    //         }
-
-    //         const result = await apiResponse.json();
-
-    //         if (!result.success) {
-    //             throw new Error(result.error || 'API request failed');
-    //         }
-
-    //         console.log(`✅ ${source.name} - API v4.1.1 data loaded:`, {
-    //             rows: result.data.length,
-    //             sheet: result.sheetTitle,
-    //             headers: result.headers?.length || 0,
-    //             version: result.version
-    //         });
-
-    //         // The API returns parsed data, just apply your filtering
-    //         const filteredData = filterDataAtSource(result.data, source.type);
-
-    //         console.log(`📊 ${source.name} - Filtered results:`, {
-    //             before: result.data.length,
-    //             after: filteredData.length,
-    //             removed: result.data.length - filteredData.length
-    //         });
-
-    //         return filteredData;
-
-    //     } catch (err: any) {
-    //         console.error(`❌ Failed to fetch ${source.name} via API v4.1.1:`, err);
-
-    //         // Set error state for UI
-    //         setError(`Failed to load ${source.name} data: ${err.message}`);
-
-    //         return [];
-    //     }
-    // };
-
     const fetchDataSource = async (source: any): Promise<Row[]> => {
         try {
             console.log(`🔄 Fetching ${source.name} data via Google Sheets API v4.x...`);
@@ -2275,115 +2231,6 @@ export default function RMALivePage() {
         return isNaN(n) ? 0 : n;
     }, []);
 
-    // const transformToRMARecord = (row: Row, type: "RMA" | "XBM" | "TRADE_IN"): RMARecord => {
-    //     const getValue = (keys: string[]): string => {
-    //         for (const key of keys) {
-    //             if (row[key] !== undefined && String(row[key]).trim() !== '') {
-    //                 return String(row[key]).trim();
-    //             }
-    //         }
-    //         return '';
-    //     };
-
-    //     let cost = 0;
-    //     const costFields = ['COST', 'Cost', 'AMOUNT', 'Amount', 'TOTAL COST', 'Total Cost'];
-
-    //     for (const field of costFields) {
-    //         const costValue = parseCurrency(getValue([field]));
-    //         if (costValue > 0) {
-    //             cost = costValue;
-    //             break;
-    //         }
-    //     }
-
-    //     if (cost === 0) {
-    //         Object.keys(row).forEach(key => {
-    //             if (key && (key.toLowerCase().includes('cost') || key.toLowerCase().includes('amount'))) {
-    //                 const potentialCost = parseCurrency(row[key]);
-    //                 if (potentialCost > 0) {
-    //                     cost = potentialCost;
-    //                 }
-    //             }
-    //         });
-    //     }
-
-    //     const age = parseIntSafe(getValue(['AGE', 'Age'])) || 0;
-
-    //     const status = getStatusFromRow(row, type.toLowerCase());
-    //     const normalizedStatus = normalizeStatus(status);
-
-    //     const record: RMARecord = {
-    //         "DM COMMENTS": getValue(['DM COMMENTS', 'DM Comments']),
-    //         "DM Comments": getValue(['DM Comments', 'DM COMMENTS']),
-    //         "BO COMMENTS": getValue(['BO COMMENTS']),
-    //         "Market": getValue(['Market']),
-    //         "DISTRICT": getValue(['DISTRICT', 'District']),
-    //         "DM NAME": getValue(['DM NAME', 'DM Name']),
-    //         "Store ID": getValue(['Store ID']),
-    //         "Store Name": getValue(['Store Name']),
-    //         "Door Code": getValue(['Door Code']),
-    //         "Model Number": getValue(['Model Number']),
-    //         "Description": getValue(['Description']),
-    //         "Customer IMEI": getValue(['Customer IMEI']),
-    //         "Employee Name NTID": getValue(['Employee Name NTID']),
-    //         "Assurant IMEI": getValue(['Assurant IMEI']),
-    //         "Processed Date": getValue(['Processed Date']),
-    //         "Label Type": getValue(['Label Type']),
-    //         "RMA #": getValue(['RMA #', 'RMA Number']),
-    //         "RMA Date": getValue(['RMA Date']),
-    //         "Count of Devices": getValue(['Count of Devices']),
-    //         "Tracking Details": getValue(['Tracking Details']),
-    //         "Date & Time": getValue(['Date & Time']),
-    //         "Shipping Status": getValue(['Shipping Status']),
-    //         "COST": getValue(['COST']),
-    //         "AGE": getValue(['AGE']),
-    //         "Error": getValue(['Error']),
-    //         "RMA Number": type === 'RMA' ? getValue(['RMA #']) : undefined,
-    //         "XBM Number": type === 'XBM' ? getValue(['XBM Number']) : undefined,
-    //         "": type === 'XBM' ? getValue(['']) : undefined,
-    //         "APPROVED/NOT": type === 'TRADE_IN' ? getValue(['APPROVED/NOT']) : undefined,
-    //         "RecordType": type,
-    //         "Status": normalizedStatus,
-    //         "Amount": cost,
-    //         "DaysOld": age
-    //     };
-
-    //     return record;
-    // };
-
-    // const fetchRMAData = async () => {
-    //     try {
-    //         setLoading(true);
-    //         setError(null);
-    //         console.log('🔄 Starting RMA data fetch from Google Sheets...');
-
-    //         const [rmaRows, tradeInRows, xbmRows] = await Promise.all([
-    //             fetchDataSource(dataSources[0]),
-    //             fetchDataSource(dataSources[1]),
-    //             fetchDataSource(dataSources[2])
-    //         ]);
-
-    //         console.log('📊 RMA Data loaded:', {
-    //             rma: rmaRows.length,
-    //             tradeIn: tradeInRows.length,
-    //             xbm: xbmRows.length
-    //         });
-
-    //         const transformedRMA = rmaRows.map(row => transformToRMARecord(row, "RMA"));
-    //         const transformedTradeIN = tradeInRows.map(row => transformToRMARecord(row, "TRADE_IN"));
-    //         const transformedXBM = xbmRows.map(row => transformToRMARecord(row, "XBM"));
-
-    //         setRmaData(transformedRMA);
-    //         setTradeInData(transformedTradeIN);
-    //         setXbmData(transformedXBM);
-
-    //     } catch (err) {
-    //         setError('Failed to load RMA data');
-    //         console.error('Error fetching RMA data:', err);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
     const transformToRMARecord = (row: Row, type: "RMA" | "XBM" | "TRADE_IN"): RMARecord => {
         // Add validation at the start
         if (!row || Object.keys(row).length === 0) {
@@ -2672,6 +2519,119 @@ export default function RMALivePage() {
         return filteredData.slice(startIndex, startIndex + itemsPerPage);
     }, [filteredData, currentPage, itemsPerPage]);
 
+    // const aggregateData = (data: RMARecord[], level: 'markets' | 'dm' | 'types'): AggregatedGroup[] => {
+    //     const groups: { [key: string]: AggregatedGroup } = {};
+
+    //     if (level === 'markets') {
+    //         const markets = Array.from(new Set(data.map(record => record.Market))).filter(m => m && m !== 'Unknown');
+
+    //         markets.forEach(market => {
+    //             const marketData = data.filter(record => record.Market === market);
+    //             const totalCost = marketData.reduce((sum, record) => sum + record.Amount, 0);
+    //             const pendingCount = marketData.length;
+
+    //             // Count devices by age categories
+    //             let days7 = 0;
+    //             let days14 = 0;
+    //             let days14Plus = 0;
+
+    //             marketData.forEach(record => {
+    //                 if (record.DaysOld <= 7) {
+    //                     days7++;
+    //                 } else if (record.DaysOld <= 14) {
+    //                     days14++;
+    //                 } else {
+    //                     days14Plus++;
+    //                 }
+    //             });
+
+    //             groups[market] = {
+    //                 key: market,
+    //                 count: marketData.length,
+    //                 devices: marketData.length,
+    //                 cost: totalCost,
+    //                 pending: pendingCount,
+    //                 days7: days7,
+    //                 days14: days14,
+    //                 days14Plus: days14Plus,
+    //                 rows: marketData
+    //             };
+    //         });
+    //     } else if (level === 'dm') {
+    //         const dms = Array.from(new Set(data.map(record => record["DM NAME"]))).filter(dm => dm && dm !== 'Unknown');
+
+    //         dms.forEach(dm => {
+    //             const dmData = data.filter(record => record["DM NAME"] === dm);
+    //             const totalCost = dmData.reduce((sum, record) => sum + record.Amount, 0);
+    //             const pendingCount = dmData.length;
+
+    //             // Count devices by age categories
+    //             let days7 = 0;
+    //             let days14 = 0;
+    //             let days14Plus = 0;
+
+    //             dmData.forEach(record => {
+    //                 if (record.DaysOld <= 7) {
+    //                     days7++;
+    //                 } else if (record.DaysOld <= 14) {
+    //                     days14++;
+    //                 } else {
+    //                     days14Plus++;
+    //                 }
+    //             });
+
+    //             groups[dm] = {
+    //                 key: dm,
+    //                 count: dmData.length,
+    //                 devices: dmData.length,
+    //                 cost: totalCost,
+    //                 pending: pendingCount,
+    //                 days7: days7,
+    //                 days14: days14,
+    //                 days14Plus: days14Plus,
+    //                 rows: dmData
+    //             };
+    //         });
+    //     } else if (level === 'types') {
+    //         const types = Array.from(new Set(data.map(record => record.RecordType)));
+
+    //         types.forEach(type => {
+    //             const typeData = data.filter(record => record.RecordType === type);
+    //             const totalCost = typeData.reduce((sum, record) => sum + record.Amount, 0);
+    //             const pendingCount = typeData.length;
+
+    //             // Count devices by age categories
+    //             let days7 = 0;
+    //             let days14 = 0;
+    //             let days14Plus = 0;
+
+    //             typeData.forEach(record => {
+    //                 if (record.DaysOld <= 7) {
+    //                     days7++;
+    //                 } else if (record.DaysOld <= 14) {
+    //                     days14++;
+    //                 } else {
+    //                     days14Plus++;
+    //                 }
+    //             });
+
+    //             groups[type] = {
+    //                 key: type,
+    //                 count: typeData.length,
+    //                 devices: typeData.length,
+    //                 cost: totalCost,
+    //                 pending: pendingCount,
+    //                 days7: days7,
+    //                 days14: days14,
+    //                 days14Plus: days14Plus,
+    //                 rows: typeData
+    //             };
+    //         });
+    //     }
+
+    //     return Object.values(groups).sort((a, b) => b.cost - a.cost);
+    // };
+
     const aggregateData = (data: RMARecord[], level: 'markets' | 'dm' | 'types'): AggregatedGroup[] => {
         const groups: { [key: string]: AggregatedGroup } = {};
 
@@ -2782,48 +2742,16 @@ export default function RMALivePage() {
             });
         }
 
-        return Object.values(groups).sort((a, b) => b.cost - a.cost);
+        // Then modify the return statement:
+        return Object.values(groups).sort((a, b) => {
+            if (sortBy === 'alphabetical') {
+                return a.key.localeCompare(b.key);
+            } else {
+                return b.cost - a.cost;
+            }
+        })
     };
 
-    // const handleMarketClick = (market: AggregatedGroup) => {
-    //     setCurrentData(market.rows);
-    //     setCurrentView('dm');
-    //     setSelectedMarket(market.key);
-    //     setHistoryStack([
-    //         { level: 'Markets' },
-    //         { level: 'District Managers', selected: market.key }
-    //     ]);
-    //     setSearchTerm('');
-    //     setCurrentPage(1);
-    // };
-
-
-    // const handleDMClick = (dm: AggregatedGroup) => {
-    //     setCurrentData(dm.rows);
-    //     setCurrentView('types');
-    //     setSelectedDM(dm.key);
-    //     setHistoryStack([
-    //         { level: 'Markets' },
-    //         { level: 'District Managers', selected: selectedMarket },
-    //         { level: 'Record Types', selected: dm.key }
-    //     ]);
-    //     setSearchTerm('');
-    //     setCurrentPage(1);
-    // };
-
-    // const handleTypeClick = (type: AggregatedGroup) => {
-    //     setCurrentData(type.rows);
-    //     setCurrentView('detailed');
-    //     setSelectedType(type.key);
-    //     setHistoryStack([
-    //         { level: 'Markets' },
-    //         { level: 'District Managers', selected: selectedMarket },
-    //         { level: 'Record Types', selected: selectedDM },
-    //         { level: 'Detailed', selected: type.key }
-    //     ]);
-    //     setSearchTerm('');
-    //     setCurrentPage(1);
-    // };
 
     const handleMarketClick = (market: AggregatedGroup) => {
         console.log('📍 Market clicked:', market.key, 'Rows:', market.rows.length);
@@ -3107,270 +3035,6 @@ export default function RMALivePage() {
         );
     };
 
-    // const renderDetailedTable = () => {
-    //     const shouldShowPagination = filteredData.length > itemsPerPage;
-
-    //     return (
-    //         <div className="rma-table-block">
-    //             <div className="rma-table-header">
-    //                 <h2>
-    //                     {historyStack[historyStack.length - 1]?.level === 'Search Results'
-    //                         ? `Search Results for "${searchTerm}"`
-    //                         : `Detailed Report - ${selectedType}`
-    //                     }
-    //                 </h2>
-    //                 <div className="rma-meta">
-    //                     {filteredData.length} RMA records
-    //                     {searchTerm && ` matching "${searchTerm}"`}
-    //                     {(imeiFilter || productFilter) && (
-    //                         <span className="filter-indicator">
-    //                             {imeiFilter && ` • IMEI: "${imeiFilter}"`}
-    //                             {productFilter && ` • Product: "${productFilter}"`}
-    //                         </span>
-    //                     )}
-    //                 </div>
-    //             </div>
-
-    //             <div className="rma-filter-controls">
-    //                 <div className="filter-group">
-    //                     <label htmlFor="imei-filter">Search by IMEI:</label>
-    //                     <input
-    //                         id="imei-filter"
-    //                         type="text"
-    //                         placeholder="e.g., 123456789012345, 987654321098765..."
-    //                         value={imeiFilter}
-    //                         onChange={(e) => setImeiFilter(e.target.value)}
-    //                         className="filter-input"
-    //                     />
-    //                     {imeiFilter && (
-    //                         <button
-    //                             onClick={() => setImeiFilter("")}
-    //                             className="clear-filter"
-    //                             title="Clear IMEI filter"
-    //                         >
-    //                             ✕
-    //                         </button>
-    //                     )}
-    //                 </div>
-
-    //                 <div className="filter-group">
-    //                     <label htmlFor="product-filter">Search by Product/Model:</label>
-    //                     <input
-    //                         id="product-filter"
-    //                         type="text"
-    //                         placeholder="e.g., iPhone 16, Samsung, Moto G, XT24191..."
-    //                         value={productFilter}
-    //                         onChange={(e) => setProductFilter(e.target.value)}
-    //                         className="filter-input"
-    //                     />
-    //                     {productFilter && (
-    //                         <button
-    //                             onClick={() => setProductFilter("")}
-    //                             className="clear-filter"
-    //                             title="Clear product filter"
-    //                         >
-    //                             ✕
-    //                         </button>
-    //                     )}
-    //                 </div>
-
-    //                 {(imeiFilter || productFilter) && (
-    //                     <button
-    //                         onClick={() => {
-    //                             setImeiFilter('');
-    //                             setProductFilter('');
-    //                         }}
-    //                         className="clear-all-filters"
-    //                     >
-    //                         Clear All Filters
-    //                     </button>
-    //                 )}
-    //             </div>
-
-    //             <div className="rma-table-wrapper">
-    //                 <table className="rma-table detailed-view">
-    //                     <thead>
-    //                         <tr>
-    //                             <th>Type</th>
-    //                             <th>Market</th>
-    //                             <th>Store</th>
-    //                             <th>Reference #</th>
-    //                             <th>Model</th>
-    //                             <th>Status</th>
-    //                             <th>Customer IMEI</th>
-    //                             <th>Assurant IMEI</th>
-    //                             <th className="rma-col-right">Cost</th>
-    //                             <th className="rma-col-right">Age</th>
-    //                             <th>Actions</th>
-    //                         </tr>
-    //                     </thead>
-    //                     <tbody>
-    //                         {paginatedData.map((record, index) => {
-    //                             const uniqueId = `${record.RecordType}-${record["RMA #"] || record["XBM Number"]}-${index}`;
-    //                             const referenceNumber = record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"];
-
-    //                             return (
-    //                                 <React.Fragment key={uniqueId}>
-    //                                     <tr className="clickable-row">
-    //                                         <td>
-    //                                             <span className={`record-type-badge type-${getRecordTypeColor(record.RecordType)}`}>
-    //                                                 {record.RecordType}
-    //                                             </span>
-    //                                         </td>
-    //                                         <td>{record.Market}</td>
-    //                                         <td>
-    //                                             <div className="store-info">
-    //                                                 <div className="store-name">{record["Store Name"]}</div>
-    //                                                 <div className="store-id">{record["Store ID"]}</div>
-    //                                             </div>
-    //                                         </td>
-    //                                         <td>
-    //                                             <div>
-    //                                                 <div>{referenceNumber}</div>
-    //                                                 {record["Tracking Details"] && (
-    //                                                     <div>Track: {record["Tracking Details"]}</div>
-    //                                                 )}
-    //                                             </div>
-    //                                         </td>
-    //                                         <td>
-    //                                             <div className="product-info">
-    //                                                 <div className="product-name">{record["Model Number"]}</div>
-    //                                                 <div className="product-model">{record.Description}</div>
-    //                                             </div>
-    //                                         </td>
-    //                                         <td>
-    //                                             <span className={`status-badge status-${getStatusColor(record.Status)}`}>
-    //                                                 {record.Status}
-    //                                             </span>
-    //                                         </td>
-    //                                         <td>
-    //                                             <div className="sku-info">
-    //                                                 <div className="sku-code">{record["Customer IMEI"] || 'N/A'}</div>
-    //                                             </div>
-    //                                         </td>
-    //                                         <td>
-    //                                             <div className="sku-info">
-    //                                                 <div className="sku-code">{record["Assurant IMEI"] || 'N/A'}</div>
-    //                                             </div>
-    //                                         </td>
-    //                                         <td className="rma-col-right">${record.Amount.toLocaleString()}</td>
-    //                                         <td className="rma-col-right">{record.DaysOld}d</td>
-    //                                         <td>
-    //                                             <button
-    //                                                 onClick={() => showDetails(record)}
-    //                                                 className="details-btn"
-    //                                             >
-    //                                                 Details
-    //                                             </button>
-    //                                             <button
-    //                                                 onClick={() => toggleRowExpansion(uniqueId)}
-    //                                                 className="expand-btn"
-    //                                             >
-    //                                                 {expandedRow === uniqueId ? '▼' : '►'} More
-    //                                             </button>
-    //                                         </td>
-    //                                     </tr>
-
-    //                                     {expandedRow === uniqueId && (
-    //                                         <tr className="detail-row">
-    //                                             <td colSpan={11}>
-    //                                                 <div className="detail-panel">
-    //                                                     <div className="detail-section">
-    //                                                         <h4>Device Information</h4>
-    //                                                         <div className="detail-grid">
-    //                                                             <div><strong>Customer IMEI:</strong> {record["Customer IMEI"]}</div>
-    //                                                             <div><strong>Assurant IMEI:</strong> {record["Assurant IMEI"]}</div>
-    //                                                             <div><strong>Employee NTID:</strong> {record["Employee Name NTID"]}</div>
-    //                                                             <div><strong>Door Code:</strong> {record["Door Code"]}</div>
-    //                                                         </div>
-    //                                                     </div>
-
-    //                                                     <div className="detail-section">
-    //                                                         <h4>Process Details</h4>
-    //                                                         <div className="detail-grid">
-    //                                                             <div><strong>Processed Date:</strong> {record["Processed Date"]}</div>
-    //                                                             <div><strong>RMA Date:</strong> {record["RMA Date"]}</div>
-    //                                                             <div><strong>Label Type:</strong> {record["Label Type"]}</div>
-    //                                                             <div><strong>Count of Devices:</strong> {record["Count of Devices"]}</div>
-    //                                                             <div><strong>Shipping Status:</strong> {record["Shipping Status"]}</div>
-    //                                                             <div><strong>Tracking Details:</strong> {record["Tracking Details"]}</div>
-    //                                                         </div>
-    //                                                     </div>
-
-    //                                                     <div className="detail-section">
-    //                                                         <h4>Additional Information</h4>
-    //                                                         <div className="detail-grid">
-    //                                                             <div><strong>DM:</strong> {record["DM NAME"]}</div>
-    //                                                             <div><strong>District:</strong> {record.DISTRICT}</div>
-    //                                                             <div><strong>Date & Time:</strong> {record["Date & Time"]}</div>
-    //                                                             {record.Error && <div><strong>Error:</strong> <span className="error-box">{record.Error}</span></div>}
-    //                                                         </div>
-    //                                                     </div>
-
-    //                                                     {(record["DM COMMENTS"] || record["BO COMMENTS"]) && (
-    //                                                         <div className="detail-section">
-    //                                                             <h4>Comments</h4>
-    //                                                             <div className="detail-grid">
-    //                                                                 {record["DM COMMENTS"] && <div><strong>DM Comments:</strong> {record["DM COMMENTS"]}</div>}
-    //                                                                 {record["BO COMMENTS"] && <div><strong>BO Comments:</strong> {record["BO COMMENTS"]}</div>}
-    //                                                             </div>
-    //                                                         </div>
-    //                                                     )}
-    //                                                 </div>
-    //                                             </td>
-    //                                         </tr>
-    //                                     )}
-    //                                 </React.Fragment>
-    //                             );
-    //                         })}
-    //                     </tbody>
-    //                 </table>
-
-    //                 {paginatedData.length === 0 && (
-    //                     <div className="no-data">
-    //                         {searchTerm || imeiFilter || productFilter
-    //                             ? `No RMA records found matching your filters.`
-    //                             : "No RMA records found matching your criteria."
-    //                         }
-    //                         {(imeiFilter || productFilter) && (
-    //                             <button
-    //                                 onClick={() => {
-    //                                     setImeiFilter('');
-    //                                     setProductFilter('');
-    //                                 }}
-    //                                 className="clear-filters-btn"
-    //                             >
-    //                                 Clear Filters
-    //                             </button>
-    //                         )}
-    //                     </div>
-    //                 )}
-    //             </div>
-
-    //             {shouldShowPagination && (
-    //                 <div className="pagination">
-    //                     <button
-    //                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-    //                         disabled={currentPage === 1}
-    //                         className="pagination-btn"
-    //                     >
-    //                         Previous
-    //                     </button>
-    //                     <span className="page-info">
-    //                         Page {currentPage} of {totalPages}
-    //                     </span>
-    //                     <button
-    //                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-    //                         disabled={currentPage === totalPages}
-    //                         className="pagination-btn"
-    //                     >
-    //                         Next
-    //                     </button>
-    //                 </div>
-    //             )}
-    //         </div>
-    //     );
-    // };
     const renderDetailedTable = () => {
         // Add debugging to see what's in paginatedData
         console.log('🔍 Detailed table - paginatedData:', {
@@ -3401,6 +3065,8 @@ export default function RMALivePage() {
                         )}
                     </div>
                 </div>
+
+
 
                 <div className="rma-filter-controls">
                     <div className="filter-group">
@@ -3793,7 +3459,7 @@ export default function RMALivePage() {
                             </div>
                         </div>
 
-                        {renderSummaryCards()}
+                        {/* {renderSummaryCards()} */}
 
                         <div className="rma-nav-row">
                             {historyStack.length > 1 && (
@@ -3846,6 +3512,7 @@ export default function RMALivePage() {
                                             <div><strong>Shipping Status:</strong> {selectedRecord["Shipping Status"]}</div>
                                             {selectedRecord.Error && <div><strong>Error:</strong> <span className="error-text">{selectedRecord.Error}</span></div>}
                                         </div>
+
 
                                         {/* Comments Section - FIXED */}
                                         <div className="comments-section">
@@ -3943,9 +3610,15 @@ export default function RMALivePage() {
                                     <div className="modal-actions">
                                         <button className="btn btn-primary modal-close-cta" onClick={closeDetails}>Close</button>
                                     </div>
+
+
+
                                 </div>
                             </div>
                         )}
+
+
+                        {renderSummaryCards()}
                     </main>
                 </div>
             </div>
