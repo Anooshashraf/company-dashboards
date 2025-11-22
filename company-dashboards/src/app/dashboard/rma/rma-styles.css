@@ -302,8 +302,8 @@
 }
 
 .card-title {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 12px;
     line-height: 1.2;
@@ -313,6 +313,8 @@
 .card-description {
     color: var(--text-secondary);
     line-height: 1.5;
+    font-size: 1rem;
+    font-weight: 600;
     margin-bottom: 20px;
     flex: 1;
     text-align: center;
@@ -1249,7 +1251,7 @@
     top: 0 !important;
     left: 0 !important;
     right: 0 !important;
-    height: 4px !important;
+    height: 3px !important;
 }
 
 .rma-page .dashboard-card:hover {
@@ -1288,8 +1290,8 @@
 }
 
 .rma-page .card-icon {
-    font-size: 48px !important;
-    margin-bottom: 20px !important;
+    font-size: 38 !important;
+    margin-bottom: 15px !important;
     text-align: center !important;
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)) !important;
 }
@@ -1301,10 +1303,10 @@
 }
 
 .rma-page .card-title {
-    font-size: 1.5rem !important;
-    font-weight: 700 !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
     color: var(--text-primary) !important;
-    margin-bottom: 12px !important;
+    margin-bottom: 8px !important;
     line-height: 1.2 !important;
     text-align: center !important;
 }
@@ -1312,7 +1314,7 @@
 .rma-page .card-description {
     color: var(--text-secondary) !important;
     line-height: 1.5 !important;
-    margin-bottom: 20px !important;
+    margin-bottom: 8px !important;
     flex: 1 !important;
     text-align: center !important;
 }

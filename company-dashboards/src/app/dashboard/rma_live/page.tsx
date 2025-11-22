@@ -1491,6 +1491,7 @@ export default function RMALivePage() {
 
     // New state for comments functionality
     const [boComment, setBoComment] = useState('');
+    const [isLoadingData, setIsLoadingData] = useState<boolean>(true);
     const [dmComment, setDmComment] = useState('');
     const [updatingComments, setUpdatingComments] = useState(false);
     const [commentsSuccess, setCommentsSuccess] = useState<string | null>(null);
@@ -2667,18 +2668,18 @@ export default function RMALivePage() {
         exportToXLSX();
     }, [exportToXLSX]);
 
-    const getStatusColor = (status: string): string => {
-        const statusColors: { [key: string]: string } = {
-            'pending': 'yellow',
-            'shipped': 'blue',
-            'delivered': 'green',
-            'cancelled': 'red',
-            'approved': 'green',
-            'rejected': 'red',
-            'completed': 'green'
-        };
-        return statusColors[status.toLowerCase()] || 'gray';
-    };
+    // const getStatusColor = (status: string): string => {
+    //     const statusColors: { [key: string]: string } = {
+    //         'pending': 'yellow',
+    //         'shipped': 'blue',
+    //         'delivered': 'green',
+    //         'cancelled': 'red',
+    //         'approved': 'green',
+    //         'rejected': 'red',
+    //         'completed': 'green'
+    //     };
+    //     return statusColors[status.toLowerCase()] || 'gray';
+    // };
 
     const getRecordTypeColor = (type: string): string => {
         const typeColors: { [key: string]: string } = {
@@ -2956,7 +2957,7 @@ export default function RMALivePage() {
                                         <React.Fragment key={uniqueId}>
                                             <tr className="clickable-row">
                                                 <td>
-                                                    <span className={`record-type-badge type-${getRecordTypeColor(record.RecordType)}`}>
+                                                    <span className={`record-type-badge type`}>
                                                         {record.RecordType}
                                                     </span>
                                                 </td>
@@ -2982,7 +2983,7 @@ export default function RMALivePage() {
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <span className={`status-badge status-${getStatusColor(record.Status)}`}>
+                                                    <span className={`status-badge status`}>
                                                         {record.Status}
                                                     </span>
                                                 </td>
@@ -3295,7 +3296,7 @@ export default function RMALivePage() {
                                             <div><strong>Model:</strong> {selectedRecord["Model Number"]}</div>
                                             <div><strong>Description:</strong> {selectedRecord.Description}</div>
                                             <div><strong>Status:</strong>
-                                                <span className={`status-badge status-${getStatusColor(selectedRecord.Status)}`}>
+                                                <span className={`status-badge status`}>
                                                     {selectedRecord.Status}
                                                 </span>
                                             </div>
@@ -3414,6 +3415,13 @@ export default function RMALivePage() {
 
 
                         {renderSummaryCards()}
+
+                        {/* {isLoadingData && (
+                            <div className="rma-loading">
+                                <div className="loading-spinner"></div>
+                                <p>Loading data...</p>
+                            </div>
+                        )} */}
                     </main>
                 </div>
             </div>
