@@ -3690,7 +3690,6 @@ export default function RMALivePage() {
         setCurrentPage(1);
 
         if (!term.trim()) {
-            // Clear search - navigate back to main page
             setCurrentData(combinedData);
             setCurrentView('markets');
             setHistoryStack([{ level: 'Markets' }]);
@@ -3719,7 +3718,6 @@ export default function RMALivePage() {
                 return;
             }
 
-            // Validate comment length
             if ((dmComment.length + boComment.length) > 2000) {
                 setError('Comments exceed maximum length of 2000 characters');
                 return;
