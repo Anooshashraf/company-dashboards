@@ -3591,7 +3591,6 @@ export default function RMALivePage() {
     const router = useRouter();
     const [sortBy, setSortBy] = useState<'alphabetical' | 'cost' | 'devices' | 'age'>('cost');
     const [searchTerm, setSearchTerm] = useState('');
-
     const [rmaData, setRmaData] = useState<RMARecord[]>([]);
     const [xbmData, setXbmData] = useState<RMARecord[]>([]);
     const [tradeInData, setTradeInData] = useState<RMARecord[]>([]);
@@ -3610,9 +3609,7 @@ export default function RMALivePage() {
         lastSaved: null,
         autoSave: true
     });
-
     const [commentsSuccess, setCommentsSuccess] = useState<string | null>(null);
-
     const [currentView, setCurrentView] = useState<'markets' | 'dm' | 'types' | 'detailed'>('markets');
     const [currentData, setCurrentData] = useState<RMARecord[]>([]);
     const [selectedMarket, setSelectedMarket] = useState<string>('');
