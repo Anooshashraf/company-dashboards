@@ -3639,7 +3639,6 @@ export default function RMALivePage() {
     ];
     const debouncedDmComment = useDebounce(comments.dmComment, 2000);
     const debouncedBoComment = useDebounce(comments.boComment, 2000);
-
     const searchData = useCallback((data: RMARecord[], searchTerm: string): RMARecord[] => {
         if (!searchTerm.trim()) return data;
 
