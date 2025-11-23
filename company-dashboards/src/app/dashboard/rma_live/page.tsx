@@ -3698,7 +3698,6 @@ export default function RMALivePage() {
         }
     }, [combinedData, searchData]);
 
-    // Enhanced comments functions
     const updateCommentsInSheet = async (record: RMARecord, boComment: string, dmComment: string) => {
         try {
             if (!record || Object.keys(record).length === 0) {
