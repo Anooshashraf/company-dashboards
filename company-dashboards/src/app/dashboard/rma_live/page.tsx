@@ -3603,8 +3603,6 @@ export default function RMALivePage() {
     const [expandedRow, setExpandedRow] = useState<string | null>(null);
     const [selectedRecord, setSelectedRecord] = useState<RMARecord | null>(null);
     const [exportLoading, setExportLoading] = useState(false);
-
-    // Enhanced comments state
     const [comments, setComments] = useState<CommentState>({
         dmComment: '',
         boComment: '',
