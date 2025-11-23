@@ -3700,7 +3700,6 @@ export default function RMALivePage() {
             setImeiFilter('');
             setProductFilter('');
         } else {
-            // Perform search
             const searchResults = searchData(combinedData, term);
             setCurrentData(searchResults);
             setCurrentView('detailed');
