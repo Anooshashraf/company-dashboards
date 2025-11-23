@@ -4161,7 +4161,6 @@ export default function RMALivePage() {
                 version: result.version
             });
 
-            // Apply your filtering
             const filteredData = filterDataAtSource(result.data, source.type);
 
             console.log(`📊 ${source.name} - Filtered: ${filteredData.length} records`);
