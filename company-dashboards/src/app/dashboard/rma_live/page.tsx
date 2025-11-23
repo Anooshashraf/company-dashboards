@@ -3758,7 +3758,6 @@ export default function RMALivePage() {
 
             console.log('✅ Comments updated in Google Sheets:', result);
 
-            // Update the data in state for immediate UI feedback
             updateRecordComments(record, boComment, dmComment);
 
 
