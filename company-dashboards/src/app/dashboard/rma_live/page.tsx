@@ -3618,10 +3618,8 @@ export default function RMALivePage() {
     const [historyStack, setHistoryStack] = useState<{ level: string; selected?: string }[]>([
         { level: 'Markets' }
     ]);
-
     const [imeiFilter, setImeiFilter] = useState('');
     const [productFilter, setProductFilter] = useState('');
-
     const dataSources = [
         {
             id: 'RMA',
