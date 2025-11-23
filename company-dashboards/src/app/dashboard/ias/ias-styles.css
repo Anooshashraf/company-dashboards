@@ -66,6 +66,13 @@
     gap: 25px;
 }
 
+.dashboard-grid {
+    margin-top: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
 .ias-table-block {
     background: var(--glass);
     backdrop-filter: blur(20px);
@@ -107,7 +114,7 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    font-weight: 800;
+    font-weight: 700;
     font-size: 1.5rem;
     letter-spacing: -0.02em;
 }
@@ -526,49 +533,6 @@
     transform: translateX(4px);
 }
 
-/* Responsive Design */
-/* @media (max-width: 768px) {
-    .ias-controls-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-
-    .ias-date-inputs {
-        flex-direction: column;
-    }
-
-    .ias-action-buttons {
-        flex-direction: column;
-        justify-content: stretch;
-    }
-
-    .ias-nav-row {
-        flex-direction: column;
-        gap: 15px;
-        align-items: flex-start;
-    }
-
-    .ias-table th,
-    .ias-table td {
-        padding: 14px 16px;
-    }
-
-    .ias-table-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-    }
-
-    /* .ias-table {
-        min-width: 700px;
-    } */
-
-/* .search-input {
-        width: 100%;
-    }
-}  */
-
 
 
 @media (max-width: 768px) {
@@ -668,6 +632,18 @@
     }
 }
 
+.title .main {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1px;
+}
+
+.title .sub {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: 1px;
+}
 
 /* Layout Styles */
 .ias-layout-container {

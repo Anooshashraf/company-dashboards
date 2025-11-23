@@ -1101,6 +1101,23 @@ export default function IASReportsPage() {
                         </div>
                     </div>
 
+
+
+                    {/* Navigation */}
+                    <div className="ias-nav-row">
+                        <button className={`btn ${historyStack.length <= 1 ? "hidden" : ""}`} onClick={handleBackClick}>
+                            ← Back
+                        </button>
+                        <div className="ias-breadcrumb">{renderBreadcrumb()}</div>
+                    </div>
+
+                    {/* Table Content */}
+                    <section className="ias-stacked">
+                        {currentView === "regions" && renderHierarchicalTable(currentData, "regions", handleRegionClick)}
+                        {currentView === "markets" && renderHierarchicalTable(currentData, "markets", handleMarketClick)}
+                        {currentView === "stores" && renderHierarchicalTable(currentData, "stores", handleStoreClick)}
+                        {currentView === "detailed" && renderDetailedTable()}
+                    </section>
                     {/* Dashboard Cards */}
                     <section className="dashboard-grid">
                         <div className="dashboard-card card-purple">
@@ -1146,22 +1163,6 @@ export default function IASReportsPage() {
                             </div>
                         </div>
                     </section>
-
-                    {/* Navigation */}
-                    <div className="ias-nav-row">
-                        <button className={`btn ${historyStack.length <= 1 ? "hidden" : ""}`} onClick={handleBackClick}>
-                            ← Back
-                        </button>
-                        <div className="ias-breadcrumb">{renderBreadcrumb()}</div>
-                    </div>
-
-                    {/* Table Content */}
-                    <section className="ias-stacked">
-                        {currentView === "regions" && renderHierarchicalTable(currentData, "regions", handleRegionClick)}
-                        {currentView === "markets" && renderHierarchicalTable(currentData, "markets", handleMarketClick)}
-                        {currentView === "stores" && renderHierarchicalTable(currentData, "stores", handleStoreClick)}
-                        {currentView === "detailed" && renderDetailedTable()}
-                    </section>
                 </main>
             </div>
 
@@ -1199,10 +1200,14 @@ export default function IASReportsPage() {
                             <div className="modal-actions">
                                 <button className="btn btn-primary" onClick={closeDetails}>Close</button>
                             </div>
+
+
                         </div>
                     </div>
                 </div>
             )}
+
+
         </div>
     );
 }
