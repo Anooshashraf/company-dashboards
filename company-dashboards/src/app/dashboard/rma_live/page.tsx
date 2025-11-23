@@ -3684,7 +3684,6 @@ export default function RMALivePage() {
         });
     }, []);
 
-    // Simple search function
     const handleSearch = useCallback((term: string) => {
         setSearchTerm(term);
         setCurrentPage(1);
