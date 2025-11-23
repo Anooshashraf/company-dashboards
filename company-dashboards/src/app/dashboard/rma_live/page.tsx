@@ -3776,14 +3776,13 @@ export default function RMALivePage() {
             // Update the data in state for immediate UI feedback
             updateRecordComments(record, boComment, dmComment);
 
-            // Update comments state
+
             setComments(prev => ({
                 ...prev,
                 updating: false,
                 lastSaved: new Date()
             }));
 
-            // Show success message
             setCommentsSuccess(`Comments updated successfully for ${recordIdentifier}`);
 
             // Clear success message after 3 seconds
