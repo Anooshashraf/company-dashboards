@@ -3645,7 +3645,6 @@ export default function RMALivePage() {
         }
     ];
 
-    // Debounced comments for auto-save
     const debouncedDmComment = useDebounce(comments.dmComment, 2000);
     const debouncedBoComment = useDebounce(comments.boComment, 2000);
 
