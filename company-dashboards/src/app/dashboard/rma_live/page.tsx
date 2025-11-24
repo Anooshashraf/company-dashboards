@@ -2967,7 +2967,7 @@ export default function RMALivePage() {
     const filteredData = useMemo(() => {
         let data = currentData;
 
-        // Apply IMEI and product filters for detailed view
+
         if (currentView === 'detailed') {
             if (imeiFilter.trim()) {
                 const imeiLower = imeiFilter.toLowerCase().trim();
@@ -2995,7 +2995,7 @@ export default function RMALivePage() {
         return filteredData.slice(startIndex, startIndex + itemsPerPage);
     }, [filteredData, currentPage, itemsPerPage]);
 
-    // Enhanced aggregateData function with better sorting
+
     const aggregateData = (data: RMARecord[], level: 'markets' | 'dm' | 'types'): AggregatedGroup[] => {
         const groups: { [key: string]: AggregatedGroup } = {};
 
