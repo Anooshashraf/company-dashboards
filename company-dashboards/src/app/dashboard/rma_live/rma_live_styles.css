@@ -2326,7 +2326,6 @@
     background: rgba(16, 185, 129, 0.05);
 }
 
-/* Prevent immediate closing */
 .rma-page .search-box-with-navigation {
     position: relative;
     z-index: 10;
@@ -2336,7 +2335,6 @@
     z-index: 11;
 }
 
-/* Loading animation */
 @keyframes spin {
     0% {
         transform: rotate(0deg);
