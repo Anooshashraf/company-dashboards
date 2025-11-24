@@ -2347,7 +2347,6 @@
     }
 }
 
-/* Search results counter */
 .rma-page .search-results-count {
     position: absolute;
     top: -8px;
@@ -2366,7 +2365,6 @@
 }
 
 
-/* Critical focus fix */
 .rma-page .search-input {
     position: relative !important;
     z-index: 1000 !important;
@@ -2378,12 +2376,10 @@
     contain: layout style paint !important;
 }
 
-/* Prevent the input from being recreated */
 .rma-page .search-container {
     contain: layout style !important;
 }
 
-/* Force focus styles */
 .rma-page .search-input:focus {
 
     outline-offset: -2px !important;
