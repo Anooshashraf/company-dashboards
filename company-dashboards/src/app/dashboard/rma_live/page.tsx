@@ -2963,7 +2963,7 @@ export default function RMALivePage() {
         setCombinedData(filteredData);
     };
 
-    // Enhanced filteredData with search support
+    // adding search and filter to filteredData
     const filteredData = useMemo(() => {
         let data = currentData;
 
