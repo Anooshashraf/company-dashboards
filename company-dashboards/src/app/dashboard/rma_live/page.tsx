@@ -2940,7 +2940,7 @@ export default function RMALivePage() {
     const combineData = () => {
         const allData = [...rmaData, ...xbmData, ...tradeInData];
 
-        // Filter out empty records first
+        // Filter empty records first
         const validData = allData.filter(record =>
             record &&
             Object.keys(record).length > 0 &&
