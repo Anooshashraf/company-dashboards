@@ -2448,13 +2448,13 @@
 }
 
 .rma-page .rma-table th {
-    font-weight: 700;
+    font-weight: 400;
     color: var(--accent);
     background: rgba(139, 92, 246, 0.1);
     border-bottom: 2px solid var(--accent);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    font-size: 0.85rem;
+    font-size: 1.25rem;
 }
 
 .rma-page .rma-table tbody tr {
@@ -2482,8 +2482,8 @@
     display: inline-block;
     padding: 4px 8px;
     border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 1.25rem;
+    font-weight: 400;
     text-align: center;
     min-width: 24px;
 }
@@ -2570,7 +2570,8 @@
 html[data-theme="light"] .rma-page .age-badge-7 {
     background: rgba(141, 41, 41, 0.32) !important;
     color: #7b1f1f !important;
-    font-weight: 800 !important;
+    /* font-size: 20px !important; */
+    font-weight: 400 !important;
     text-shadow: none !important;
     border: 1px solid rgba(16, 24, 39, 0.04) !important;
 }
@@ -2578,7 +2579,7 @@ html[data-theme="light"] .rma-page .age-badge-7 {
 html[data-theme="light"] .rma-page .age-badge-14 {
     background: rgba(245, 158, 11, 0.32) !important;
     color: #b45309 !important;
-    font-weight: 800 !important;
+    font-weight: 600 !important;
     text-shadow: none !important;
     border: 1px solid rgba(16, 24, 39, 0.04) !important;
 }
@@ -2586,7 +2587,7 @@ html[data-theme="light"] .rma-page .age-badge-14 {
 html[data-theme="light"] .rma-page .age-badge-14plus {
     background: rgba(67, 221, 149, 0.30) !important;
     color: #065f46 !important;
-    font-weight: 800 !important;
+    font-weight: 600 !important;
     text-shadow: none !important;
     border: 1px solid rgba(16, 24, 39, 0.04) !important;
 }
