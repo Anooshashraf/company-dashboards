@@ -15,6 +15,15 @@ interface AggregatedGroup {
   cost: number;
   days: string[];
   rows: RMAItem[];
+  rmaDays7?: number;
+  rmaDays14?: number;
+  rmaDays14Plus?: number;
+  xbmDays7?: number;
+  xbmDays14?: number;
+  xbmDays14Plus?: number;
+  tradeInDays7?: number;
+  tradeInDays14?: number;
+  tradeInDays14Plus?: number;
 }
 
 export default function RMADashboard() {
@@ -234,6 +243,15 @@ export default function RMADashboard() {
         cost: number;
         daysSet: Set<string>;
         rows: RMAItem[];
+        rmaDays7: number;
+        rmaDays14: number;
+        rmaDays14Plus: number;
+        xbmDays7: number;
+        xbmDays14: number;
+        xbmDays14Plus: number;
+        tradeInDays7: number;
+        tradeInDays14: number;
+        tradeInDays14Plus: number;
       };
     } = {};
 
@@ -273,6 +291,15 @@ export default function RMADashboard() {
           cost: 0,
           daysSet: new Set(),
           rows: [],
+          rmaDays7: 0,
+          rmaDays14: 0,
+          rmaDays14Plus: 0,
+          xbmDays7: 0,
+          xbmDays14: 0,
+          xbmDays14Plus: 0,
+          tradeInDays7: 0,
+          tradeInDays14: 0,
+          tradeInDays14Plus: 0,
         };
 
       groups[key].count += 1;
@@ -282,8 +309,32 @@ export default function RMADashboard() {
       );
 
       const daysVal = getField(row, ["Days", "DAY", "day"]);
+      // Keep the list of distinct Days strings for display
       if (daysVal && daysVal !== "Unknown" && daysVal !== "") {
         groups[key].daysSet.add(String(daysVal).trim());
+      }
+
+      // Determine numeric days for bucketed counts
+      const daysNum = parseInt(String(daysVal).replace(/[^0-9\-]/g, ""));
+      const rawType = getField(row, ["RecordType", "Record Type", "Type", "TYPE", "type"]).toLowerCase();
+      const isRMA = rawType.includes("rma");
+      const isXBM = rawType.includes("xbm");
+      const isTrade = rawType.includes("trade");
+
+      if (!isNaN(daysNum)) {
+        if (daysNum <= 7) {
+          if (isRMA) groups[key].rmaDays7 += 1;
+          else if (isXBM) groups[key].xbmDays7 += 1;
+          else if (isTrade) groups[key].tradeInDays7 += 1;
+        } else if (daysNum <= 14) {
+          if (isRMA) groups[key].rmaDays14 += 1;
+          else if (isXBM) groups[key].xbmDays14 += 1;
+          else if (isTrade) groups[key].tradeInDays14 += 1;
+        } else if (daysNum > 14) {
+          if (isRMA) groups[key].rmaDays14Plus += 1;
+          else if (isXBM) groups[key].xbmDays14Plus += 1;
+          else if (isTrade) groups[key].tradeInDays14Plus += 1;
+        }
       }
       groups[key].rows.push(row);
     });
@@ -296,6 +347,15 @@ export default function RMADashboard() {
         cost: groups[k].cost,
         days: Array.from(groups[k].daysSet),
         rows: groups[k].rows,
+        rmaDays7: groups[k].rmaDays7,
+        rmaDays14: groups[k].rmaDays14,
+        rmaDays14Plus: groups[k].rmaDays14Plus,
+        xbmDays7: groups[k].xbmDays7,
+        xbmDays14: groups[k].xbmDays14,
+        xbmDays14Plus: groups[k].xbmDays14Plus,
+        tradeInDays7: groups[k].tradeInDays7,
+        tradeInDays14: groups[k].tradeInDays14,
+        tradeInDays14Plus: groups[k].tradeInDays14Plus,
       }))
       .sort((a, b) => b.cost - a.cost);
 
@@ -379,17 +439,33 @@ export default function RMADashboard() {
   const buildSummaryCards = (data: RMAItem[]) => {
     const dataToUse = searchTerm.trim() ? searchedData : data;
 
-    const totalLabels = dataToUse.length;
+    const totalRecords = dataToUse.length;
     const totalDevices = dataToUse.reduce((s, r) => s + countNonEmptyIMEI(r), 0);
     const totalCost = dataToUse.reduce(
       (s, r) => s + parseCurrency(getField(r, ["COST", "Cost", "cost"])),
       0
     );
 
+    // Robust detection of record types
+    const getRecordType = (row: RMAItem) =>
+      getField(row, ["RecordType", "Record Type", "Type", "TYPE", "type"]).toLowerCase();
+
+    const rmaCount = dataToUse.filter((r) => getRecordType(r).includes("rma")).length;
+    const xbmCount = dataToUse.filter((r) => getRecordType(r).includes("xbm")).length;
+    const tradeInCount = dataToUse.filter((r) => getRecordType(r).includes("trade")).length;
+
+    const getStatus = (row: RMAItem) =>
+      getField(row, ["Status", "Assurant Status", "Assurant_STATUS", "Assurant"]).toLowerCase();
+
+    const pendingCount = dataToUse.filter((r) => getStatus(r).includes("pending")).length;
+
     const cards = [
-      { label: "Total Labels", value: totalLabels },
-      { label: "Total Devices", value: totalDevices },
-      { label: "Total Cost", value: formatCurrency(totalCost) },
+      { label: "Total Records", value: totalRecords, icon: "📊" },
+      { label: "Total Cost", value: formatCurrency(totalCost), icon: "💰" },
+      { label: "RMA Records", value: rmaCount, icon: "📦" },
+      { label: "XBM Records", value: xbmCount, icon: "🔄" },
+      { label: "Trade IN", value: tradeInCount, icon: "🤝" },
+      { label: "Pending", value: pendingCount, icon: "⏳" },
     ];
 
     return cards;
@@ -639,6 +715,8 @@ export default function RMADashboard() {
     ));
   };
 
+
+
   const renderTable = (
     data: RMAItem[],
     level: string,
@@ -697,12 +775,26 @@ export default function RMADashboard() {
           <table className="rma-table">
             <thead>
               <tr>
-                <th>{keyField}</th>
-                <th className="rma-col-right">Count</th>
-                <th className="rma-col-right">Devices</th>
+                <th>{title}</th>
+                <th className="rma-col-right">Total</th>
                 <th className="rma-col-right">Total Cost</th>
-                <th>Days</th>
-                <th style={{ width: "36%" }}>Performance</th>
+                <th colSpan={3} className="rma-col-center">RMA</th>
+                <th colSpan={3} className="rma-col-center">XBM</th>
+                <th colSpan={3} className="rma-col-center">Trade-IN</th>
+              </tr>
+              <tr className="sub-header">
+                <th></th>
+                <th></th>
+                <th></th>
+                <th className="rma-col-right">7d</th>
+                <th className="rma-col-right">14d</th>
+                <th className="rma-col-right">14+d</th>
+                <th className="rma-col-right">7d</th>
+                <th className="rma-col-right">14d</th>
+                <th className="rma-col-right">14+d</th>
+                <th className="rma-col-right">7d</th>
+                <th className="rma-col-right">14d</th>
+                <th className="rma-col-right">14+d</th>
               </tr>
             </thead>
             <tbody>
@@ -714,28 +806,148 @@ export default function RMADashboard() {
                 return (
                   <tr key={index} onClick={() => onRowClick(group)}>
                     <td>{group.key}</td>
-                    <td className="rma-col-right">{group.count}</td>
-                    <td className="rma-col-right">{group.devices}</td>
-                    <td className="rma-col-right">{formatCurrency(group.cost)}</td>
-                    <td>
-                      {group.days.map((day, i) => (
-                        <span key={i} className="rma-days-pill">
-                          {day}
-                        </span>
-                      ))}
+                    <td className="rma-col-right">
+                      <span
+                        className="clickable-count"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if ((group.count || 0) > 0) {
+                            setCurrentData(group.rows);
+                            setCurrentView("detailed");
+                            setHistoryStack([
+                              { level: "Regions" },
+                              { level: "Selected", selected: group.key },
+                              { level: "All Records", selected: `${group.count} records` },
+                            ]);
+                            setSearchTerm("");
+                            setCurrentPage(1);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }
+                        }}
+                        style={{
+                          cursor: (group.count || 0) > 0 ? "pointer" : "default",
+                          color: (group.count || 0) > 0 ? "var(--accent)" : "var(--text-muted)",
+                          fontWeight: 600,
+                          transition: "all 0.3s ease",
+                        }}
+                      >
+                        {group.count}
+                      </span>
                     </td>
-                    <td>
-                      <div className="rma-bar-cell">
-                        <div className="rma-bar-track">
-                          <div
-                            className={`rma-bar-fill ${fillClass}`}
-                            style={{ width: `${pct}%` }}
-                          ></div>
-                        </div>
-                        <div style={{ minWidth: "52px", textAlign: "right" }}>
-                          {pct}%
-                        </div>
-                      </div>
+                    <td className="rma-col-right">{formatCurrency(group.cost)}</td>
+
+                    {/* RMA */}
+                    <td className="rma-col-right">
+                      <span
+                        className={`age-badge ${group.rmaDays7 && group.rmaDays7 > 0 ? "age-badge-7 clickable-count" : "age-badge-empty"}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if ((group.rmaDays7 || 0) > 0) handleCountClick(group, "rma", "7");
+                        }}
+                        style={{ cursor: (group.rmaDays7 || 0) > 0 ? "pointer" : "default" }}
+                      >
+                        {group.rmaDays7 || 0}
+                      </span>
+                    </td>
+                    <td className="rma-col-right">
+                      <span
+                        className={`age-badge ${group.rmaDays14 && group.rmaDays14 > 0 ? "age-badge-14 clickable-count" : "age-badge-empty"}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if ((group.rmaDays14 || 0) > 0) handleCountClick(group, "rma", "14");
+                        }}
+                        style={{ cursor: (group.rmaDays14 || 0) > 0 ? "pointer" : "default" }}
+                      >
+                        {group.rmaDays14 || 0}
+                      </span>
+                    </td>
+                    <td className="rma-col-right">
+                      <span
+                        className={`age-badge ${group.rmaDays14Plus && group.rmaDays14Plus > 0 ? "age-badge-14plus clickable-count" : "age-badge-empty"}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if ((group.rmaDays14Plus || 0) > 0) handleCountClick(group, "rma", "14Plus");
+                        }}
+                        style={{ cursor: (group.rmaDays14Plus || 0) > 0 ? "pointer" : "default" }}
+                      >
+                        {group.rmaDays14Plus || 0}
+                      </span>
+                    </td>
+
+                    {/* XBM */}
+                    <td className="rma-col-right">
+                      <span
+                        className={`age-badge ${group.xbmDays7 && group.xbmDays7 > 0 ? "age-badge-7 clickable-count" : "age-badge-empty"}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if ((group.xbmDays7 || 0) > 0) handleCountClick(group, "xbm", "7");
+                        }}
+                        style={{ cursor: (group.xbmDays7 || 0) > 0 ? "pointer" : "default" }}
+                      >
+                        {group.xbmDays7 || 0}
+                      </span>
+                    </td>
+                    <td className="rma-col-right">
+                      <span
+                        className={`age-badge ${group.xbmDays14 && group.xbmDays14 > 0 ? "age-badge-14 clickable-count" : "age-badge-empty"}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if ((group.xbmDays14 || 0) > 0) handleCountClick(group, "xbm", "14");
+                        }}
+                        style={{ cursor: (group.xbmDays14 || 0) > 0 ? "pointer" : "default" }}
+                      >
+                        {group.xbmDays14 || 0}
+                      </span>
+                    </td>
+                    <td className="rma-col-right">
+                      <span
+                        className={`age-badge ${group.xbmDays14Plus && group.xbmDays14Plus > 0 ? "age-badge-14plus clickable-count" : "age-badge-empty"}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if ((group.xbmDays14Plus || 0) > 0) handleCountClick(group, "xbm", "14Plus");
+                        }}
+                        style={{ cursor: (group.xbmDays14Plus || 0) > 0 ? "pointer" : "default" }}
+                      >
+                        {group.xbmDays14Plus || 0}
+                      </span>
+                    </td>
+
+                    {/* Trade-IN */}
+                    <td className="rma-col-right">
+                      <span
+                        className={`age-badge ${group.tradeInDays7 && group.tradeInDays7 > 0 ? "age-badge-7 clickable-count" : "age-badge-empty"}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if ((group.tradeInDays7 || 0) > 0) handleCountClick(group, "tradeIn", "7");
+                        }}
+                        style={{ cursor: (group.tradeInDays7 || 0) > 0 ? "pointer" : "default" }}
+                      >
+                        {group.tradeInDays7 || 0}
+                      </span>
+                    </td>
+                    <td className="rma-col-right">
+                      <span
+                        className={`age-badge ${group.tradeInDays14 && group.tradeInDays14 > 0 ? "age-badge-14 clickable-count" : "age-badge-empty"}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if ((group.tradeInDays14 || 0) > 0) handleCountClick(group, "tradeIn", "14");
+                        }}
+                        style={{ cursor: (group.tradeInDays14 || 0) > 0 ? "pointer" : "default" }}
+                      >
+                        {group.tradeInDays14 || 0}
+                      </span>
+                    </td>
+                    <td className="rma-col-right">
+                      <span
+                        className={`age-badge ${group.tradeInDays14Plus && group.tradeInDays14Plus > 0 ? "age-badge-14plus clickable-count" : "age-badge-empty"}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if ((group.tradeInDays14Plus || 0) > 0) handleCountClick(group, "tradeIn", "14Plus");
+                        }}
+                        style={{ cursor: (group.tradeInDays14Plus || 0) > 0 ? "pointer" : "default" }}
+                      >
+                        {group.tradeInDays14Plus || 0}
+                      </span>
                     </td>
                   </tr>
                 );
@@ -947,19 +1159,17 @@ export default function RMADashboard() {
           </div>
 
           {/* Summary Cards */}
-          <section className="dashboard-grid">
+          {/* <section className="dashboard-grid">
             {summaryCards.map((card, index) => (
               <div key={index} className="dashboard-card card-purple">
-                <div className="card-icon">
-                  {index === 0 ? "🏷️" : index === 1 ? "📱" : "💰"}
-                </div>
+                <div className="card-icon">{card.icon || (index === 0 ? "🏷️" : index === 1 ? "📱" : "💰")}</div>
                 <div className="card-content">
                   <h3 className="card-title">{card.label}</h3>
                   <p className="card-description">{card.value}</p>
                 </div>
               </div>
             ))}
-          </section>
+          </section> */}
 
           {/* Search Bar */}
           <div className="search-box">
@@ -1014,8 +1224,59 @@ export default function RMADashboard() {
               <p>Loading data...</p>
             </div>
           )}
+
+          <section className="dashboard-grid">
+            {summaryCards.map((card, index) => (
+              <div key={index} className="dashboard-card card-purple">
+                <div className="card-icon">
+                  {index === 0 ? "🏷️" : index === 1 ? "📱" : "💰"}
+                </div>
+                <div className="card-content">
+                  <h3 className="card-title">{card.label}</h3>
+                  <p className="card-description">{card.value}</p>
+                </div>
+              </div>
+            ))}
+          </section>
         </main>
       </div>
     </div>
   );
+
+  function handleCountClick(
+    group: AggregatedGroup,
+    filterType: "rma" | "xbm" | "tradeIn",
+    daysRange: "7" | "14" | "14Plus"
+  ) {
+    // Filter group's rows by record type and days range
+    const rows = (group.rows || []).filter((record) => {
+      const rawType = getField(record, ["RecordType", "Record Type", "Type", "TYPE", "type"]).toLowerCase();
+      let matchesType = false;
+      if (filterType === "rma") matchesType = rawType.includes("rma");
+      else if (filterType === "xbm") matchesType = rawType.includes("xbm");
+      else if (filterType === "tradeIn") matchesType = rawType.includes("trade");
+
+      if (!matchesType) return false;
+
+      const daysVal = getField(record, ["Days", "DAY", "day"]);
+      const daysNum = parseInt(String(daysVal).replace(/[^0-9\-]/g, ""));
+      if (isNaN(daysNum)) return false;
+
+      if (daysRange === "7") return daysNum <= 7;
+      if (daysRange === "14") return daysNum > 7 && daysNum <= 14;
+      return daysNum > 14;
+    });
+
+    setCurrentData(rows);
+    setCurrentView("detailed");
+    setHistoryStack([
+      { level: "Regions" },
+      { level: "Selected", selected: group.key },
+      { level: "Filtered", selected: `${filterType.toUpperCase()} • ${daysRange}` },
+    ]);
+    setSelectedType(`${filterType.toUpperCase()} • ${daysRange}`);
+    setSearchTerm("");
+    setCurrentPage(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 }
