@@ -12,6 +12,17 @@
     --age-14plus-fg: #8fdf84;
     --age-empty-bg: rgba(255, 255, 255, 0.05);
     --age-empty-fg: #f5efef;
+
+    /* Table typography tokens - keep all tables consistent */
+    --table-font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    --table-font-size: 0.95rem;
+    /* default cell font-size */
+    --table-header-font-size: 0.85rem;
+    /* th font-size */
+    --table-compact-font-size: 0.78rem;
+    /* detailed/compact view */
+    --table-cell-font-weight: 600;
+    --table-header-font-weight: 700;
 }
 
 
@@ -867,10 +878,13 @@
 .rma-page .rma-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.95rem;
+    /* centralized table typography */
+    font-family: var(--table-font-family);
+    font-size: var(--table-font-size);
     background: var(--glass-light);
     border-radius: var(--radius);
     overflow: hidden;
+    color: var(--text-primary);
 }
 
 .rma-page .rma-table th,
@@ -881,13 +895,13 @@
 }
 
 .rma-page .rma-table th {
-    font-weight: 700;
+    font-weight: var(--table-header-font-weight);
     color: var(--accent);
     background: rgba(139, 92, 246, 0.1);
     border-bottom: 2px solid var(--accent);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    font-size: 0.85rem;
+    font-size: var(--table-header-font-size);
 }
 
 .rma-page .rma-table tbody tr {
@@ -1043,7 +1057,7 @@
 
 /* Compact/detailed view rules to match IAS behavior */
 .rma-page .rma-table.detailed-view {
-    font-size: 0.75rem;
+    font-size: var(--table-compact-font-size);
     table-layout: auto;
     width: 100%;
 }
@@ -1051,6 +1065,7 @@
 .rma-page .rma-table.detailed-view th,
 .rma-page .rma-table.detailed-view td {
     padding: 8px 10px;
+    font-size: var(--table-compact-font-size);
 }
 
 .rma-page .rma-table.detailed-view .details-btn,
@@ -2434,10 +2449,12 @@
 .rma-page .rma-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.95rem;
+    font-family: var(--table-font-family);
+    font-size: var(--table-font-size);
     background: var(--glass-light);
     border-radius: var(--radius);
     overflow: hidden;
+    color: var(--text-primary);
 }
 
 .rma-page .rma-table th,
@@ -2448,13 +2465,13 @@
 }
 
 .rma-page .rma-table th {
-    font-weight: 400;
+    font-weight: var(--table-header-font-weight);
     color: var(--accent);
     background: rgba(139, 92, 246, 0.1);
     border-bottom: 2px solid var(--accent);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    font-size: 1.25rem;
+    font-size: var(--table-header-font-size);
 }
 
 .rma-page .rma-table tbody tr {
@@ -2482,8 +2499,8 @@
     display: inline-block;
     padding: 4px 8px;
     border-radius: 6px;
-    font-size: 1.25rem;
-    font-weight: 400;
+    font-size: 0.75rem;
+    font-weight: 600;
     text-align: center;
     min-width: 24px;
 }
@@ -2597,4 +2614,11 @@ html[data-theme="light"] .rma-page .age-badge-empty {
     color: #1e293b !important;
     opacity: 1 !important;
     border: 1px solid rgba(16, 24, 39, 0.06) !important;
+}
+
+/* Ensure table body cells have consistent font and weight */
+.rma-page .rma-table td {
+    font-size: var(--table-font-size);
+    font-weight: var(--table-cell-font-weight);
+    color: var(--text-secondary);
 }

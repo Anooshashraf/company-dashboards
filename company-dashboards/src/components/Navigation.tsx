@@ -278,7 +278,7 @@ export default function Navigation() {
                 className={`nav-item ${pathname === '/dashboard/audit' ? 'nav-item-active' : ''}`}
                 onClick={() => window.innerWidth < 768 && setIsSidebarOpen(false)}
               >
-                <span className="nav-icon">📊</span>
+                <span className="nav-icon">📋</span>
                 <span className="nav-text">Audit</span>
               </Link>
               <Link
@@ -286,7 +286,7 @@ export default function Navigation() {
                 className={`nav-item ${pathname === '/dashboard/rma' ? 'nav-item-active' : ''}`}
                 onClick={() => window.innerWidth < 768 && setIsSidebarOpen(false)}
               >
-                <span className="nav-icon">🔄</span>
+                <span className="nav-icon">📊</span>
                 <span className="nav-text">RMA Management</span>
               </Link>
               <Link
