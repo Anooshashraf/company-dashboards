@@ -2383,3 +2383,110 @@
     outline-offset: -2px !important;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
 }
+
+
+/* Table Styles - EXACT IAS MATCH (ORIGINAL) */
+.rma-page .rma-table-block {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    padding: 28px;
+    border-radius: var(--radius-lg);
+    margin-top: 1rem;
+    margin-bottom: 6rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s ease;
+}
+
+.rma-page .rma-table-block:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+}
+
+.rma-page .rma-col-center {
+    text-align: center;
+    align-items: center;
+}
+
+.rma-page .rma-table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--radius);
+}
+
+.rma-page .rma-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    background: var(--glass-light);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.rma-page .rma-table th,
+.rma-page .rma-table td {
+    padding: 18px 22px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.rma-page .rma-table th {
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(139, 92, 246, 0.1);
+    border-bottom: 2px solid var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.85rem;
+}
+
+.rma-page .rma-table tbody tr {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    background: transparent;
+}
+
+.rma-page .rma-table tbody tr:hover {
+    background: rgba(139, 92, 246, 0.08);
+    transform: translateX(8px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.rma-page .rma-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.rma-page .rma-col-right {
+    text-align: right;
+}
+
+/* Age Badges - Simple */
+.rma-page .age-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    min-width: 24px;
+}
+
+.rma-page .age-badge-7 {
+    background: rgba(141, 41, 41, 0.1);
+    color: #e09595;
+}
+
+.rma-page .age-badge-14 {
+    background: rgba(245, 158, 11, 0.1);
+    color: #ffbd4b;
+}
+
+.rma-page .age-badge-14plus {
+    background: rgba(67, 221, 149, 0.1);
+    color: #8fdf84;
+}
+
+.rma-page .age-badge-empty {
+    background: rgba(255, 255, 255, 0.05);
+    color: #cac7c7;
+}
