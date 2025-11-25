@@ -1,6 +1,17 @@
 /* RMA Live Dashboard Styles - EXACT IAS MATCH */
 .rma-page {
     min-height: calc(100vh - 70px);
+    /* Age-badge color tokens (rgb for translucent backgrounds + foreground color)
+       These live here so they can be themed per .rma-page and overridden
+       in dark mode below. */
+    --age-7-bg-rgb: 141, 41, 41;
+    --age-7-fg: #e09595;
+    --age-14-bg-rgb: 245, 158, 11;
+    --age-14-fg: #ffbd4b;
+    --age-14plus-bg-rgb: 67, 221, 149;
+    --age-14plus-fg: #8fdf84;
+    --age-empty-bg: rgba(255, 255, 255, 0.05);
+    --age-empty-fg: #f5efef;
 }
 
 
@@ -81,7 +92,7 @@
 .rma-page .dashboard-card {
     background: var(--glass);
     backdrop-filter: blur(20px);
-    padding: 30px;
+    padding: 15px;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow);
     border: 1px solid var(--border);
@@ -601,7 +612,10 @@
     max-width: 720px;
     width: 90%;
     max-height: 80vh;
-    overflow-y: auto;
+    /* make modal a flex column and let the inner body scroll */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     box-shadow: var(--shadow-lg);
 }
 
@@ -644,13 +658,16 @@
 
 /* Allow internal scrolling inside the modal so long content (comments) is reachable */
 .rma-page .modal-content {
-    /* permit the modal to scroll if content exceeds max-height */
-    overflow-y: auto;
+    /* modal scroll is handled by .modal-body to ensure a single scrollbar */
+    overflow: hidden;
 }
 
 .rma-page .modal-body {
     /* keep a sensible max height but allow internal scroll for long content */
     max-height: calc(80vh - 120px);
+    flex: 1 1 auto;
+    min-height: 0;
+    /* allow flex child to shrink properly in Firefox/Chrome */
     overflow-y: auto;
 }
 
@@ -2472,21 +2489,78 @@
 }
 
 .rma-page .age-badge-7 {
-    background: rgba(141, 41, 41, 0.1);
-    color: #e09595;
+    background: rgba(var(--age-7-bg-rgb, 141, 41, 41), 0.12);
+    color: var(--age-7-fg, #e09595);
 }
 
 .rma-page .age-badge-14 {
-    background: rgba(245, 158, 11, 0.1);
-    color: #ffbd4b;
+    background: rgba(var(--age-14-bg-rgb, 245, 158, 11), 0.12);
+    color: var(--age-14-fg, #ffbd4b);
 }
 
 .rma-page .age-badge-14plus {
-    background: rgba(67, 221, 149, 0.1);
-    color: #8fdf84;
+    background: rgba(var(--age-14plus-bg-rgb, 67, 221, 149), 0.12);
+    color: var(--age-14plus-fg, #8fdf84);
 }
 
+
+
+/* Clickable Count Styles */
+.rma-page .clickable-count {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.rma-page .clickable-count::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 249, 249, 0.945), transparent);
+    transition: left 0.6s ease;
+}
+
+.rma-page .clickable-count:hover::after {
+    left: 100%;
+}
+
+.rma-page .clickable-count:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    filter: brightness(1.1);
+}
+
+/* Disabled state for zero counts */
 .rma-page .age-badge-empty {
-    background: rgba(255, 255, 255, 0.05);
-    color: #cac7c7;
+    opacity: 0.6;
+    cursor: default !important;
+    background: var(--age-empty-bg, rgba(255, 255, 255, 0.05));
+    color: var(--age-empty-fg, #f5efef);
+}
+
+.rma-page .age-badge-empty:hover {
+    transform: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+/* Hover effects for clickable total count */
+.rma-page .clickable-count:not(.age-badge):hover {
+    color: #f5efef;
+    text-decoration: underline;
+}
+
+/* Dark-mode overrides for age-badge tokens (keeps badges readable in both themes) */
+@media (prefers-color-scheme: dark) {
+    .rma-page {
+        --age-7-fg: #ffb3b3;
+        --age-14-fg: #ffd27a;
+        --age-14plus-fg: #b7f7cf;
+        --age-empty-bg: rgba(255, 255, 255, 0.03);
+        --age-empty-fg: #e6e6e6;
+    }
 }

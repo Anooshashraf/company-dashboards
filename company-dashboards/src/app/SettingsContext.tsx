@@ -44,6 +44,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const applyTheme = (theme: 'light' | 'dark') => {
         const root = document.documentElement;
 
+        // mark the document with the current theme so CSS can target it directly
+        try {
+            root.setAttribute('data-theme', theme);
+        } catch (e) {
+            /* noop - defensive */
+        }
+
         if (theme === 'light') {
 
             root.style.setProperty('--bg-primary', '#f8fafc');
@@ -56,6 +63,15 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             root.style.setProperty('--glass', 'rgba(255, 255, 255, 0.8)');
             root.style.setProperty('--glass-dark', 'rgba(248, 250, 252, 0.9)');
             root.style.setProperty('--glass-light', 'rgba(241, 245, 249, 0.6)');
+            /* Age-badge tokens for light theme (darker foreground for contrast) */
+            root.style.setProperty('--age-7-bg-rgb', '141,41,41');
+            root.style.setProperty('--age-7-fg', '#7b1f1f');
+            root.style.setProperty('--age-14-bg-rgb', '245,158,11');
+            root.style.setProperty('--age-14-fg', '#b45309');
+            root.style.setProperty('--age-14plus-bg-rgb', '67,221,149');
+            root.style.setProperty('--age-14plus-fg', '#065f46');
+            root.style.setProperty('--age-empty-bg', 'rgba(0,0,0,0.04)');
+            root.style.setProperty('--age-empty-fg', '#1e293b');
         } else {
             root.style.setProperty('--bg-primary', '#0f172a');
             root.style.setProperty('--bg-secondary', '#1e293b');
@@ -67,6 +83,15 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             root.style.setProperty('--glass', 'rgba(30, 41, 59, 0.8)');
             root.style.setProperty('--glass-dark', 'rgba(15, 23, 42, 0.9)');
             root.style.setProperty('--glass-light', 'rgba(51, 65, 85, 0.6)');
+            /* Age-badge tokens for dark theme (lighter foreground for contrast) */
+            root.style.setProperty('--age-7-bg-rgb', '141,41,41');
+            root.style.setProperty('--age-7-fg', '#ffb3b3');
+            root.style.setProperty('--age-14-bg-rgb', '245,158,11');
+            root.style.setProperty('--age-14-fg', '#ffd27a');
+            root.style.setProperty('--age-14plus-bg-rgb', '67,221,149');
+            root.style.setProperty('--age-14plus-fg', '#b7f7cf');
+            root.style.setProperty('--age-empty-bg', 'rgba(255,255,255,0.03)');
+            root.style.setProperty('--age-empty-fg', '#e6e6e6');
         }
     };
 

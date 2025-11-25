@@ -4105,7 +4105,6 @@ interface AggregatedGroup {
     days7: number;
     days14: number;
     days14Plus: number;
-    // Add counts by record type and days
     rmaDays7: number;
     rmaDays14: number;
     rmaDays14Plus: number;
@@ -4117,7 +4116,6 @@ interface AggregatedGroup {
     tradeInDays14Plus: number;
 }
 
-// Debounce hook for auto-save
 const useDebounce = (value: string, delay: number) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -4139,7 +4137,6 @@ export default function RMALivePage() {
     const router = useRouter();
     const [sortBy, setSortBy] = useState<'alphabetical' | 'cost' | 'devices' | 'age'>('cost');
     const [searchTerm, setSearchTerm] = useState('');
-
     const [rmaData, setRmaData] = useState<RMARecord[]>([]);
     const [xbmData, setXbmData] = useState<RMARecord[]>([]);
     const [tradeInData, setTradeInData] = useState<RMARecord[]>([]);
@@ -4151,8 +4148,6 @@ export default function RMALivePage() {
     const [expandedRow, setExpandedRow] = useState<string | null>(null);
     const [selectedRecord, setSelectedRecord] = useState<RMARecord | null>(null);
     const [exportLoading, setExportLoading] = useState(false);
-
-    // Enhanced comments state
     const [comments, setComments] = useState<CommentState>({
         dmComment: '',
         boComment: '',
@@ -4160,9 +4155,7 @@ export default function RMALivePage() {
         lastSaved: null,
         autoSave: true
     });
-
     const [commentsSuccess, setCommentsSuccess] = useState<string | null>(null);
-
     const [currentView, setCurrentView] = useState<'markets' | 'dm' | 'types' | 'detailed' | 'summary'>('markets');
     const [currentData, setCurrentData] = useState<RMARecord[]>([]);
     const [selectedMarket, setSelectedMarket] = useState<string>('');
@@ -4171,10 +4164,8 @@ export default function RMALivePage() {
     const [historyStack, setHistoryStack] = useState<{ level: string; selected?: string }[]>([
         { level: 'Markets' }
     ]);
-
     const [imeiFilter, setImeiFilter] = useState('');
     const [productFilter, setProductFilter] = useState('');
-
     const dataSources = [
         {
             id: 'RMA',
@@ -4196,7 +4187,6 @@ export default function RMALivePage() {
     // Debounced comments for auto-save
     const debouncedDmComment = useDebounce(comments.dmComment, 2000);
     const debouncedBoComment = useDebounce(comments.boComment, 2000);
-
     const searchData = useCallback((data: RMARecord[], searchTerm: string): RMARecord[] => {
         if (!searchTerm.trim()) return data;
 
@@ -4452,6 +4442,8 @@ export default function RMALivePage() {
             }
         }
     };
+
+
 
     const deleteComments = async (record: RMARecord) => {
         if (window.confirm('Are you sure you want to clear all comments for this record? This action cannot be undone.')) {
@@ -5029,7 +5021,43 @@ export default function RMALivePage() {
         setCurrentPage(1);
     };
 
+    const handleCountClick = (group: AggregatedGroup, filterType: 'rma' | 'xbm' | 'tradeIn', daysRange: '7' | '14' | '14Plus') => {
+        // Filter records based on the clicked count
+        const filteredRecords = group.rows.filter(record => {
+            // Check record type
+            const typeMatch = record.RecordType.toLowerCase() === filterType;
+            if (!typeMatch) return false;
 
+            // Check days range
+            if (daysRange === '7') return record.DaysOld <= 7;
+            if (daysRange === '14') return record.DaysOld > 7 && record.DaysOld <= 14;
+            if (daysRange === '14Plus') return record.DaysOld > 14;
+
+            return false;
+        });
+
+        if (filteredRecords.length === 0) return; // Don't navigate if count is 0
+
+        // Set the filtered data for detailed view
+        setCurrentData(filteredRecords);
+        setCurrentView('detailed');
+
+        // Update breadcrumb
+        const recordTypeName = filterType === 'rma' ? 'RMA' : filterType === 'xbm' ? 'XBM' : 'Trade-IN';
+        const daysLabel = daysRange === '7' ? '7 days' : daysRange === '14' ? '14 days' : '14+ days';
+
+        setHistoryStack([
+            { level: 'Markets' },
+            { level: 'District Managers', selected: group.key },
+            { level: `${recordTypeName} - ${daysLabel}`, selected: `${filteredRecords.length} records` }
+        ]);
+
+        setSearchTerm('');
+        setCurrentPage(1);
+
+        // Scroll to top of the detailed view
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     // const handleBackClick = () => {
     //     if (historyStack.length <= 1) {
@@ -5213,8 +5241,6 @@ export default function RMALivePage() {
         ));
     };
 
-
-
     const renderHierarchicalTable = (data: RMARecord[], level: 'markets' | 'dm' | 'types', onRowClick: (group: AggregatedGroup) => void) => {
         const aggregated = data.reduce((groups: AggregatedGroup[], record) => {
             if (!record || Object.keys(record).length === 0) return groups;
@@ -5354,57 +5380,147 @@ export default function RMALivePage() {
                             {aggregated.map((group, index) => (
                                 <tr key={index} onClick={() => onRowClick(group)} className="clickable-row">
                                     <td>{group.key}</td>
-                                    <td className="rma-col-right">{group.count}</td>
+                                    <td className="rma-col-right">
+                                        <span
+                                            className="clickable-count"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (group.count > 0) {
+                                                    setCurrentData(group.rows);
+                                                    setCurrentView('detailed');
+                                                    setHistoryStack([
+                                                        { level: 'Markets' },
+                                                        { level: 'District Managers', selected: group.key },
+                                                        { level: 'All Records', selected: `${group.count} records` }
+                                                    ]);
+                                                    setSearchTerm('');
+                                                    setCurrentPage(1);
+                                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                }
+                                            }}
+                                            style={{
+                                                cursor: group.count > 0 ? 'pointer' : 'default',
+                                                color: group.count > 0 ? 'var(--accent)' : 'var(--text-muted)',
+                                                fontWeight: 600,
+                                                transition: 'all 0.3s ease'
+                                            }}
+                                        >
+                                            {group.count}
+                                        </span>
+                                    </td>
                                     {/* <td className="rma-col-right">{group.pending}</td> */}
                                     <td className="rma-col-right">${group.cost.toLocaleString()}</td>
 
-                                    {/* RMA Days */}
+                                    {/* RMA Days - Clickable */}
                                     <td className="rma-col-right">
-                                        <span className={`age-badge ${group.rmaDays7 > 0 ? 'age-badge-7' : 'age-badge-empty'}`}>
+                                        <span
+                                            className={`age-badge ${group.rmaDays7 > 0 ? 'age-badge-7 clickable-count' : 'age-badge-empty'}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (group.rmaDays7 > 0) handleCountClick(group, 'rma', '7');
+                                            }}
+                                            style={{ cursor: group.rmaDays7 > 0 ? 'pointer' : 'default' }}
+                                        >
                                             {group.rmaDays7}
                                         </span>
                                     </td>
                                     <td className="rma-col-right">
-                                        <span className={`age-badge ${group.rmaDays14 > 0 ? 'age-badge-14' : 'age-badge-empty'}`}>
+                                        <span
+                                            className={`age-badge ${group.rmaDays14 > 0 ? 'age-badge-14 clickable-count' : 'age-badge-empty'}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (group.rmaDays14 > 0) handleCountClick(group, 'rma', '14');
+                                            }}
+                                            style={{ cursor: group.rmaDays14 > 0 ? 'pointer' : 'default' }}
+                                        >
                                             {group.rmaDays14}
                                         </span>
                                     </td>
                                     <td className="rma-col-right">
-                                        <span className={`age-badge ${group.rmaDays14Plus > 0 ? 'age-badge-14plus' : 'age-badge-empty'}`}>
+                                        <span
+                                            className={`age-badge ${group.rmaDays14Plus > 0 ? 'age-badge-14plus clickable-count' : 'age-badge-empty'}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (group.rmaDays14Plus > 0) handleCountClick(group, 'rma', '14Plus');
+                                            }}
+                                            style={{ cursor: group.rmaDays14Plus > 0 ? 'pointer' : 'default' }}
+                                        >
                                             {group.rmaDays14Plus}
                                         </span>
                                     </td>
 
-                                    {/* XBM Days */}
+                                    {/* XBM Days - Clickable */}
                                     <td className="rma-col-right">
-                                        <span className={`age-badge ${group.xbmDays7 > 0 ? 'age-badge-7' : 'age-badge-empty'}`}>
+                                        <span
+                                            className={`age-badge ${group.xbmDays7 > 0 ? 'age-badge-7 clickable-count' : 'age-badge-empty'}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (group.xbmDays7 > 0) handleCountClick(group, 'xbm', '7');
+                                            }}
+                                            style={{ cursor: group.xbmDays7 > 0 ? 'pointer' : 'default' }}
+                                        >
                                             {group.xbmDays7}
                                         </span>
                                     </td>
                                     <td className="rma-col-right">
-                                        <span className={`age-badge ${group.xbmDays14 > 0 ? 'age-badge-14' : 'age-badge-empty'}`}>
+                                        <span
+                                            className={`age-badge ${group.xbmDays14 > 0 ? 'age-badge-14 clickable-count' : 'age-badge-empty'}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (group.xbmDays14 > 0) handleCountClick(group, 'xbm', '14');
+                                            }}
+                                            style={{ cursor: group.xbmDays14 > 0 ? 'pointer' : 'default' }}
+                                        >
                                             {group.xbmDays14}
                                         </span>
                                     </td>
                                     <td className="rma-col-right">
-                                        <span className={`age-badge ${group.xbmDays14Plus > 0 ? 'age-badge-14plus' : 'age-badge-empty'}`}>
+                                        <span
+                                            className={`age-badge ${group.xbmDays14Plus > 0 ? 'age-badge-14plus clickable-count' : 'age-badge-empty'}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (group.xbmDays14Plus > 0) handleCountClick(group, 'xbm', '14Plus');
+                                            }}
+                                            style={{ cursor: group.xbmDays14Plus > 0 ? 'pointer' : 'default' }}
+                                        >
                                             {group.xbmDays14Plus}
                                         </span>
                                     </td>
 
-                                    {/* Trade-IN Days */}
+                                    {/* Trade-IN Days - Clickable */}
                                     <td className="rma-col-right">
-                                        <span className={`age-badge ${group.tradeInDays7 > 0 ? 'age-badge-7' : 'age-badge-empty'}`}>
+                                        <span
+                                            className={`age-badge ${group.tradeInDays7 > 0 ? 'age-badge-7 clickable-count' : 'age-badge-empty'}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (group.tradeInDays7 > 0) handleCountClick(group, 'tradeIn', '7');
+                                            }}
+                                            style={{ cursor: group.tradeInDays7 > 0 ? 'pointer' : 'default' }}
+                                        >
                                             {group.tradeInDays7}
                                         </span>
                                     </td>
                                     <td className="rma-col-right">
-                                        <span className={`age-badge ${group.tradeInDays14 > 0 ? 'age-badge-14' : 'age-badge-empty'}`}>
+                                        <span
+                                            className={`age-badge ${group.tradeInDays14 > 0 ? 'age-badge-14 clickable-count' : 'age-badge-empty'}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (group.tradeInDays14 > 0) handleCountClick(group, 'tradeIn', '14');
+                                            }}
+                                            style={{ cursor: group.tradeInDays14 > 0 ? 'pointer' : 'default' }}
+                                        >
                                             {group.tradeInDays14}
                                         </span>
                                     </td>
                                     <td className="rma-col-right">
-                                        <span className={`age-badge ${group.tradeInDays14Plus > 0 ? 'age-badge-14plus' : 'age-badge-empty'}`}>
+                                        <span
+                                            className={`age-badge ${group.tradeInDays14Plus > 0 ? 'age-badge-14plus clickable-count' : 'age-badge-empty'}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (group.tradeInDays14Plus > 0) handleCountClick(group, 'tradeIn', '14Plus');
+                                            }}
+                                            style={{ cursor: group.tradeInDays14Plus > 0 ? 'pointer' : 'default' }}
+                                        >
                                             {group.tradeInDays14Plus}
                                         </span>
                                     </td>
@@ -5416,6 +5532,8 @@ export default function RMALivePage() {
             </div>
         );
     };
+
+
 
     const renderDetailedTable = () => {
         const shouldShowPagination = filteredData.length > itemsPerPage;
