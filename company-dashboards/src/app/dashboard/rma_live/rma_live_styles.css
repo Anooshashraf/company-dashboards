@@ -2564,3 +2564,36 @@
         --age-empty-fg: #e6e6e6;
     }
 }
+
+/* Strong fallback for light theme: make sure badges are readable on light backgrounds
+   This block is intentionally high-specificity so it shows up even if variables are missing */
+html[data-theme="light"] .rma-page .age-badge-7 {
+    background: rgba(141, 41, 41, 0.32) !important;
+    color: #7b1f1f !important;
+    font-weight: 800 !important;
+    text-shadow: none !important;
+    border: 1px solid rgba(16, 24, 39, 0.04) !important;
+}
+
+html[data-theme="light"] .rma-page .age-badge-14 {
+    background: rgba(245, 158, 11, 0.32) !important;
+    color: #b45309 !important;
+    font-weight: 800 !important;
+    text-shadow: none !important;
+    border: 1px solid rgba(16, 24, 39, 0.04) !important;
+}
+
+html[data-theme="light"] .rma-page .age-badge-14plus {
+    background: rgba(67, 221, 149, 0.30) !important;
+    color: #065f46 !important;
+    font-weight: 800 !important;
+    text-shadow: none !important;
+    border: 1px solid rgba(16, 24, 39, 0.04) !important;
+}
+
+html[data-theme="light"] .rma-page .age-badge-empty {
+    background: rgba(0, 0, 0, 0.06) !important;
+    color: #1e293b !important;
+    opacity: 1 !important;
+    border: 1px solid rgba(16, 24, 39, 0.06) !important;
+}

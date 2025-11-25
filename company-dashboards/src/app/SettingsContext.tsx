@@ -47,6 +47,17 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         // mark the document with the current theme so CSS can target it directly
         try {
             root.setAttribute('data-theme', theme);
+            // Debug: log theme + important badge tokens so dev console shows what was applied
+            // This helps diagnose cases where the UI appears unchanged after switching theme
+            // (for example due to caching or external overrides).
+            // It's safe to keep these debug messages for now; we can remove them after verification.
+            // eslint-disable-next-line no-console
+            console.debug('[Settings] applyTheme -> theme set:', theme, {
+                age7: getComputedStyle(root).getPropertyValue('--age-7-fg'),
+                age14: getComputedStyle(root).getPropertyValue('--age-14-fg'),
+                age14plus: getComputedStyle(root).getPropertyValue('--age-14plus-fg'),
+                ageEmpty: getComputedStyle(root).getPropertyValue('--age-empty-fg')
+            });
         } catch (e) {
             /* noop - defensive */
         }
