@@ -6237,7 +6237,6 @@ export default function RMALivePage() {
                                 </div>
                             </div>
                         )}
-
                         {renderSummaryCards()}
                     </main>
                 </div>

@@ -96,7 +96,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 25px;
-    margin-bottom: 40px;
+    margin-bottom: 10px;
     width: 100%;
 }
 
@@ -113,6 +113,7 @@
     flex-direction: column;
     position: relative;
     overflow: hidden;
+    margin-top: 10;
 }
 
 .rma-page .dashboard-card::before {
@@ -768,24 +769,8 @@
     min-width: 100px;
 }
 
-/* Table Styles - EXACT IAS MATCH */
-.rma-page .rma-table-block {
-    background: var(--glass);
-    backdrop-filter: blur(20px);
-    padding: 28px;
-    border-radius: var(--radius-lg);
-    margin-top: 1rem;
-    margin-bottom: 6rem;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    transition: all 0.3s ease;
-}
 
-.rma-page .rma-table-block:hover {
-    box-shadow: var(--shadow-lg);
-    border-color: var(--accent);
-}
+
 
 @keyframes fadeIn {
     from {
@@ -2445,7 +2430,7 @@
     padding: 28px;
     border-radius: var(--radius-lg);
     margin-top: 1rem;
-    margin-bottom: 6rem;
+    margin-bottom: 3rem;
     box-shadow: var(--shadow);
     border: 1px solid var(--border);
     animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
