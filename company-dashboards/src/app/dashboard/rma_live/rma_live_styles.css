@@ -1002,6 +1002,27 @@
     font-weight: 500;
 }
 
+/* Breadcrumb clickable link styles (match RMA page) */
+.breadcrumb-link {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+.breadcrumb-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+.breadcrumb-current {
+    cursor: default;
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
 /* Responsive Design - EXACT IAS MATCH */
 @media (max-width: 768px) {
     .rma-page .main-content {

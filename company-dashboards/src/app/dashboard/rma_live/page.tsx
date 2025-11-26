@@ -5227,19 +5227,107 @@ export default function RMALivePage() {
 
     // Enhanced breadcrumb for search results
     const renderBreadcrumb = () => {
-        return historyStack.map((item, index) => (
-            <span key={index} className="rma-breadcrumb">
-                {item.level === 'Search Results' ? (
-                    <span className="search-breadcrumb">
-                        🔍 {item.level}: {item.selected}
-                    </span>
-                ) : (
-                    item.selected ? `${item.level} — ${item.selected}` : item.level
-                )}
-                {index < historyStack.length - 1 && <span className="mx-2 text-gray-400"> › </span>}
-            </span>
-        ));
+        return historyStack.map((item, index) => {
+            const isLast = index === historyStack.length - 1;
+            // Show search breadcrumb specially but still clickable
+            const label = item.level === 'Search Results'
+                ? `🔍 ${item.level}: ${item.selected}`
+                : (item.selected ? `${item.level} — ${item.selected}` : item.level);
+
+            return (
+                <span key={index} className="rma-breadcrumb">
+                    <button
+                        className={`breadcrumb-link ${isLast ? 'breadcrumb-current' : ''}`}
+                        onClick={() => handleBreadcrumbClick(index)}
+                        title={`Go to ${item.level}${item.selected ? ` — ${item.selected}` : ''}`}
+                        aria-current={isLast ? 'true' : 'false'}
+                    >
+                        {label}
+                    </button>
+                    {index < historyStack.length - 1 && <span className="mx-2 text-gray-400"> › </span>}
+                </span>
+            );
+        });
     };
+
+    function handleBreadcrumbClick(index: number) {
+        // slice the history to the clicked position
+        const newStack = historyStack.slice(0, index + 1);
+        setHistoryStack(newStack);
+
+        // Pull common selections from stack
+        const marketSelected = newStack.find(s => s.level === 'District Managers')?.selected || '';
+        const dmSelected = newStack.find(s => s.level === 'Record Types')?.selected || '';
+        const last = newStack[newStack.length - 1];
+
+        // If Search Results, try to extract the term and re-run search
+        if (last.level === 'Search Results') {
+            // selected is ""term"" (quotes) in our implementation — strip quotes
+            const term = String(last.selected || '').replace(/^"|"$/g, '');
+            if (term) {
+                handleSearch(term.replace(/^"|"$/g, ''));
+                return;
+            }
+        }
+
+        // If the last is a hyphenated summary like "RMA - 7 days", try to reconstruct filtered view
+        if (last.level && last.level.includes(' - ')) {
+            const [recordTypeName, daysLabel] = last.level.split(' - ').map(s => s.trim());
+
+            // Build base using the market selection when present
+            let base = combinedData;
+            if (marketSelected) base = base.filter(r => r.Market === marketSelected);
+
+            // Filter by record type (RMA/XBM/Trade-IN)
+            const typeKey = (recordTypeName || '').toLowerCase();
+            base = base.filter(r => String(r.RecordType || '').toLowerCase() === typeKey);
+
+            // Filter by days label
+            const daysRange = daysLabel.toLowerCase();
+            const rows = base.filter(r => {
+                const d = Number(r.DaysOld || 0);
+                if (daysRange.includes('7')) return d <= 7;
+                if (daysRange.includes('14+') || daysRange.includes('14+')) return d > 14;
+                if (daysRange.includes('14')) return d > 7 && d <= 14;
+                return true;
+            });
+
+            setCurrentData(rows);
+            setCurrentView('detailed');
+            setSelectedMarket(marketSelected);
+            setSelectedDM(dmSelected);
+            setSelectedType(last.selected || '');
+            setCurrentPage(1);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
+        // Map breadcrumb level to view
+        const mapping = (lvl: string) => {
+            const lower = (lvl || '').toLowerCase();
+            if (lower.includes('markets')) return 'markets';
+            if (lower.includes('district managers') || lower.includes('district')) return 'dm';
+            if (lower.includes('record types') || lower.includes('types')) return 'types';
+            if (lower.includes('detailed')) return 'detailed';
+            return 'markets';
+        };
+
+        const view = mapping(last.level);
+
+        // Rebuild currentData based on stack
+        let baseData = combinedData;
+        if (marketSelected) baseData = baseData.filter(r => r.Market === marketSelected);
+        if (dmSelected) baseData = baseData.filter(r => r['DM NAME'] === dmSelected);
+
+        setCurrentData(baseData);
+        setCurrentView(view as any);
+        setSelectedMarket(marketSelected);
+        setSelectedDM(dmSelected);
+        if (view === 'detailed') setSelectedType(last.selected || '');
+        setCurrentPage(1);
+        setSearchTerm('');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
     const renderHierarchicalTable = (data: RMARecord[], level: 'markets' | 'dm' | 'types', onRowClick: (group: AggregatedGroup) => void) => {
         const aggregated = data.reduce((groups: AggregatedGroup[], record) => {
@@ -5329,10 +5417,10 @@ export default function RMALivePage() {
                 title = searchTerm ? `Markets matching "${searchTerm}"` : 'Markets';
                 break;
             case 'dm':
-                title = `District Managers in ${selectedMarket}`;
+                title = `District Managers`;
                 break;
             case 'types':
-                title = `Record Types for ${selectedDM}`;
+                title = `Record Types`;
                 break;
         }
 

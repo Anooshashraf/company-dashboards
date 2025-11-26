@@ -357,6 +357,27 @@
     font-weight: 500;
 }
 
+/* Breadcrumb clickable link styles */
+.breadcrumb-link {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+}
+
+.breadcrumb-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+.breadcrumb-current {
+    cursor: default;
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
 /* Filter Controls - EXACT MATCH to your global theme */
 .rma-filter-controls {
     display: flex;

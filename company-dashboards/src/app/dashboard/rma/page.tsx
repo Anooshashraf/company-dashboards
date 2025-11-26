@@ -705,15 +705,100 @@ export default function RMADashboard() {
   };
 
   const renderBreadcrumb = () => {
-    return historyStack.map((item, index) => (
-      <span key={index} className="text-gray-600">
-        {item.selected ? `${item.level} — ${item.selected}` : item.level}
-        {index < historyStack.length - 1 && (
-          <span className="mx-2 text-gray-400"> › </span>
-        )}
-      </span>
-    ));
+    return historyStack.map((item, index) => {
+      const isLast = index === historyStack.length - 1;
+      return (
+        <span key={index} className="text-gray-600">
+          <button
+            className={`breadcrumb-link ${isLast ? 'breadcrumb-current' : ''}`}
+            onClick={() => handleBreadcrumbClick(index)}
+            title={`Go to ${item.level}${item.selected ? ` — ${item.selected}` : ''}`}
+            aria-current={isLast ? 'true' : 'false'}
+          >
+            {item.selected ? `${item.level} — ${item.selected}` : item.level}
+          </button>
+          {index < historyStack.length - 1 && (
+            <span className="mx-2 text-gray-400"> › </span>
+          )}
+        </span>
+      );
+    });
   };
+
+  function handleBreadcrumbClick(index: number) {
+    // slice the history to the clicked position
+    const newStack = historyStack.slice(0, index + 1);
+    setHistoryStack(newStack);
+
+    // helper to find selections
+    const regionSelection = newStack.find((s) => s.level === 'Market')?.selected;
+    const marketSelection = newStack.find((s) => s.level === 'DM')?.selected;
+    const typeSelection = newStack.find((s) => s.level === 'Type')?.selected;
+    const filteredSelection = newStack.find((s) => s.level === 'Filtered')?.selected;
+
+    // detect keys
+    const regionKey = detectKey(['Regions', 'Region', 'REGIONS', 'regions']);
+    const marketKey = detectKey(['Market', 'Market Name', 'MARKET']);
+    const dmKey = detectKey(['DM NAME', 'DM Name', 'DM']);
+    const typeKey = detectKey(['Type', 'TYPE', 'type']);
+
+    // start from the full filtered dataset and apply selections found in the breadcrumb stack
+    let base = filteredData;
+    if (regionSelection) {
+      base = base.filter((r) => getField(r, [regionKey]) === regionSelection);
+    }
+    if (marketSelection) {
+      base = base.filter((r) => getField(r, [marketKey]) === marketSelection);
+    }
+    if (typeSelection) {
+      base = base.filter((r) => getField(r, [typeKey]) === typeSelection);
+    }
+
+    // if breadcrumb points to a 'Filtered' bucket like 'RMA • 14', apply that filtering
+    if (filteredSelection) {
+      const parts = filteredSelection.split('•').map((p) => p.trim());
+      if (parts.length === 2) {
+        const filterType = parts[0].toLowerCase();
+        const daysRange = parts[1];
+        base = base.filter((r) => {
+          const recordType = getField(r, ['RecordType', 'Record Type', 'Type', 'TYPE', 'type']).toLowerCase();
+          if (!recordType.includes(filterType)) return false;
+          const daysVal = getField(r, ['Days', 'DAY', 'day']);
+          const daysNum = parseInt(String(daysVal).replace(/[^0-9\-]/g, ''));
+          if (isNaN(daysNum)) return false;
+          if (daysRange === '7') return daysNum <= 7;
+          if (daysRange === '14') return daysNum > 7 && daysNum <= 14;
+          return daysNum > 14;
+        });
+      }
+    }
+
+    // set appropriate view and state markers
+    const last = newStack[newStack.length - 1];
+    const mapView = (lvl: string) => {
+      const lower = lvl.toLowerCase();
+      if (lower.includes('region')) return 'regions';
+      if (lower.includes('market')) return 'market';
+      if (lower.includes('dm')) return 'dm';
+      if (lower.includes('type')) return 'type';
+      return 'detailed';
+    };
+
+    const view = mapView(last.level);
+
+    setCurrentData(base);
+    setCurrentView(view as any);
+    setCurrentPage(1);
+    setSearchTerm('');
+
+    // set selectors for UI
+    setSelectedRegion(regionSelection || '');
+    setSelectedMarket(marketSelection || '');
+    setSelectedDM(typeSelection || '');
+    if (view === 'detailed') setSelectedType(last.selected || '');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
 
 
