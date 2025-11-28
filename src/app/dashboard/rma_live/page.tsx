@@ -4271,6 +4271,9 @@ export default function RMALivePage() {
                 ? record["XBM Number"]
                 : record["RMA #"];
 
+            // Prefer using Customer IMEI when available so we update the exact device row
+            const customerImei = (record["Customer IMEI"] || record["Assurant IMEI"] || '').toString().trim();
+
             if (!recordIdentifier || recordIdentifier.trim() === '') {
                 console.error('No record identifier found for record:', record);
                 setError('No reference number found for this record');
@@ -4281,6 +4284,7 @@ export default function RMALivePage() {
             console.log('🔄 Updating comments in Google Sheets:', {
                 recordType: record.RecordType,
                 identifier: recordIdentifier,
+                customerImei,
                 boComment,
                 dmComment
             });
@@ -4293,6 +4297,7 @@ export default function RMALivePage() {
                 body: JSON.stringify({
                     recordType: record.RecordType,
                     recordIdentifier: recordIdentifier,
+                    customerImei: customerImei,
                     dmComments: dmComment,
                     boComments: boComment
                 }),
@@ -4322,7 +4327,7 @@ export default function RMALivePage() {
             }));
 
             // Show success message
-            setCommentsSuccess(`Comments updated successfully for ${recordIdentifier}`);
+            setCommentsSuccess(`Comments updated successfully for ${customerImei || recordIdentifier}`);
 
             // Clear success message after 3 seconds
             setTimeout(() => setCommentsSuccess(null), 3000);
@@ -4365,6 +4370,11 @@ export default function RMALivePage() {
             data.map(item => {
                 if (!item || Object.keys(item).length === 0) return item;
 
+                const normalizeImei = (v: any) => String(v || '').replace(/\D/g, '').trim();
+
+                const itemImeiRaw = (item["Customer IMEI"] || item["Assurant IMEI"] || '').toString().trim();
+                const recordImeiRaw = (record["Customer IMEI"] || record["Assurant IMEI"] || '').toString().trim();
+
                 const itemIdentifier = String(
                     item.RecordType === 'XBM' ? item["XBM Number"] : item["RMA #"] || ''
                 ).trim();
@@ -4373,11 +4383,15 @@ export default function RMALivePage() {
                     record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"] || ''
                 ).trim();
 
-                // CRITICAL: Check both identifier AND record type
-                if (itemIdentifier &&
+                // Prefer IMEI matches when available and identical (normalized digits); otherwise fallback to identifier+type
+                const imeiMatch = itemImeiRaw && recordImeiRaw && normalizeImei(itemImeiRaw) === normalizeImei(recordImeiRaw);
+
+                if (imeiMatch || (
+                    itemIdentifier &&
                     recordIdentifier &&
                     itemIdentifier === recordIdentifier &&
-                    item.RecordType === record.RecordType) {
+                    item.RecordType === record.RecordType
+                )) {
 
                     console.log(`✅ Updating ${item.RecordType}: ${itemIdentifier}`);
 
@@ -4420,6 +4434,10 @@ export default function RMALivePage() {
 
         // Update selected record if it matches
         if (selectedRecord) {
+            const normalizeImei = (v: any) => String(v || '').replace(/\D/g, '').trim();
+            const selectedImei = (selectedRecord["Customer IMEI"] || selectedRecord["Assurant IMEI"] || '').toString().trim();
+            const recordImei = (record["Customer IMEI"] || record["Assurant IMEI"] || '').toString().trim();
+
             const selectedIdentifier = String(
                 selectedRecord.RecordType === 'XBM' ? selectedRecord["XBM Number"] : selectedRecord["RMA #"] || ''
             ).trim();
@@ -4428,10 +4446,14 @@ export default function RMALivePage() {
                 record.RecordType === 'XBM' ? record["XBM Number"] : record["RMA #"] || ''
             ).trim();
 
-            if (selectedIdentifier &&
+            const imeiMatch = selectedImei && recordImei && normalizeImei(selectedImei) === normalizeImei(recordImei);
+
+            if (imeiMatch || (
+                selectedIdentifier &&
                 recordIdentifier &&
                 selectedIdentifier === recordIdentifier &&
-                selectedRecord.RecordType === record.RecordType) {
+                selectedRecord.RecordType === record.RecordType
+            )) {
 
                 setSelectedRecord({
                     ...selectedRecord,
@@ -4685,14 +4707,25 @@ export default function RMALivePage() {
 
             const response = await fetch(`/api/sheets-data?type=${source.type}`);
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
+            // Read JSON if available so we can include server messages in the client error
+            let result: any = null;
+            try {
+                result = await response.json();
+            } catch (parseErr) {
+                // non-JSON or empty body
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status} (non-JSON response)`);
+                }
+                throw parseErr;
             }
 
-            const result = await response.json();
+            if (!response.ok) {
+                const serverMsg = result?.message || result?.error || JSON.stringify(result);
+                throw new Error(`HTTP ${response.status} - ${serverMsg}`);
+            }
 
             if (!result.success) {
-                throw new Error(result.error || 'API request failed');
+                throw new Error(result.error || result.message || 'API request failed');
             }
 
             console.log(`✅ ${source.name} - v4.x API data:`, {

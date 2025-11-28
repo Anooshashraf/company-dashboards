@@ -9,7 +9,8 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     recordType: 'RMA',
-                    recordIdentifier: 'RMA25112009M', // Use an actual RMA # from your sheet
+                    recordIdentifier: 'RMA25112009M', // Fallback identifier
+                    customerImei: '359881075123456', // Use a real IMEI from your sheet to update the exact device
                     dmComments: 'Test DM Comment from API',
                     boComments: 'Test BO Comment from API'
                 })
