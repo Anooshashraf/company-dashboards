@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useAuth } from '../../../components/AuthProvider';
@@ -53,6 +54,15 @@ interface AggregatedGroup {
     days7: number;
     days14: number;
     days14Plus: number;
+    rmaDays7: number;
+    rmaDays14: number;
+    rmaDays14Plus: number;
+    xbmDays7: number;
+    xbmDays14: number;
+    xbmDays14Plus: number;
+    tradeInDays7: number;
+    tradeInDays14: number;
+    tradeInDays14Plus: number;
     mm?: string;
 }
 
@@ -74,26 +84,6 @@ interface CommentState {
     updating: boolean;
     lastSaved: Date | null;
     autoSave: boolean;
-}
-interface AggregatedGroup {
-    key: string;
-    count: number;
-    devices: number;
-    cost: number;
-    pending: number;
-    rows: RMARecord[];
-    days7: number;
-    days14: number;
-    days14Plus: number;
-    rmaDays7: number;
-    rmaDays14: number;
-    rmaDays14Plus: number;
-    xbmDays7: number;
-    xbmDays14: number;
-    xbmDays14Plus: number;
-    tradeInDays7: number;
-    tradeInDays14: number;
-    tradeInDays14Plus: number;
 }
 
 interface MarketManager {
@@ -127,7 +117,8 @@ export default function RMALivePage() {
     const [xbmData, setXbmData] = useState<RMARecord[]>([]);
     const [tradeInData, setTradeInData] = useState<RMARecord[]>([]);
     const [combinedData, setCombinedData] = useState<RMARecord[]>([]);
-    const [selectedMM, setSelectedMM] = useState<string>('');
+    const [selectedMM, setSelectedMM] = useState<string>('all');
+    const [isMMFilterActive, setIsMMFilterActive] = useState(false);
     const [marketManagersData, setMarketManagersData] = useState<{[key: string]: string}>({});  
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -154,6 +145,7 @@ export default function RMALivePage() {
     ]);
     const [imeiFilter, setImeiFilter] = useState('');
     const [productFilter, setProductFilter] = useState('');
+
     const dataSources = [
         {
             id: 'RMA',
@@ -175,6 +167,7 @@ export default function RMALivePage() {
     // Debounced comments for auto-save
     const debouncedDmComment = useDebounce(comments.dmComment, 2000);
     const debouncedBoComment = useDebounce(comments.boComment, 2000);
+
     const searchData = useCallback((data: RMARecord[], searchTerm: string): RMARecord[] => {
         if (!searchTerm.trim()) return data;
 
@@ -216,26 +209,45 @@ export default function RMALivePage() {
         setCurrentPage(1);
 
         if (!term.trim()) {
-            // Clear search - navigate back to main page
-            setCurrentData(combinedData);
+            // Clear search - navigate back to main page with MM filter if active
+            let dataToSet = combinedData;
+            if (isMMFilterActive && selectedMM !== 'all') {
+                dataToSet = combinedData.filter(record => {
+                    const marketMM = marketManagersData[record.Market];
+                    return marketMM === selectedMM;
+                });
+            }
+            
+            setCurrentData(dataToSet);
             setCurrentView('markets');
-            setHistoryStack([{ level: 'Markets' }]);
+            setHistoryStack([
+                { level: 'Markets' },
+                ...(selectedMM && selectedMM !== 'all' ? [{ level: 'Market Manager', selected: selectedMM }] : [])
+            ]);
             setSelectedMarket('');
             setSelectedDM('');
             setSelectedType('');
             setImeiFilter('');
             setProductFilter('');
         } else {
-            // Perform search
-            const searchResults = searchData(combinedData, term);
+            // Perform search with MM filter if active
+            let searchResults = searchData(combinedData, term);
+            if (isMMFilterActive && selectedMM !== 'all') {
+                searchResults = searchResults.filter(record => {
+                    const marketMM = marketManagersData[record.Market];
+                    return marketMM === selectedMM;
+                });
+            }
+            
             setCurrentData(searchResults);
             setCurrentView('detailed');
             setHistoryStack([
                 { level: 'Markets' },
+                ...(selectedMM && selectedMM !== 'all' ? [{ level: 'Market Manager', selected: selectedMM }] : []),
                 { level: 'Search Results', selected: `"${term}"` }
             ]);
         }
-    }, [combinedData, searchData]);
+    }, [combinedData, searchData, isMMFilterActive, selectedMM, marketManagersData]);
 
     // Enhanced comments functions
     const updateCommentsInSheet = async (record: RMARecord, boComment: string, dmComment: string) => {
@@ -452,8 +464,6 @@ export default function RMALivePage() {
             }
         }
     };
-
-
 
     const deleteComments = async (record: RMARecord) => {
         if (window.confirm('Are you sure you want to clear all comments for this record? This action cannot be undone.')) {
@@ -956,7 +966,8 @@ export default function RMALivePage() {
             console.error('❌ Error fetching market managers:', err);
             setMarketManagersData({});
         }
-    };  
+    };
+
     const combineData = () => {
         const allData = [...rmaData, ...xbmData, ...tradeInData];
 
@@ -1015,38 +1026,58 @@ export default function RMALivePage() {
         return filteredData.slice(startIndex, startIndex + itemsPerPage);
     }, [filteredData, currentPage, itemsPerPage]);
 
-
-
-    interface AgeCategoryData {
-        days7: number;
-        days14: number;
-        days14Plus: number;
-        cost7: number;
-        cost14: number;
-        cost14Plus: number;
-    }
-
-    interface SummaryItem {
-        market: string;
-        dmName: string;
-        rma: AgeCategoryData;
-        tradeIn: AgeCategoryData;
-        xbm: AgeCategoryData;
-        totalCount: number;
-        totalCost: number;
-    }
+    const handleMMFilterChange = (mm: string) => {
+        setSelectedMM(mm);
+        setCurrentPage(1);
+        
+        if (mm === 'all') {
+            setIsMMFilterActive(false);
+            // Reset to all markets
+            setCurrentData(combinedData);
+            setCurrentView('markets');
+            setHistoryStack([{ level: 'Markets' }]);
+            setSelectedMarket('');
+            setSelectedDM('');
+            setSelectedType('');
+        } else {
+            setIsMMFilterActive(true);
+            // Filter markets by Market Manager
+            const filteredMarkets = combinedData.filter(record => {
+                const marketMM = marketManagersData[record.Market];
+                return marketMM === mm;
+            });
+            
+            setCurrentData(filteredMarkets);
+            setCurrentView('markets');
+            setHistoryStack([
+                { level: 'Markets' },
+                { level: 'Market Manager', selected: mm }
+            ]);
+            setSelectedMarket('');
+            setSelectedDM('');
+            setSelectedType('');
+        }
+    };
 
     const handleMarketClick = (market: AggregatedGroup) => {
         console.log('📍 Market clicked:', market.key, 'Rows:', market.rows.length);
-        setCurrentData(market.rows);
+        
+        // Apply MM filter if active
+        let filteredRows = market.rows;
+        if (isMMFilterActive && selectedMM !== 'all') {
+            filteredRows = market.rows.filter(record => {
+                const marketMM = marketManagersData[record.Market];
+                return marketMM === selectedMM;
+            });
+        }
+        
+        setCurrentData(filteredRows);
         setCurrentView('dm');
         setSelectedMarket(market.key);
-        const newHistoryStack = [
-            { level: 'Markets' }
-        ];
         
         setHistoryStack([
             { level: 'Markets' },
+            ...(selectedMM && selectedMM !== 'all' ? [{ level: 'Market Manager', selected: selectedMM }] : []),
             { level: 'District Managers', selected: market.key }
         ]);
         setSearchTerm('');
@@ -1055,11 +1086,23 @@ export default function RMALivePage() {
 
     const handleDMClick = (dm: AggregatedGroup) => {
         console.log('📍 DM clicked:', dm.key, 'Rows:', dm.rows.length);
-        setCurrentData(dm.rows);
+        
+        // Apply MM filter if active
+        let filteredRows = dm.rows;
+        if (isMMFilterActive && selectedMM !== 'all') {
+            filteredRows = dm.rows.filter(record => {
+                const marketMM = marketManagersData[record.Market];
+                return marketMM === selectedMM;
+            });
+        }
+        
+        setCurrentData(filteredRows);
         setCurrentView('types');
         setSelectedDM(dm.key);
+        
         setHistoryStack([
             { level: 'Markets' },
+            ...(selectedMM && selectedMM !== 'all' ? [{ level: 'Market Manager', selected: selectedMM }] : []),
             { level: 'District Managers', selected: selectedMarket },
             { level: 'Record Types', selected: dm.key }
         ]);
@@ -1069,11 +1112,23 @@ export default function RMALivePage() {
 
     const handleTypeClick = (type: AggregatedGroup) => {
         console.log('📍 Type clicked:', type.key, 'Rows:', type.rows.length);
-        setCurrentData(type.rows);
+        
+        // Apply MM filter if active
+        let filteredRows = type.rows;
+        if (isMMFilterActive && selectedMM !== 'all') {
+            filteredRows = type.rows.filter(record => {
+                const marketMM = marketManagersData[record.Market];
+                return marketMM === selectedMM;
+            });
+        }
+        
+        setCurrentData(filteredRows);
         setCurrentView('detailed');
         setSelectedType(type.key);
+        
         setHistoryStack([
             { level: 'Markets' },
+            ...(selectedMM && selectedMM !== 'all' ? [{ level: 'Market Manager', selected: selectedMM }] : []),
             { level: 'District Managers', selected: selectedMarket },
             { level: 'Record Types', selected: selectedDM },
             { level: 'Detailed', selected: type.key }
@@ -1083,8 +1138,8 @@ export default function RMALivePage() {
     };
 
     const handleCountClick = (group: AggregatedGroup, filterType: 'rma' | 'xbm' | 'tradeIn', daysRange: '7' | '14' | '14Plus') => {
-        // Filter records based on the clicked count
-        const filteredRecords = group.rows.filter(record => {
+        // Filter records based on the clicked count with MM filter if active
+        let filteredRecords = group.rows.filter(record => {
             // Check record type
             const typeMatch = record.RecordType.toLowerCase() === filterType;
             if (!typeMatch) return false;
@@ -1096,6 +1151,14 @@ export default function RMALivePage() {
 
             return false;
         });
+
+        // Apply MM filter if active
+        if (isMMFilterActive && selectedMM !== 'all') {
+            filteredRecords = filteredRecords.filter(record => {
+                const marketMM = marketManagersData[record.Market];
+                return marketMM === selectedMM;
+            });
+        }
 
         if (filteredRecords.length === 0) return; // Don't navigate if count is 0
 
@@ -1109,7 +1172,7 @@ export default function RMALivePage() {
 
         setHistoryStack([
             { level: 'Markets' },
-            { level: 'District Managers', selected: group.key },
+            ...(selectedMM && selectedMM !== 'all' ? [{ level: 'Market Manager', selected: selectedMM }] : []),
             { level: `${recordTypeName} - ${daysLabel}`, selected: `${filteredRecords.length} records` }
         ]);
 
@@ -1120,54 +1183,26 @@ export default function RMALivePage() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // const handleBackClick = () => {
-    //     if (historyStack.length <= 1) {
-    //         setCurrentData(combinedData);
-    //         setCurrentView('markets');
-    //         setHistoryStack([{ level: 'Markets' }]);
-    //         setSelectedMarket('');
-    //         setSelectedDM('');
-    //         setSelectedType('');
-    //         setSearchTerm('');
-    //         setCurrentPage(1);
-    //     } else {
-    //         const newStack = historyStack.slice(0, -1);
-    //         setHistoryStack(newStack);
-    //         const previousLevel = newStack[newStack.length - 1];
-
-    //         if (previousLevel.level === 'Markets') {
-    //             setCurrentData(combinedData);
-    //             setCurrentView('markets');
-    //             setSelectedMarket('');
-    //             setSearchTerm('');
-    //             setCurrentPage(1);
-    //         } else if (previousLevel.level === 'District Managers') {
-    //             const marketData = combinedData.filter(record => record.Market === selectedMarket);
-    //             setCurrentData(marketData);
-    //             setCurrentView('dm');
-    //             setSelectedDM('');
-    //             setSearchTerm('');
-    //             setCurrentPage(1);
-    //         } else if (previousLevel.level === 'Record Types') {
-    //             const dmData = combinedData.filter(
-    //                 record => record.Market === selectedMarket && record["DM NAME"] === selectedDM
-    //             );
-    //             setCurrentData(dmData);
-    //             setCurrentView('types');
-    //             setSelectedType('');
-    //             setSearchTerm('');
-    //             setCurrentPage(1);
-    //         } else if (previousLevel.level === 'Summary Report') {
-    //             setCurrentView('markets');
-    //             setHistoryStack([{ level: 'Markets' }]);
-    //         }
-    //     }
-    // };
     const handleBackClick = () => {
         if (historyStack.length <= 1) {
-            setCurrentData(combinedData);
+            // Apply MM filter if active when going back to markets
+            let dataToSet = combinedData;
+            if (isMMFilterActive && selectedMM !== 'all') {
+                dataToSet = combinedData.filter(record => {
+                    const marketMM = marketManagersData[record.Market];
+                    return marketMM === selectedMM;
+                });
+            }
+            
+            setCurrentData(dataToSet);
             setCurrentView('markets');
-            setHistoryStack([{ level: 'Markets' }]);
+            
+            // Keep MM in breadcrumb if active
+            setHistoryStack([
+                { level: 'Markets' },
+                ...(selectedMM && selectedMM !== 'all' ? [{ level: 'Market Manager', selected: selectedMM }] : [])
+            ]);
+            
             setSelectedMarket('');
             setSelectedDM('');
             setSelectedType('');
@@ -1179,22 +1214,47 @@ export default function RMALivePage() {
             const previousLevel = newStack[newStack.length - 1];
 
             if (previousLevel.level === 'Markets') {
-                setCurrentData(combinedData);
+                // Apply MM filter if active
+                let dataToSet = combinedData;
+                if (isMMFilterActive && selectedMM !== 'all') {
+                    dataToSet = combinedData.filter(record => {
+                        const marketMM = marketManagersData[record.Market];
+                        return marketMM === selectedMM;
+                    });
+                }
+                
+                setCurrentData(dataToSet);
                 setCurrentView('markets');
                 setSelectedMarket('');
                 setSearchTerm('');
                 setCurrentPage(1);
             } else if (previousLevel.level === 'District Managers') {
-                const marketData = combinedData.filter(record => record.Market === selectedMarket);
+                // Apply MM filter if active
+                let marketData = combinedData.filter(record => record.Market === selectedMarket);
+                if (isMMFilterActive && selectedMM !== 'all') {
+                    marketData = marketData.filter(record => {
+                        const marketMM = marketManagersData[record.Market];
+                        return marketMM === selectedMM;
+                    });
+                }
+                
                 setCurrentData(marketData);
                 setCurrentView('dm');
                 setSelectedDM('');
                 setSearchTerm('');
                 setCurrentPage(1);
             } else if (previousLevel.level === 'Record Types') {
-                const dmData = combinedData.filter(
+                // Apply MM filter if active
+                let dmData = combinedData.filter(
                     record => record.Market === selectedMarket && record["DM NAME"] === selectedDM
                 );
+                if (isMMFilterActive && selectedMM !== 'all') {
+                    dmData = dmData.filter(record => {
+                        const marketMM = marketManagersData[record.Market];
+                        return marketMM === selectedMM;
+                    });
+                }
+                
                 setCurrentData(dmData);
                 setCurrentView('types');
                 setSelectedType('');
@@ -1203,6 +1263,74 @@ export default function RMALivePage() {
             }
         }
     };
+
+    const handleBreadcrumbClick = (index: number) => {
+        // slice the history to the clicked position
+        const newStack = historyStack.slice(0, index + 1);
+        setHistoryStack(newStack);
+
+        // Pull common selections from stack
+        const marketSelected = newStack.find(s => s.level === 'District Managers')?.selected || '';
+        const dmSelected = newStack.find(s => s.level === 'Record Types')?.selected || '';
+        const last = newStack[newStack.length - 1];
+
+        // Check if we should apply MM filter
+        const shouldApplyMMFilter = isMMFilterActive && selectedMM !== 'all';
+
+        // If Search Results, try to extract the term and re-run search
+        if (last.level === 'Search Results') {
+            // Apply MM filter if active
+            const term = String(last.selected || '').replace(/^"|"$/g, '');
+            if (term) {
+                let searchResults = searchData(combinedData, term);
+                if (shouldApplyMMFilter) {
+                    searchResults = searchResults.filter(record => {
+                        const marketMM = marketManagersData[record.Market];
+                        return marketMM === selectedMM;
+                    });
+                }
+                setCurrentData(searchResults);
+                setCurrentView('detailed');
+                setHistoryStack(newStack);
+                return;
+            }
+        }
+
+        // Build base data
+        let baseData = combinedData;
+        if (shouldApplyMMFilter) {
+            baseData = baseData.filter(record => {
+                const marketMM = marketManagersData[record.Market];
+                return marketMM === selectedMM;
+            });
+        }
+
+        // Apply other filters
+        if (marketSelected) baseData = baseData.filter(r => r.Market === marketSelected);
+        if (dmSelected) baseData = baseData.filter(r => r['DM NAME'] === dmSelected);
+
+        // Map breadcrumb level to view
+        const mapping = (lvl: string) => {
+            const lower = (lvl || '').toLowerCase();
+            if (lower.includes('markets')) return 'markets';
+            if (lower.includes('district managers') || lower.includes('district')) return 'dm';
+            if (lower.includes('record types') || lower.includes('types')) return 'types';
+            if (lower.includes('detailed')) return 'detailed';
+            return 'markets';
+        };
+
+        const view = mapping(last.level);
+
+        setCurrentData(baseData);
+        setCurrentView(view as any);
+        setSelectedMarket(marketSelected);
+        setSelectedDM(dmSelected);
+        if (view === 'detailed') setSelectedType(last.selected || '');
+        setCurrentPage(1);
+        setSearchTerm('');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     const exportToXLSX = useCallback(async () => {
         try {
             setExportLoading(true);
@@ -1288,9 +1416,15 @@ export default function RMALivePage() {
 
     // Enhanced breadcrumb for search results
     const renderBreadcrumb = () => {
-        return historyStack.map((item, index) => {
-            const isLast = index === historyStack.length - 1;
-            // Show search breadcrumb specially but still clickable
+        const breadcrumbs = [...historyStack];
+        
+        // Add MM filter indicator if active
+        if (selectedMM && selectedMM !== 'all' && !historyStack.some(item => item.level === 'Market Manager')) {
+            breadcrumbs.splice(1, 0, { level: 'Market Manager', selected: selectedMM });
+        }
+        
+        return breadcrumbs.map((item, index) => {
+            const isLast = index === breadcrumbs.length - 1;
             const label = item.level === 'Search Results'
                 ? `🔍 ${item.level}: ${item.selected}`
                 : (item.selected ? `${item.level} — ${item.selected}` : item.level);
@@ -1305,90 +1439,31 @@ export default function RMALivePage() {
                     >
                         {label}
                     </button>
-                    {index < historyStack.length - 1 && <span className="mx-2 text-gray-400"> › </span>}
+                    {index < breadcrumbs.length - 1 && <span className="mx-2 text-gray-400"> › </span>}
                 </span>
             );
         });
     };
 
-    function handleBreadcrumbClick(index: number) {
-        // slice the history to the clicked position
-        const newStack = historyStack.slice(0, index + 1);
-        setHistoryStack(newStack);
-
-        // Pull common selections from stack
-        const marketSelected = newStack.find(s => s.level === 'District Managers')?.selected || '';
-        const dmSelected = newStack.find(s => s.level === 'Record Types')?.selected || '';
-        const last = newStack[newStack.length - 1];
-
-        // If Search Results, try to extract the term and re-run search
-        if (last.level === 'Search Results') {
-            // selected is ""term"" (quotes) in our implementation — strip quotes
-            const term = String(last.selected || '').replace(/^"|"$/g, '');
-            if (term) {
-                handleSearch(term.replace(/^"|"$/g, ''));
-                return;
+    const getUniqueMarketManagers = () => {
+        const uniqueMMs = new Set<string>();
+        
+        // Add Market Managers from the marketManagersData
+        Object.values(marketManagersData).forEach(mm => {
+            if (mm && mm.trim()) {
+                uniqueMMs.add(mm.trim());
             }
-        }
-
-        // If the last is a hyphenated summary like "RMA - 7 days", try to reconstruct filtered view
-        if (last.level && last.level.includes(' - ')) {
-            const [recordTypeName, daysLabel] = last.level.split(' - ').map(s => s.trim());
-
-            // Build base using the market selection when present
-            let base = combinedData;
-            if (marketSelected) base = base.filter(r => r.Market === marketSelected);
-
-            // Filter by record type (RMA/XBM/Trade-IN)
-            const typeKey = (recordTypeName || '').toLowerCase();
-            base = base.filter(r => String(r.RecordType || '').toLowerCase() === typeKey);
-
-            // Filter by days label
-            const daysRange = daysLabel.toLowerCase();
-            const rows = base.filter(r => {
-                const d = Number(r.DaysOld || 0);
-                if (daysRange.includes('7')) return d <= 7;
-                if (daysRange.includes('14+') || daysRange.includes('14+')) return d > 14;
-                if (daysRange.includes('14')) return d > 7 && d <= 14;
-                return true;
-            });
-
-            setCurrentData(rows);
-            setCurrentView('detailed');
-            setSelectedMarket(marketSelected);
-            setSelectedDM(dmSelected);
-            setSelectedType(last.selected || '');
-            setCurrentPage(1);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return;
-        }
-
-        // Map breadcrumb level to view
-        const mapping = (lvl: string) => {
-            const lower = (lvl || '').toLowerCase();
-            if (lower.includes('markets')) return 'markets';
-            if (lower.includes('district managers') || lower.includes('district')) return 'dm';
-            if (lower.includes('record types') || lower.includes('types')) return 'types';
-            if (lower.includes('detailed')) return 'detailed';
-            return 'markets';
-        };
-
-        const view = mapping(last.level);
-
-        // Rebuild currentData based on stack
-        let baseData = combinedData;
-        if (marketSelected) baseData = baseData.filter(r => r.Market === marketSelected);
-        if (dmSelected) baseData = baseData.filter(r => r['DM NAME'] === dmSelected);
-
-        setCurrentData(baseData);
-        setCurrentView(view as any);
-        setSelectedMarket(marketSelected);
-        setSelectedDM(dmSelected);
-        if (view === 'detailed') setSelectedType(last.selected || '');
-        setCurrentPage(1);
-        setSearchTerm('');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+        });
+        
+        // Also add from current data for markets that might not be in the sheet
+        combinedData.forEach(record => {
+            if (record.Market && marketManagersData[record.Market]) {
+                uniqueMMs.add(marketManagersData[record.Market]);
+            }
+        });
+        
+        return Array.from(uniqueMMs).sort();
+    };
 
     const renderHierarchicalTable = (data: RMARecord[], level: 'markets' | 'dm' | 'types', onRowClick: (group: AggregatedGroup) => void) => {
         const aggregated = data.reduce((groups: AggregatedGroup[], record) => {
@@ -1475,13 +1550,16 @@ export default function RMALivePage() {
         let title = '';
         switch (level) {
             case 'markets':
-                title = searchTerm ? `Markets matching "${searchTerm}"` : 'Markets';
+                title = searchTerm ? `Markets matching "${searchTerm}"` : 
+                        selectedMM && selectedMM !== 'all' ? `Markets - ${selectedMM}` : 'Markets';
                 break;
             case 'dm':
-                title = `District Managers`;
+                title = selectedMM && selectedMM !== 'all' ? 
+                        `District Managers - ${selectedMM}` : 'District Managers';
                 break;
             case 'types':
-                title = `Record Types`;
+                title = selectedMM && selectedMM !== 'all' ? 
+                        `Record Types - ${selectedMM}` : 'Record Types';
                 break;
         }
 
@@ -1492,6 +1570,7 @@ export default function RMALivePage() {
                     <div className="rma-meta">
                         {aggregated.length} groups — {data.length} total records — total value ${totalCost.toLocaleString()}
                         {searchTerm && ` • Filtered by: "${searchTerm}"`}
+                        {selectedMM && selectedMM !== 'all' && ` • Market Manager: ${selectedMM}`}
                     </div>
                 </div>
 
@@ -1500,9 +1579,7 @@ export default function RMALivePage() {
                         <thead>
                             <tr>
                                 <th>{title}</th>
-                                {/* <th className="rma-col-right">MM</th> */}
                                 <th className="rma-col-right">Total</th>
-                                {/* <th className="rma-col-right">Pending</th> */}
                                 <th className="rma-col-right">Total Cost</th>
                                 <th colSpan={3} className="rma-col-center">RMA</th>
                                 <th colSpan={3} className="rma-col-center">XBM</th>
@@ -1530,19 +1607,26 @@ export default function RMALivePage() {
                             {aggregated.map((group, index) => (
                                 <tr key={index} onClick={() => onRowClick(group)} className="clickable-row">
                                     <td>{group.key}</td>
-                                    {/* <td className="rma-col-right">
-                                        {group.mm || 'N/A'}
-                                    </td> */}
                                     <td className="rma-col-right">
                                         <span
                                             className="clickable-count"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 if (group.count > 0) {
-                                                    setCurrentData(group.rows);
+                                                    // Apply MM filter if active
+                                                    let filteredRows = group.rows;
+                                                    if (isMMFilterActive && selectedMM !== 'all') {
+                                                        filteredRows = group.rows.filter(record => {
+                                                            const marketMM = marketManagersData[record.Market];
+                                                            return marketMM === selectedMM;
+                                                        });
+                                                    }
+                                                    
+                                                    setCurrentData(filteredRows);
                                                     setCurrentView('detailed');
                                                     setHistoryStack([
                                                         { level: 'Markets' },
+                                                        ...(selectedMM && selectedMM !== 'all' ? [{ level: 'Market Manager', selected: selectedMM }] : []),
                                                         { level: 'District Managers', selected: group.key },
                                                         { level: 'All Records', selected: `${group.count} records` }
                                                     ]);
@@ -1561,7 +1645,6 @@ export default function RMALivePage() {
                                             {group.count}
                                         </span>
                                     </td>
-                                    {/* <td className="rma-col-right">{group.pending}</td> */}
                                     <td className="rma-col-right">${group.cost.toLocaleString()}</td>
 
                                     {/* RMA Days - Clickable */}
@@ -1686,8 +1769,6 @@ export default function RMALivePage() {
         );
     };
 
-
-
     const renderDetailedTable = () => {
         const shouldShowPagination = filteredData.length > itemsPerPage;
 
@@ -1699,10 +1780,12 @@ export default function RMALivePage() {
                             ? `Search Results for "${searchTerm}"`
                             : `Detailed Report - ${selectedType}`
                         }
+                        {selectedMM && selectedMM !== 'all' && ` (${selectedMM})`}
                     </h2>
                     <div className="rma-meta">
                         {filteredData.length} RMA records
                         {searchTerm && ` matching "${searchTerm}"`}
+                        {selectedMM && selectedMM !== 'all' && ` • Market Manager: ${selectedMM}`}
                         {(imeiFilter || productFilter) && (
                             <span className="filter-indicator">
                                 {imeiFilter && ` • IMEI: "${imeiFilter}"`}
@@ -1962,58 +2045,6 @@ export default function RMALivePage() {
         );
     };
 
-    // Add this function to get unique Market Managers
-    const getUniqueMarketManagers = () => {
-        const uniqueMMs = new Set<string>();
-        
-        // Add Market Managers from the marketManagersData
-        Object.values(marketManagersData).forEach(mm => {
-            if (mm && mm.trim()) {
-                uniqueMMs.add(mm.trim());
-            }
-        });
-        
-        // Also add from current data for markets that might not be in the sheet
-        combinedData.forEach(record => {
-            if (record.Market && marketManagersData[record.Market]) {
-                uniqueMMs.add(marketManagersData[record.Market]);
-            }
-        });
-        
-        return Array.from(uniqueMMs).sort();
-    };
-
-    // Add this function to handle Market Manager filtering
-    const handleMMFilterChange = (mm: string) => {
-        setSelectedMM(mm);
-        setCurrentPage(1);
-        
-        if (mm === 'all') {
-            // Reset to all markets
-            setCurrentData(combinedData);
-            setCurrentView('markets');
-            setHistoryStack([{ level: 'Markets' }]);
-            setSelectedMarket('');
-            setSelectedDM('');
-            setSelectedType('');
-        } else {
-            // Filter markets by Market Manager
-            const filteredMarkets = combinedData.filter(record => {
-                const marketMM = marketManagersData[record.Market];
-                return marketMM === mm;
-            });
-            
-            setCurrentData(filteredMarkets);
-            setCurrentView('markets');
-            setHistoryStack([
-                { level: 'Markets' },
-                { level: 'Market Manager', selected: mm }
-            ]);
-            setSelectedMarket('');
-            setSelectedDM('');
-            setSelectedType('');
-        }
-    };
     const renderSummaryCards = () => (
         <section className="dashboard-grid">
             <div className="dashboard-card card-purple">
@@ -2143,8 +2174,38 @@ export default function RMALivePage() {
                                 </div>
 
                                 <div className="controls-group">
+                                    <div className="sort-controls">
+                                        <label htmlFor="mm-filter">Market Manager:</label>
+                                        <select
+                                            id="mm-filter"
+                                            value={selectedMM}
+                                            onChange={(e) => {
+                                                setSelectedMM(e.target.value);
+                                                handleMMFilterChange(e.target.value);
+                                            }}
+                                            className="sort-select"
+                                        >
+                                            <option value="all">All Market Managers</option>
+                                            {getUniqueMarketManagers().map(mm => (
+                                                <option key={mm} value={mm}>{mm}</option>
+                                            ))}
+                                        </select>
+                                        {selectedMM && selectedMM !== 'all' && (
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedMM('all');
+                                                    handleMMFilterChange('all');
+                                                }}
+                                                className="clear-filter mm-clear-btn"
+                                                title="Clear Market Manager filter"
+                                            >
+                                                ✕ 
+                                            </button>
+                                        )}
+                                    </div>
+
                                     {/* Enhanced Sort Controls */}
-                                    {/* <div className="sort-controls">
+                                    <div className="sort-controls">
                                         <label htmlFor="sort-select">Sort by:</label>
                                         <select
                                             id="sort-select"
@@ -2157,53 +2218,7 @@ export default function RMALivePage() {
                                             <option value="devices">Device Count</option>
                                             <option value="age">Age (Oldest First)</option>
                                         </select>
-                                    </div> */}
-
-                                    <div className="sort-controls">
-                                            <label htmlFor="mm-filter">Market Manager:</label>
-                                            <select
-                                                id="mm-filter"
-                                                value={selectedMM}
-                                                onChange={(e) => {
-                                                    setSelectedMM(e.target.value);
-                                                    handleMMFilterChange(e.target.value);
-                                                }}
-                                                className="sort-select"
-                                            >
-                                                <option value="all">All Market Managers</option>
-                                                {getUniqueMarketManagers().map(mm => (
-                                                    <option key={mm} value={mm}>{mm}</option>
-                                                ))}
-                                            </select>
-                                            {selectedMM && selectedMM !== 'all' && (
-                                                <button
-                                                    onClick={() => {
-                                                        setSelectedMM('all');
-                                                        handleMMFilterChange('all');
-                                                    }}
-                                                    className="clear-filter"
-                                                    title="Clear Market Manager filter"
-                                                >
-                                                    ✕
-                                                </button>
-                                            )}
-                                        </div>
-
-                                        {/* Enhanced Sort Controls */}
-                                        <div className="sort-controls">
-                                            <label htmlFor="sort-select">Sort by:</label>
-                                            <select
-                                                id="sort-select"
-                                                value={sortBy}
-                                                onChange={(e) => setSortBy(e.target.value as any)}
-                                                className="sort-select"
-                                            >
-                                                <option value="cost">Cost (Highest First)</option>
-                                                <option value="alphabetical">Alphabetical</option>
-                                                <option value="devices">Device Count</option>
-                                                <option value="age">Age (Oldest First)</option>
-                                            </select>
-                                        </div>
+                                    </div>
 
                                     <div className="rma-action-buttons">
                                         <button
@@ -2238,7 +2253,6 @@ export default function RMALivePage() {
                             {currentView === 'dm' && renderHierarchicalTable(currentData, 'dm', handleDMClick)}
                             {currentView === 'types' && renderHierarchicalTable(currentData, 'types', handleTypeClick)}
                             {currentView === 'detailed' && renderDetailedTable()}
-
                         </section>
 
                         {exportLoading && (
@@ -2410,7 +2424,7 @@ export default function RMALivePage() {
             </div>
         </div>
     );
-}      
+}
 
 
 
