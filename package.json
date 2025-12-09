@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@types/google-spreadsheet": "^3.3.2",
     "framer-motion": "^12.23.22",
     "google-spreadsheet": "^3.3.0",
     "lucide-react": "^0.544.0",
@@ -21,7 +22,6 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@types/google-spreadsheet": "^3.3.2",
     "@types/node": "^20.19.19",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
