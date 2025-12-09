@@ -13,7 +13,7 @@
     "framer-motion": "^12.23.22",
     "google-spreadsheet": "^3.3.0",
     "lucide-react": "^0.544.0",
-    "next": "^16.0.8",
+    "next": "^15.5.7",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "recharts": "^3.2.1",
