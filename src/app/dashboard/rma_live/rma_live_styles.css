@@ -2628,3 +2628,158 @@ html[data-theme="light"] .rma-page .age-badge-empty {
     font-weight: var(--table-cell-font-weight);
     color: var(--text-secondary);
 }
+
+/* Record Type Badges with Different Colors */
+.record-type-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+/* RMA - Blue */
+.record-type-badge.type-rma {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #b8cafd;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.record-type-badge.type-rma:hover {
+    background-color: rgba(59, 130, 246, 0.2);
+    transform: translateY(-1px);
+}
+
+/* XBM - Orange/Amber */
+.record-type-badge.type-xbm {
+    background-color: #f59e0b1a;
+    color: #ffc9a0;
+    border: 1px solid #f59e0b4d;
+}
+
+html[data-theme="light"] .record-type-badge.type-rma {
+    background-color: #bcc8eb;
+    color: #0d1631;
+    border: 1px solid #a3aecf;
+}
+html[data-theme="light"] .record-type-badge.type-xbm {
+    background-color: #e4c98485;
+    color: #30271f;
+    border: 1px solid #e49e2533;
+}
+
+.record-type-badge.type-xbm:hover {
+    background-color: rgba(245, 158, 11, 0.2);
+    transform: translateY(-1px);
+}
+
+/* TRADE_IN - Green */
+.record-type-badge.type-trade_in {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: #70e79c;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+html[data-theme="light"] .record-type-badge.type-trade_in {
+    background-color: #b5ecc9a1;
+    color: #1b3826;
+    border: 1px solid #1fad534d;
+}
+.record-type-badge.type-trade_in:hover {
+    background-color: rgba(34, 197, 94, 0.2);
+    transform: translateY(-1px);
+}
+td .record-type-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    height: 24px;
+    font-size: 11px;
+}
+
+/* Hover effect for the entire table row */
+.clickable-row:hover .record-type-badge {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* MM Badge styling */
+.mm-badge {
+    background-color: rgba(var(--accent-rgb, 59, 130, 246), 0.1);
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 1px solid rgba(var(--accent-rgb, 59, 130, 246), 0.2);
+    white-space: nowrap;
+    display: inline-block;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: default;
+}
+
+/* Hover effect for MM badge */
+.mm-badge:hover {
+    background-color: rgba(var(--accent-rgb, 59, 130, 246), 0.15);
+    border-color: rgba(var(--accent-rgb, 59, 130, 246), 0.3);
+}
+
+/* Table row hover effect */
+.clickable-row:hover .mm-badge {
+    background-color: rgba(var(--accent-rgb, 59, 130, 246), 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+
+/* Small Market Manager badge for detailed view */
+.mm-badge-small {
+    background-color: rgba(var(--accent-rgb, 59, 130, 246), 0.08);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 8px;
+    border: 1px solid rgba(var(--accent-rgb, 59, 130, 246), 0.15);
+    white-space: nowrap;
+    display: inline-block;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Market Manager column styling */
+td:nth-child(4) { /* Assuming Market Manager is the 4th column */
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Hover effect for MM badge */
+.mm-badge-small:hover {
+    background-color: rgba(var(--accent-rgb, 59, 130, 246), 0.12);
+    border-color: rgba(var(--accent-rgb, 59, 130, 246), 0.25);
+}
+
+/* Adjust table layout for new column */
+.rma-table.detailed-view {
+    table-layout: auto;
+}
+
+.rma-table.detailed-view th:nth-child(4),
+.rma-table.detailed-view td:nth-child(4) {
+    max-width: 120px;
+    min-width: 100px;
+}
+
+
+
+
+
+

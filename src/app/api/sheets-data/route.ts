@@ -5,7 +5,8 @@ import { GoogleSpreadsheet } from 'google-spreadsheet';
 const SHEET_CONFIG = {
   rma: { gid: '1825921334', name: 'RMA' },
   xbm: { gid: '166966411', name: 'XBM' },
-  trade_in: { gid: '1934446761', name: 'Trade IN' }
+  trade_in: { gid: '1934446761', name: 'Trade IN' },
+  market_managers: { gid: '147535632', name: 'Market Managers' }
 };
 
 export async function GET(request: NextRequest) {
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
     if (!serviceAccountEmail || !rawPrivateKey || !sheetId) {
       return NextResponse.json({ error: 'Missing credentials' }, { status: 500 });
     }
-
+    
     console.log(`📊 Fetching ${config.name} data...`);
 
     // Clean private key
