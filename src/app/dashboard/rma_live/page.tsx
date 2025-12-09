@@ -393,7 +393,7 @@ export default function RMALivePage() {
                 return item;
             });
 
-        // Update individual data sets
+        
         switch (record.RecordType) {
             case 'RMA':
                 setRmaData(prev => updateData(prev));
@@ -406,7 +406,7 @@ export default function RMALivePage() {
                 break;
         }
 
-        // IMPORTANT: Update currentData FIRST to preserve the current view
+       
         setCurrentData(prev => {
             const updated = updateData(prev);
             console.log('🔄 Updated currentData:', {
