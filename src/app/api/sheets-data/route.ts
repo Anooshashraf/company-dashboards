@@ -155,7 +155,6 @@ export async function GET(request: NextRequest) {
     
     console.log(`📊 Fetching ${config.name} data (GID: ${config.gid})...`);
 
-    // Clean private key - Vercel specific fix
     const privateKey = rawPrivateKey.replace(/\\n/g, '\n');
     console.log('🔑 Private key cleaned, length:', privateKey.length);
 
@@ -170,32 +169,24 @@ export async function GET(request: NextRequest) {
 
     await doc.loadInfo();
     
-    
-    // Access the specific sheet by GID
-    // In v3.3.0, we need to find the sheet differently
+
     let sheet = null;
     
-    // Method 1: Try sheetsById (common in v3)
     if ('sheetsById' in doc && typeof doc.sheetsById === 'object') {
       sheet = (doc as any).sheetsById[config.gid];
     }
-    
-    // Method 2: Find by title if GID doesn't work
+
     if (!sheet && 'sheetsByTitle' in doc && typeof doc.sheetsByTitle === 'object') {
-      // Try to find by config name
       const sheetTitle = config.name;
       sheet = (doc as any).sheetsByTitle[sheetTitle];
       
       if (!sheet) {
-        // Try to find any sheet that matches
         const allSheets = Object.values((doc as any).sheetsByTitle || {});
         sheet = allSheets.find((s: any) => s?.title?.includes(config.name));
       }
     }
     
-    // Method 3: Try sheetsByIndex
     if (!sheet && 'sheetsByIndex' in doc && Array.isArray(doc.sheetsByIndex)) {
-      // Search all sheets for matching GID
       for (const s of doc.sheetsByIndex) {
         const sheetAny = s as any;
         if (sheetAny._properties?.sheetId === parseInt(config.gid) || 
